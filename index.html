@@ -193,8 +193,18 @@ function selectAdvanceAdvisor(emp){
  <div class="stepbar"><span class="step on">✓ Sucursal</span><span class="step on">✓ Asesor</span><span class="step on">3 Formulario</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
  <div class="card"><div class="formtypes"><button class="formtype" onclick="openBank()">🏦<br>Banco</button>${commerce?`<button class="formtype" onclick="openCommerce()">🛍️<br>Comercio</button>`:""}</div>${!commerce?`<p style="text-align:center;color:var(--muted);margin-top:18px">Esta sucursal utiliza el formulario Banco.</p>`:""}</div>`;
 }
+function sanitizeMoneyAmount(raw){
+ let s=String(raw==null?"":raw).replace(/[$\s]/g,"");
+ let cut=s.search(/[.eE-]/);
+ if(cut!==-1) s=s.slice(0,cut);
+ s=s.replace(/[^\d]/g,"");
+ return {text:s,value:s===""?NaN:Math.trunc(Number(s))};
+}
+function cleanMoneyValue(raw){let r=sanitizeMoneyAmount(raw);return Number.isFinite(r.value)?Math.max(0,r.value):0}
+function sanitizeMoneyFieldLive(el){el.value=sanitizeMoneyAmount(el.value).text}
+function sanitizeMoneyListLive(el){el.value=el.value.split(",").map(seg=>{let lead=seg.match(/^\s*/)[0];return lead+sanitizeMoneyAmount(seg).text}).join(",")}
 function parseAmounts(v){
- return String(v||"").split(",").map(x=>x.trim()).filter(Boolean).map(x=>Number(x.replace(/[$\s]/g,""))).filter(x=>Number.isFinite(x)&&x>=0);
+ return String(v||"").split(",").map(x=>x.trim()).filter(Boolean).map(x=>sanitizeMoneyAmount(x).value).filter(x=>Number.isFinite(x)&&x>=0);
 }
 function money(n){return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:2}).format(Number(n)||0)}
 function dayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
@@ -219,9 +229,9 @@ function openCommerce(){
  <h2>➕ Agregar avance</h2>
  ${countSection("1. Solicitudes levantadas","req")}
  ${countSection("2. Clientes nuevos surtidos","srv")}
- ${amountSection("3. Montos individuales — Clientes nuevos","new","¿Cómo capturar? Escribe cada monto separado por una coma. Puedes utilizar decimales. Ejemplo: 2000, 3500.50, 4750")}
- ${amountSection("4. Monto surtido — Clientes inactivos","ina","Escribe cada monto separado por coma. Ejemplo: 1500, 2800.50, 6000")}
- <div class="capturesec"><h3>💳 5. Ventas por VDA</h3><div class="moneyhint"><b>Escribe cada monto separado por coma.</b><br>Ejemplo: 2000, 3500.50, 4750</div><div class="three">${["Nuevas","Recompra","Contado"].map((n,i)=>`<div class="field"><label>${n}</label><input id="vda${i}" value="0" placeholder="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value.trim()==='')this.value='0';updateAmountCalc('vda',${i})"><div class="calc" id="vdacalc${i}">0 montos · Total $0.00</div></div>`).join("")}</div></div>
+ ${amountSection("3. Montos individuales — Clientes nuevos","new","¿Cómo capturar? Escribe cada monto separado por una coma. Solo se aceptan números enteros (sin decimales). Ejemplo: 2000, 3500, 4750")}
+ ${amountSection("4. Monto surtido — Clientes inactivos","ina","Escribe cada monto separado por coma. Solo números enteros (sin decimales). Ejemplo: 1500, 2800, 6000")}
+ <div class="capturesec"><h3>💳 5. Ventas por VDA</h3><div class="moneyhint"><b>Escribe cada monto separado por coma.</b><br>Solo números enteros (sin decimales). Ejemplo: 2000, 3500, 4750</div><div class="three">${["Nuevas","Recompra","Contado"].map((n,i)=>`<div class="field"><label>${n}</label><input id="vda${i}" value="0" placeholder="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value.trim()==='')this.value='0';updateAmountCalc('vda',${i})"><div class="calc" id="vdacalc${i}">0 montos · Total $0.00</div></div>`).join("")}</div></div>
  <div class="actions"><button class="btn primary" onclick="reviewCommerce()">Revisar avance →</button></div></div>`;
  ["req","srv"].forEach(p=>[0,1,2].forEach(i=>document.getElementById(p+i).addEventListener("input",()=>updateCountTotal(p))));
  ["new","ina","vda"].forEach(p=>[0,1,2].forEach(i=>document.getElementById(p+i).addEventListener("input",()=>updateAmountCalc(p,i))));
@@ -233,7 +243,7 @@ function amountSection(title,p,hint){
  return `<div class="capturesec"><h3>${p==="new"?"💰":"♻️"} ${title}</h3><div class="moneyhint"><b>${hint.split(" Ejemplo:")[0]}</b>${hint.includes("Ejemplo:")?"<br>Ejemplo:"+hint.split("Ejemplo:")[1]:""}</div><div class="three">${["Movilidad","Hogar","Conectividad"].map((n,i)=>`<div class="field"><label>${n}</label><input id="${p}${i}" value="0" placeholder="0" onfocus="if(this.value===\'0\')this.value=\'\'" onblur="if(this.value.trim()===\'\')this.value=\'0\';updateAmountCalc(\'${p}\',${i})"><div class="calc" id="${p}calc${i}">0 montos · Total $0.00</div></div>`).join("")}</div></div>`;
 }
 function updateCountTotal(p){let t=[0,1,2].reduce((s,i)=>s+(Number(document.getElementById(p+i).value)||0),0);document.getElementById(p+"total").textContent=t}
-function updateAmountCalc(p,i){let a=parseAmounts(document.getElementById(p+i).value);document.getElementById(p+"calc"+i).textContent=`${a.length} monto${a.length===1?"":"s"} · Total ${money(a.reduce((s,n)=>s+n,0))}`}
+function updateAmountCalc(p,i){let el=document.getElementById(p+i);sanitizeMoneyListLive(el);let a=parseAmounts(el.value);document.getElementById(p+"calc"+i).textContent=`${a.length} monto${a.length===1?"":"s"} · Total ${money(a.reduce((s,n)=>s+n,0))}`}
 function getCommerceDraft(){
  const counts=p=>[0,1,2].map(i=>Math.max(0,Math.min(100,Math.trunc(Number(document.getElementById(p+i).value)||0))));
  const amounts=p=>[0,1,2].map(i=>parseAmounts(document.getElementById(p+i).value));
@@ -272,7 +282,7 @@ function bankAccum(){
  list.forEach(c=>{let d=c.data;s.aff+=d.aff;s.port+=d.port;s.funds+=d.funds;s.guardCount+=d.guardCount;s.guardAmt+=d.guardAmounts.reduce((a,b)=>a+b,0);s.somosCount+=d.somosCount;s.somosAmt+=d.somosAmounts.reduce((a,b)=>a+b,0);s.invCount+=d.invCount;s.invAmt+=d.invAmounts.reduce((a,b)=>a+b,0);s.tazDelivered+=d.tazDelivered;s.tazActivated+=d.tazActivated});return s;
 }
 function zeroFocus(el){if(el.value==="0"||el.value==="0.00")el.value=""}
-function zeroBlur(el,decimal=false){if(el.value.trim()==="")el.value=decimal?"0.00":"0"}
+function zeroBlur(el){if(el.value.trim()==="")el.value="0"}
 function openBank(){
  advance.type="Banco";advance.captureDate=advance.captureDate||dayKey();let ac=bankAccum();
  view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">🏦 BANCO</span><h1>Registro de avance — Banco</h1></div><button class="btn secondary" onclick="selectAdvanceAdvisor('${esc(advance.advisor.emp)}')">← Cambiar formulario</button></div>
@@ -283,7 +293,7 @@ function openBank(){
  <div class="capturesec"><h3>📈 Captación y vinculación</h3><div class="three">
  <div class="field"><label>Número de afiliaciones</label><input type="number" min="0" step="1" id="bkAff" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this)"></div>
  <div class="field"><label>Número de portabilidades</label><input type="number" min="0" step="1" id="bkPort" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this)"></div>
- <div class="field"><label>Monto de Fondos de Inversión</label><input type="number" min="0" step="0.01" id="bkFunds" value="0.00" onfocus="zeroFocus(this)" onblur="zeroBlur(this,true)"><small>Un solo monto total. Se permiten decimales.</small></div></div></div>
+ <div class="field"><label>Monto de Fondos de Inversión</label><input type="text" inputmode="numeric" id="bkFunds" value="0" onfocus="zeroFocus(this)" oninput="sanitizeMoneyFieldLive(this)" onblur="zeroBlur(this)"><small>Un solo monto total. Solo números enteros (sin decimales).</small></div></div></div>
  ${bankPairCard("💰","Guardadito Remeseros","guard","Guardadito")}
  ${bankPairCard("👥","Somos","somos","Somos")}
  ${bankPairCard("💵","Inversiones","inv","Inversión")}
@@ -293,10 +303,12 @@ function openBank(){
  document.getElementById("bkTazDelivered").addEventListener("input",validateTaz);document.getElementById("bkTazActivated").addEventListener("input",validateTaz);
 }
 function bankPairCard(icon,title,p,singular){
- return `<div class="capturesec"><h3>${icon} ${title}</h3><div class="three"><div class="field"><label>Número de ${title}</label><input type="number" min="0" step="1" id="bk_${p}_count" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"></div><div class="field"><label>Montos de ${title}</label><input id="bk_${p}_amounts" value="0" disabled placeholder="Ejemplo: 10000, 5000, 0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"><small>Escribe un monto por cada ${singular} y separa los montos con comas. Se permiten decimales y montos en $0.</small></div><div class="calc" id="bk_${p}_calc">✓ 0 de 0 montos · Total $0.00</div></div><div id="bk_${p}_error" style="color:#b3261e;font-weight:800;margin-top:8px"></div></div>`;
+ return `<div class="capturesec"><h3>${icon} ${title}</h3><div class="three"><div class="field"><label>Número de ${title}</label><input type="number" min="0" step="1" id="bk_${p}_count" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"></div><div class="field"><label>Montos de ${title}</label><input id="bk_${p}_amounts" value="0" disabled placeholder="Ejemplo: 10000, 5000, 0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"><small>Escribe un monto por cada ${singular} y separa los montos con comas. Solo números enteros (sin decimales); se permiten montos en $0.</small></div><div class="calc" id="bk_${p}_calc">✓ 0 de 0 montos · Total $0.00</div></div><div id="bk_${p}_error" style="color:#b3261e;font-weight:800;margin-top:8px"></div></div>`;
 }
 function updateBankPair(p){
- let count=Math.max(0,Math.trunc(Number(document.getElementById("bk_"+p+"_count").value)||0)),input=document.getElementById("bk_"+p+"_amounts"),calc=document.getElementById("bk_"+p+"_calc"),err=document.getElementById("bk_"+p+"_error");
+ let input=document.getElementById("bk_"+p+"_amounts");
+ sanitizeMoneyListLive(input);
+ let count=Math.max(0,Math.trunc(Number(document.getElementById("bk_"+p+"_count").value)||0)),calc=document.getElementById("bk_"+p+"_calc"),err=document.getElementById("bk_"+p+"_error");
  if(count===0){input.disabled=true;input.value="0";calc.textContent="✓ 0 de 0 montos · Total $0.00";err.textContent="";return}
  input.disabled=false;if(input.value==="0")input.value="";
  let vals=parseAmountsKeepZero(input.value),total=vals.reduce((a,b)=>a+b,0);
@@ -305,7 +317,7 @@ function updateBankPair(p){
 }
 function parseAmountsKeepZero(v){
  let raw=String(v??"").trim();if(!raw||raw==="0")return raw==="0"?[0]:[];
- return raw.split(",").map(x=>x.trim()).filter(x=>x!=="").map(x=>Number(x.replace(/[$\s]/g,""))).filter(x=>Number.isFinite(x)&&x>=0);
+ return raw.split(",").map(x=>x.trim()).filter(x=>x!=="").map(x=>sanitizeMoneyAmount(x).value).filter(x=>Number.isFinite(x)&&x>=0);
 }
 function validateTaz(){
  let d=Math.max(0,Math.trunc(Number(document.getElementById("bkTazDelivered").value)||0)),a=Math.max(0,Math.trunc(Number(document.getElementById("bkTazActivated").value)||0));
@@ -314,7 +326,7 @@ function validateTaz(){
  return a<=d;
 }
 function getBankDraft(){
- let intval=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0)),moneyval=id=>Math.max(0,Number(document.getElementById(id).value)||0);
+ let intval=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0)),moneyval=id=>cleanMoneyValue(document.getElementById(id).value);
  let d={aff:intval("bkAff"),port:intval("bkPort"),funds:moneyval("bkFunds"),guardCount:intval("bk_guard_count"),guardAmounts:parseAmountsKeepZero(document.getElementById("bk_guard_amounts").value),somosCount:intval("bk_somos_count"),somosAmounts:parseAmountsKeepZero(document.getElementById("bk_somos_amounts").value),invCount:intval("bk_inv_count"),invAmounts:parseAmountsKeepZero(document.getElementById("bk_inv_amounts").value),tazDelivered:intval("bkTazDelivered"),tazActivated:intval("bkTazActivated"),captureDate:selectedCaptureDate()};
  if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];return d;
 }
@@ -378,7 +390,7 @@ function refreshRecordTable(){let rows=filteredRows();document.getElementById("r
 function editCommerceRecord(folio){
  let c=commerceCaptures.find(x=>x.folio===folio);if(!c)return;let d=c.data,names=["Movilidad","Hogar","Conectividad"],vnames=["Nuevas","Recompra","Contado"],list=(g,i)=>Array.isArray(d[g][i])?d[g][i].join(", "):"0";
  view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Comercio</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card"><div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="erDate" value="${c.day}"></div></div>
- <h3>Solicitudes levantadas</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_req_${i}" value="${d.req[i]}"></div>`).join("")}</div><h3>Clientes nuevos surtidos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_srv_${i}" value="${d.srv[i]}"></div>`).join("")}</div><h3>Clientes nuevos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_nw_${i}" value="${esc(list("nw",i))}"></div>`).join("")}</div><h3>Clientes inactivos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_ina_${i}" value="${esc(list("ina",i))}"></div>`).join("")}</div><h3>VDA</h3><div class="three">${vnames.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_vda_${i}" value="${esc(list("vda",i))}"></div>`).join("")}</div><div class="actions"><button class="btn primary" onclick="saveCommerceRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
+ <h3>Solicitudes levantadas</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_req_${i}" value="${d.req[i]}"></div>`).join("")}</div><h3>Clientes nuevos surtidos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_srv_${i}" value="${d.srv[i]}"></div>`).join("")}</div><h3>Clientes nuevos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_nw_${i}" value="${esc(list("nw",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>Clientes inactivos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_ina_${i}" value="${esc(list("ina",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>VDA</h3><div class="three">${vnames.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_vda_${i}" value="${esc(list("vda",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><div class="actions"><button class="btn primary" onclick="saveCommerceRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
 function saveCommerceRecordEdit(folio){
  let c=commerceCaptures.find(x=>x.folio===folio); if(!c) return;
@@ -393,16 +405,16 @@ function editBankRecord(folio){
  let d=c.data, list=a=>(a||[]).join(", ");
  view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Banco</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card">
  <div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="ebrDate" value="${c.day}"></div></div>
- <h3>📈 Captación y vinculación</h3><div class="three"><div class="field"><label>Afiliaciones</label><input type="number" min="0" id="ebrAff" value="${d.aff}"></div><div class="field"><label>Portabilidades</label><input type="number" min="0" id="ebrPort" value="${d.port}"></div><div class="field"><label>Fondos de Inversión</label><input type="number" min="0" step="0.01" id="ebrFunds" value="${d.funds}"></div></div>
+ <h3>📈 Captación y vinculación</h3><div class="three"><div class="field"><label>Afiliaciones</label><input type="number" min="0" id="ebrAff" value="${d.aff}"></div><div class="field"><label>Portabilidades</label><input type="number" min="0" id="ebrPort" value="${d.port}"></div><div class="field"><label>Fondos de Inversión</label><input type="text" inputmode="numeric" id="ebrFunds" value="${Math.trunc(Number(d.funds)||0)}" oninput="sanitizeMoneyFieldLive(this)"></div></div>
  ${adminBankPair("Guardadito Remeseros","guard",d.guardCount,list(d.guardAmounts))}${adminBankPair("Somos","somos",d.somosCount,list(d.somosAmounts))}${adminBankPair("Inversiones","inv",d.invCount,list(d.invAmounts))}
  <h3>💳 TAZ</h3><div class="three"><div class="field"><label>Entregadas</label><input type="number" min="0" id="ebrTazD" value="${d.tazDelivered}"></div><div class="field"><label>Activadas</label><input type="number" min="0" id="ebrTazA" value="${d.tazActivated}"></div></div><div class="actions"><button class="btn primary" onclick="saveBankRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
-function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}"><small>Debe coincidir exactamente con el número.</small></div></div>`}
+function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}" oninput="sanitizeMoneyListLive(this)"><small>Debe coincidir exactamente con el número. Solo números enteros (sin decimales).</small></div></div>`}
 function saveBankRecordEdit(folio){
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let intv=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0));
  let amts=id=>parseAmountsKeepZero(document.getElementById(id).value);
- let d={aff:intv("ebrAff"),port:intv("ebrPort"),funds:Math.max(0,Number(document.getElementById("ebrFunds").value)||0),guardCount:intv("ebr_guard_count"),guardAmounts:amts("ebr_guard_amounts"),somosCount:intv("ebr_somos_count"),somosAmounts:amts("ebr_somos_amounts"),invCount:intv("ebr_inv_count"),invAmounts:amts("ebr_inv_amounts"),tazDelivered:intv("ebrTazD"),tazActivated:intv("ebrTazA")};
+ let d={aff:intv("ebrAff"),port:intv("ebrPort"),funds:cleanMoneyValue(document.getElementById("ebrFunds").value),guardCount:intv("ebr_guard_count"),guardAmounts:amts("ebr_guard_amounts"),somosCount:intv("ebr_somos_count"),somosAmounts:amts("ebr_somos_amounts"),invCount:intv("ebr_inv_count"),invAmounts:amts("ebr_inv_amounts"),tazDelivered:intv("ebrTazD"),tazActivated:intv("ebrTazA")};
  if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];
  if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount){alert("Guardadito, Somos e Inversiones deben tener exactamente un monto por cada operación.");return}
  if(d.tazActivated>d.tazDelivered){alert("Las TAZ activadas no pueden ser mayores que las entregadas.");return}
