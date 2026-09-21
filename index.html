@@ -57,24 +57,41 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 .kpigrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 20px}
 .kpicard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px}
 .kpicard small{display:block;color:var(--muted);font-weight:700}.kpicard b{font-size:23px;display:block;margin-top:6px}
-.sectiontitle{margin:25px 0 8px}.dashnote{font-size:12px;color:var(--muted)}
+.dashnote{font-size:12px;color:var(--muted)}
 @media(max-width:900px){.dashboardfilters{grid-template-columns:repeat(2,1fr)}.kpigrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.dashboardfilters,.kpigrid{grid-template-columns:1fr}}
 
-.visualgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0 22px}
-.chartcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px}
+.chartcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;margin:16px 0}
 .chartcard h3{margin:0 0 4px}.chartsub{font-size:12px;color:var(--muted);margin-bottom:14px}
-.barrow{display:grid;grid-template-columns:minmax(95px,1.2fr) 3fr 70px;gap:8px;align-items:center;margin:9px 0;font-size:12px}
-.bartrack{height:13px;background:#edf1ef;border-radius:999px;overflow:hidden}.barfill{height:100%;background:#2c765d;border-radius:999px}
-.trendbars{height:180px;display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid var(--line);padding:8px 5px 0}
-.trendcol{flex:1;text-align:center;min-width:45px}.trendbar{background:#2c765d;border-radius:7px 7px 0 0;min-height:3px}.trendcol small{display:block;margin-top:6px;color:var(--muted)}
-@media(max-width:760px){.visualgrid{grid-template-columns:1fr}}
+.bartrack{height:13px;background:#edf1ef;border-radius:999px;overflow:hidden;position:relative}.barfill{height:100%;background:#2c765d;border-radius:999px}
+.legendrow{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px;flex-wrap:wrap}.legenddot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
 
-.piebox{display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center}
-.donut{width:160px;height:160px;border-radius:50%;position:relative;margin:auto}
-.donut:after{content:"";position:absolute;inset:34px;background:#fff;border-radius:50%}
-.legendrow{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px}.legenddot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
-@media(max-width:560px){.piebox{grid-template-columns:1fr}.donut{width:145px;height:145px}}
+.breadcrumb{font-size:12px;color:var(--muted);margin-top:10px}.breadcrumb a{color:var(--blue);text-decoration:none;font-weight:700}.crumb-sep{margin:0 4px;color:#aab3a6}
+.stackbar{display:flex;height:34px;border-radius:10px;overflow:hidden;font-size:12px;font-weight:800;color:#fff}
+.stackseg{display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:30px;padding:0 4px}
+.seg-verde{background:#28765b}.seg-amarillo{background:#e3b341;color:#3a2f00}.seg-rojo{background:#c94747}.seg-avance{background:#9aa39c}
+.statuspill{padding:5px 10px;border-radius:99px;font-size:12px;font-weight:800;white-space:nowrap}
+.est-verde{background:#e6f6ed;color:var(--green)}.est-amarillo{background:#fff1d8;color:var(--amber)}.est-rojo{background:#fdeaea;color:var(--red)}.est-avance{background:#eef1f6;color:#5a6472}
+.cell-ok{background:#eaf7ef}.cell-warn{background:#fff6df}.cell-bad{background:#fbeaea}.cell-pending{background:#f0f1ee;color:#7b847a}
+.heatwrap table{min-width:1100px}.heatwrap td,.heatwrap th{white-space:nowrap;font-size:12px;text-align:center}.heatwrap td:first-child,.heatwrap th:first-child{text-align:left}
+.stickycol{position:sticky;left:0;background:#fff;z-index:1;box-shadow:2px 0 4px rgba(0,0,0,.05)}
+.indicrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.daycell{text-align:center;padding:10px 4px;border-radius:10px;background:#f7f9f6;border:1px solid var(--line);font-size:12px;font-weight:700}
+.day-yes{background:#e6f6ed;color:var(--green)}.day-no{background:#f6f1f1;color:#9e8f8f}
+.var-up{color:var(--green);font-size:12px;font-weight:800}.var-down{color:var(--red);font-size:12px;font-weight:800}.var-flat{color:var(--muted);font-size:12px;font-weight:800}
+.rowlink{cursor:pointer}.rowlink:hover{background:#f5f8f5}
+.printhead{display:none}
+@media(max-width:900px){.daygrid{grid-template-columns:repeat(4,1fr)}}
+@media print{
+ .side,.mobilebar,.top,.btn,#ejWeek,#ejForm,#ejBranch,#ejAdvisor{display:none!important}
+ .app{display:block;height:auto}
+ .main{height:auto;overflow:visible}
+ .content{padding:0}
+ body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .printhead{display:block}
+ .breadcrumb{display:none}
+}
 </style>
 </head>
 <body>
@@ -112,6 +129,56 @@ const branches=["2111 - EKT COMONFORT","4155 - EKT GTO SAN JOSE ITURBIDE","2083 
 const PUESTOS_BANCO=["ASESOR AFILIACIÓN","ASESOR PRÉSTAMOS Y SF MADURO","ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"];
 const PUESTOS_COMERCIO=["ASESOR PRÉSTAMOS ELEKTRA","ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"];
 const PUESTOS_ALL=[...PUESTOS_BANCO,...PUESTOS_COMERCIO];
+// ============================================================
+// METAS — mínimos semanales de productividad por control.
+// Edita únicamente los valores de este bloque para ajustar metas
+// o textos de acción sugerida; el resto del sistema los usa tal cual.
+// ============================================================
+const METAS={
+ DIAS_OPERACION:7,
+ BANCO:{aff:1,port:1,funds:1500,guard:{cuentas:2,montoMin:500},somos:{cuentas:2,montoMin:500},inv:{cuentas:1,montoMin:1500},tazD:2,tazA:2},
+ COMERCIO:{req:1,srv:1,nw:{montoMin:1500},ina:{montoMin:1500},vda:{montoMin:1500}}
+};
+const ACCIONES_SUGERIDAS={
+ aff:"Reforzar prospección de afiliaciones nuevas.",
+ port:"Buscar candidatos a portabilidad en la cartera actual.",
+ funds:"Ofrecer Fondos de Inversión en cada interacción con cliente.",
+ guard:"Promover Guardadito Remeseros con montos de $500 o más.",
+ somos:"Promover Somos con montos de $500 o más.",
+ inv:"Cerrar al menos una Inversión de $1,500 o más.",
+ tazD:"Incrementar la entrega de TAZ a clientes elegibles.",
+ tazA:"Dar seguimiento a la activación de TAZ entregadas.",
+ req_0:"Levantar más solicitudes de Movilidad.",
+ req_1:"Levantar más solicitudes de Hogar.",
+ req_2:"Levantar más solicitudes de Conectividad.",
+ srv_0:"Dar seguimiento y surtir solicitudes de Movilidad.",
+ srv_1:"Dar seguimiento y surtir solicitudes de Hogar.",
+ srv_2:"Dar seguimiento y surtir solicitudes de Conectividad.",
+ nw:"Cerrar ventas de clientes nuevos por $1,500 o más.",
+ ina:"Reactivar clientes inactivos con montos de $1,500 o más.",
+ vda:"Impulsar ventas VDA de $1,500 o más."
+};
+const CONTROLES_BANCO=[
+ {key:"aff",label:"Afiliaciones",singular:"afiliación",icon:"🧾",kind:"count",getSum:s=>s.aff,min:METAS.BANCO.aff},
+ {key:"port",label:"Portabilidades",singular:"portabilidad",icon:"🔄",kind:"count",getSum:s=>s.port,min:METAS.BANCO.port},
+ {key:"funds",label:"Fondos de Inversión",icon:"💰",kind:"money",getSum:s=>s.funds,min:METAS.BANCO.funds},
+ {key:"guard",label:"Guardadito Remeseros",icon:"💰",kind:"amounts",unit:"cuenta",unitPlural:"cuentas",getAmounts:s=>s.guardAmounts,needed:METAS.BANCO.guard.cuentas,montoMin:METAS.BANCO.guard.montoMin},
+ {key:"somos",label:"Somos",icon:"👥",kind:"amounts",unit:"cuenta",unitPlural:"cuentas",getAmounts:s=>s.somosAmounts,needed:METAS.BANCO.somos.cuentas,montoMin:METAS.BANCO.somos.montoMin},
+ {key:"inv",label:"Inversiones",icon:"💵",kind:"amounts",unit:"inversión",unitPlural:"inversiones",getAmounts:s=>s.invAmounts,needed:METAS.BANCO.inv.cuentas,montoMin:METAS.BANCO.inv.montoMin},
+ {key:"tazD",label:"TAZ entregadas",singular:"TAZ entregada",icon:"💳",kind:"count",getSum:s=>s.tazDelivered,min:METAS.BANCO.tazD},
+ {key:"tazA",label:"TAZ activadas",singular:"TAZ activada",icon:"💳",kind:"count",getSum:s=>s.tazActivated,min:METAS.BANCO.tazA}
+];
+const CONTROLES_COMERCIO=[
+ {key:"req_0",label:"Solicitudes Movilidad",singular:"solicitud de Movilidad",icon:"🛍️",kind:"count",getSum:s=>s.req[0],min:METAS.COMERCIO.req},
+ {key:"req_1",label:"Solicitudes Hogar",singular:"solicitud de Hogar",icon:"🛍️",kind:"count",getSum:s=>s.req[1],min:METAS.COMERCIO.req},
+ {key:"req_2",label:"Solicitudes Conectividad",singular:"solicitud de Conectividad",icon:"🛍️",kind:"count",getSum:s=>s.req[2],min:METAS.COMERCIO.req},
+ {key:"srv_0",label:"Surtidos Movilidad",singular:"surtido de Movilidad",icon:"👥",kind:"count",getSum:s=>s.srv[0],min:METAS.COMERCIO.srv},
+ {key:"srv_1",label:"Surtidos Hogar",singular:"surtido de Hogar",icon:"👥",kind:"count",getSum:s=>s.srv[1],min:METAS.COMERCIO.srv},
+ {key:"srv_2",label:"Surtidos Conectividad",singular:"surtido de Conectividad",icon:"👥",kind:"count",getSum:s=>s.srv[2],min:METAS.COMERCIO.srv},
+ {key:"nw",label:"Clientes nuevos",icon:"💰",kind:"amounts",unit:"monto",unitPlural:"montos",getAmounts:s=>s.nw.flat(),needed:1,montoMin:METAS.COMERCIO.nw.montoMin},
+ {key:"ina",label:"Clientes inactivos",icon:"♻️",kind:"amounts",unit:"monto",unitPlural:"montos",getAmounts:s=>s.ina.flat(),needed:1,montoMin:METAS.COMERCIO.ina.montoMin},
+ {key:"vda",label:"Ventas VDA",icon:"💳",kind:"amounts",unit:"monto",unitPlural:"montos",getAmounts:s=>s.vda.flat(),needed:1,montoMin:METAS.COMERCIO.vda.montoMin}
+];
 const seedAdvisors=[{"id":"seed-1199656","emp":"1199656","name":"MIRIAM GARCIA ESTRADA","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1210404","emp":"1210404","name":"ALMA ANGELICA MENDIOLA BUENROSTRO","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1024593","emp":"1024593","name":"ANGELICA MAYELI LANDEROS YAÑEZ","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1171169","emp":"1171169","name":"PAULINA FERNANDA GARCIA VEGA","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1216757","emp":"1216757","name":"SONIA ESTEFANIA VAZQUEZ DELGADO","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-203904","emp":"203904","name":"MARIA TERESA PAZ HERNANDEZ","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1210961","emp":"1210961","name":"ADRIAN HERNANDEZ SANCHEZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1156264","emp":"1156264","name":"JUAN FELIPE BORJA PALACIOS","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-325106","emp":"325106","name":"MARIA DE LOURDES VELAZQUEZ LOPEZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1065609","emp":"1065609","name":"DAVID EMILIANO MATA RUBIO","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-51039","emp":"51039","name":"ANA CECILIA MORALES ARAIZA","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1141967","emp":"1141967","name":"CHRISTOPHER MARTIN AGUILAR OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-718639","emp":"718639","name":"FELIPE LANTEN OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-163832","emp":"163832","name":"MIRNA ONTIVEROS DIAZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1036979","emp":"1036979","name":"OFELIA CAPULIN SILVA","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-326875","emp":"326875","name":"JORGE PACHECO TORRES","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1190668","emp":"1190668","name":"JOSE EDUARDO ACOSTA GARCIA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1181835","emp":"1181835","name":"DULCE ALEJANDRA DIAZ VEGA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1157630","emp":"1157630","name":"CARLOS DANIEL RESENDIZ RUBIO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1075710","emp":"1075710","name":"INES BECERRA MEDINA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1191221","emp":"1191221","name":"JAQUELINE HERNANDEZ HERNANDEZ","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1017425","emp":"1017425","name":"JOSE ERNESTO BALDERAS ESTRADA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1093249","emp":"1093249","name":"ROSA ELIA MATA RIVERA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1181738","emp":"1181738","name":"FATIMA ALEXANDRA AGUILAR ARELLANO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1207055","emp":"1207055","name":"JUAN DANIEL MOYA ALVAREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1127877","emp":"1127877","name":"YOLANDA LIZBETH SANCHEZ MORIN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-858596","emp":"858596","name":"MANUEL RAMIREZ LUNA","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1208458","emp":"1208458","name":"JESUS YAHELD RICO RESENDIZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1200292","emp":"1200292","name":"OSCAR JAIR RAMIREZ HERNANDEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1158823","emp":"1158823","name":"ESMERALDA ROSARIO DE LEON CHAVEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1021634","emp":"1021634","name":"CARLOS JESUS CRUZ FLORES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1127088","emp":"1127088","name":"ALONDRA TORRES PEREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1043103","emp":"1043103","name":"YANET RUBI SEGUNDO DIAZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-878796","emp":"878796","name":"MARIA DE LOURDES BERTADILLO CERVANTES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-889793","emp":"889793","name":"MARTIN CORONILLA DURAN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-990242","emp":"990242","name":"JUANA ELENA GOMEZ SALAZAR","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1188721","emp":"1188721","name":"ANA ROSA ALVAREZ RAMIREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-334816","emp":"334816","name":"MARISELA FIGUEROA CONTRERAS","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1074999","emp":"1074999","name":"MARIA JOSE SERRANO NAVA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-88026","emp":"88026","name":"LAURA LETICIA ALCALA ARANDA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1227935","emp":"1227935","name":"VICTOR BERTOLEON MONTIEL","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1225473","emp":"1225473","name":"JESUS CERON HERNANDEZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-67497","emp":"67497","name":"LLUVIA ANGELICA VALENZUELA GARCIA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1184074","emp":"1184074","name":"LAURA PATRICIA PARDO BELTRAN","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1219669","emp":"1219669","name":"DANIEL ESCAMILLA FLORES","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1214031","emp":"1214031","name":"LUIS GABRIEL RUIZ JUAREZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1211196","emp":"1211196","name":"CARLOS ANDRES CURIEL LIQUIDANO","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-534667","emp":"534667","name":"SANDRA ESCOBEDO ACOSTA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1048917","emp":"1048917","name":"AKARI SALAZAR ISLAS","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-719590","emp":"719590","name":"MANUELA AGUILAR JIMENEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1223016","emp":"1223016","name":"LUIS ALBERTO CHAVEZ LEAL","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1031524","emp":"1031524","name":"MARTIN FUENTES ORTEGA","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1098635","emp":"1098635","name":"ABRAHAM PATIÑO PEREZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-692186","emp":"692186","name":"BERENICE HERMINIA HERNANDEZ LOPEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-181870","emp":"181870","name":"AARON GARCIA GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1082918","emp":"1082918","name":"LAURA GOMEZ GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1044500","emp":"1044500","name":"SAHILA ROCIO ROJO SALINAS","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1047138","emp":"1047138","name":"LUIS ANGEL GOMEZ MANZANO","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1123286","emp":"1123286","name":"ZAYRA ZAVALA RAMIREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-712368","emp":"712368","name":"IRMA MARTINEZ OCHOA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1216856","emp":"1216856","name":"JOSE ULISES RIOS CASTAÑEDA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1177804","emp":"1177804","name":"DORA IMELDA SALDAÑA MORALES","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1089773","emp":"1089773","name":"JULIO CESAR SANTIAGO PEREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1218737","emp":"1218737","name":"JONATHAN JOSUE JIMENEZ SILVA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1117293","emp":"1117293","name":"ADOLFO CERROBLANCO SANCHEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1167173","emp":"1167173","name":"JORGE LUIS PIZANO CASTILLO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1126644","emp":"1126644","name":"JESUS ALBERTO CONEJO DELGADO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1161954","emp":"1161954","name":"JORGE LUIS FLORES ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1052761","emp":"1052761","name":"LUCINO ANGEL MOLINA CARRANCO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1186294","emp":"1186294","name":"CAROLINA ZARATE AGOSTADERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1206609","emp":"1206609","name":"CECILIA CASTILLO DECIGA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-366253","emp":"366253","name":"CECILIA GONZALEZ ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1047773","emp":"1047773","name":"MARIA DE JESUS HORTELANO SALDAÑA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1200270","emp":"1200270","name":"GENESIS AURORA CANO JIMENEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1198972","emp":"1198972","name":"JESUS MIGUEL NAVARRO GUERRERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1184781","emp":"1184781","name":"LAURA GISELA BERTADILLO BARCENAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-299294","emp":"299294","name":"MARIA ELIZABETH AGUILERA BARRAZA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-964848","emp":"964848","name":"MARIA DEL CARMEN ALVIREZ HERNANDEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-38603","emp":"38603","name":"JOSE MANUEL GONZALEZ SOTO","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-92273","emp":"92273","name":"JAVIER BRIGIDO ROJAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1139066","emp":"1139066","name":"VERONICA SUJEY GUEVARA GOMEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1185274","emp":"1185274","name":"SUSANA GUERRERO MORALES","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1170850","emp":"1170850","name":"GABRIELA RESENDIZ CONTRERAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1204847","emp":"1204847","name":"MARIA ISABEL BAZALDUA MEDINA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-302001","emp":"302001","name":"RICARDO GUIA PEREZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1199116","emp":"1199116","name":"JOSE GUADALUPE MEDINA ARIZA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-673794","emp":"673794","name":"MARINO GARCIA AGUILAR","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-920880","emp":"920880","name":"JUAN MANUEL LICEA ESTRADA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1231279","emp":"1231279","name":"RIEL DUARTE ARREDONDO","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-82651","emp":"82651","name":"RICARDO GONZALEZ OLVERA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1091177","emp":"1091177","name":"JOSE MIGUEL CERON GONZALEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1208314","emp":"1208314","name":"LUIS ALBERTO MARTINEZ VARGAS","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-46574","emp":"46574","name":"MARIA VIRIDIANA PERU CORTES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-685580","emp":"685580","name":"MARIA DEL CARMEN MARTINEZ MORALES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"}];
 function genAdvisorId(){return "adv-"+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
 let storedAdvisors=JSON.parse(localStorage.getItem("crm_advisors")||"[]");
@@ -140,35 +207,247 @@ let advance={branch:null,advisor:null,type:null};
 let commerceCaptures=JSON.parse(localStorage.getItem("crm_commerce_captures")||"[]");
 let bankCaptures=JSON.parse(localStorage.getItem("crm_bank_captures")||"[]");
 
-const DEMO_KEY="crm_demo_kpi_seed_v1";
-function seedDemoKpiData(){
- if(localStorage.getItem(DEMO_KEY)==="1") return;
- const demoDays=["2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18"];
- const commerceBranches=new Set(["1054","2082","2083","2111","3105","4155","4183","6787","9510"]);
- const active=advisors.filter(a=>a.status==="Activo");
- const pick=(emp,day,salt,min,max)=>{let n=0;String(emp+day+salt).split("").forEach((ch,i)=>n=(n+ch.charCodeAt(0)*(i+3))%9973);return min+(n%(max-min+1))};
- const moneyList=(count,emp,day,salt,min,max)=>Array.from({length:count},(_,i)=>Number((pick(emp,day,salt+i,min,max)+(i%2?0.5:0)).toFixed(2)));
- demoDays.forEach(day=>{
-   active.forEach((a,idx)=>{
-     const bn=branchNum(a.branch);
-     if(commerceBranches.has(bn)){
-       let req=[pick(a.emp,day,"rm",1,6),pick(a.emp,day,"rh",1,5),pick(a.emp,day,"rc",0,4)];
-       let srv=req.map((x,i)=>Math.min(x,pick(a.emp,day,"s"+i,0,x)));
-       let nc=[pick(a.emp,day,"n0",0,2),pick(a.emp,day,"n1",0,2),pick(a.emp,day,"n2",0,1)];
-       let ic=[pick(a.emp,day,"i0",0,1),pick(a.emp,day,"i1",0,1),pick(a.emp,day,"i2",0,1)];
-       let nw=nc.map((n,i)=>moneyList(n,a.emp,day,20+i*4,1800,12500));
-       let ina=ic.map((n,i)=>moneyList(n,a.emp,day,40+i*4,1200,9000));
-       let vda=[moneyList(pick(a.emp,day,"v0",0,2),a.emp,day,60,1000,8000),moneyList(pick(a.emp,day,"v1",0,2),a.emp,day,70,900,7000),moneyList(pick(a.emp,day,"v2",0,1),a.emp,day,80,800,6000)];
-       let sum=x=>x.flat().reduce((s,n)=>s+n,0);
-       let totals={requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)};
-       commerceCaptures.push({folio:`DEMO-COM-${day.replaceAll("-","")}-${a.emp}`,created_at:day+"T17:30:00",day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:{req,srv,nw,ina,vda,captureDate:day,totals},totals,status:"confirmed",demo:true});
-     }
-     let aff=pick(a.emp,day,"aff",0,3),port=pick(a.emp,day,"port",0,2),funds=pick(a.emp,day,"fund",0,1)?pick(a.emp,day,"fundm",2500,35000):0;
-     let gc=pick(a.emp,day,"gc",0,2),sc=pick(a.emp,day,"sc",0,2),icount=pick(a.emp,day,"ic",0,2);
-     let gd=pick(a.emp,day,"td",0,4),ta=pick(a.emp,day,"ta",0,gd);
-     bankCaptures.push({folio:`DEMO-BAN-${day.replaceAll("-","")}-${a.emp}`,created_at:day+"T16:45:00",day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:{aff,port,funds,guardCount:gc,guardAmounts:moneyList(gc,a.emp,day,100,1000,12000),somosCount:sc,somosAmounts:moneyList(sc,a.emp,day,110,800,9000),invCount:icount,invAmounts:moneyList(icount,a.emp,day,120,3000,30000),tazDelivered:gd,tazActivated:ta,captureDate:day},status:"confirmed",demo:true});
-   });
+function isoYear(d=new Date()){
+ const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+ const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);
+ return x.getUTCFullYear();
+}
+function weekKeyOf(d=new Date()){return `${isoYear(d)}-${String(isoWeek(d)).padStart(2,"0")}`}
+function weekMondayOf(d=new Date()){let day=d.getDay()||7;return new Date(d.getFullYear(),d.getMonth(),d.getDate()-(day-1))}
+function weekRangeOf(wk){
+ let [y,w]=wk.split("-").map(Number);
+ let jan4=new Date(y,0,4),mondayWeek1=weekMondayOf(jan4);
+ let monday=new Date(mondayWeek1);monday.setDate(monday.getDate()+(w-1)*7);
+ let sunday=new Date(monday);sunday.setDate(sunday.getDate()+6);
+ return {monday,sunday};
+}
+function weekDaysOf(wk){let {monday}=weekRangeOf(wk);return Array.from({length:7},(_,i)=>{let d=new Date(monday);d.setDate(d.getDate()+i);return d})}
+function isCurrentWeek(wk){return wk===weekKeyOf(new Date())}
+function lastNWeekKeys(n){let keys=[],d=new Date();for(let i=0;i<n;i++){keys.unshift(weekKeyOf(d));d.setDate(d.getDate()-7)}return keys}
+const MESES_ABBR=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function weekLabel(wk){
+ let {monday,sunday}=weekRangeOf(wk),w=Number(wk.split("-")[1]);
+ let range=monday.getMonth()===sunday.getMonth()?`${monday.getDate()}-${sunday.getDate()} ${MESES_ABBR[monday.getMonth()]}`:`${monday.getDate()} ${MESES_ABBR[monday.getMonth()]}-${sunday.getDate()} ${MESES_ABBR[sunday.getMonth()]}`;
+ return `Sem ${w} · ${range}`;
+}
+
+function evalThreshold(sum,min){if(sum<=0)return "CERO";if(sum<min)return "PARCIAL";return "CUMPLE"}
+function evalAmountsThreshold(amounts,needed,montoMin){
+ let any=amounts.some(a=>a>0),count=amounts.filter(a=>a>=montoMin).length;
+ if(!any)return "CERO";if(count>=needed)return "CUMPLE";return "PARCIAL";
+}
+function controlResult(ctrl,sums){
+ if(ctrl.kind==="amounts"){
+  let amounts=ctrl.getAmounts(sums),state=evalAmountsThreshold(amounts,ctrl.needed,ctrl.montoMin);
+  let count=amounts.filter(a=>a>=ctrl.montoMin).length,diff=Math.max(0,ctrl.needed-count);
+  let faltante=state==="CUMPLE"?"":`Falta${diff===1?"":"n"} ${diff} ${diff===1?ctrl.unit:ctrl.unitPlural} de ${money(ctrl.montoMin)} o más`;
+  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,kind:ctrl.kind,state,actual:count,min:ctrl.needed,actualLabel:String(count),minLabel:String(ctrl.needed),faltante};
+ }
+ if(ctrl.kind==="money"){
+  let sum=ctrl.getSum(sums),state=evalThreshold(sum,ctrl.min),diff=Math.max(0,ctrl.min-sum);
+  let faltante=state==="CUMPLE"?"":`Faltan ${money(diff)}`;
+  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,kind:ctrl.kind,state,actual:sum,min:ctrl.min,actualLabel:money(sum),minLabel:money(ctrl.min),faltante};
+ }
+ let sum=ctrl.getSum(sums),state=evalThreshold(sum,ctrl.min),diff=Math.max(0,ctrl.min-sum);
+ let plural=ctrl.label.startsWith("TAZ")?ctrl.label:ctrl.label.toLowerCase();
+ let faltante=state==="CUMPLE"?"":`Falta${diff===1?"":"n"} ${diff} ${diff===1?(ctrl.singular||plural):plural}`;
+ return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,kind:ctrl.kind,state,actual:sum,min:ctrl.min,actualLabel:String(sum),minLabel:String(ctrl.min),faltante};
+}
+function sumBankWeek(emp,bn,wk){
+ let s={aff:0,port:0,funds:0,guardAmounts:[],somosAmounts:[],invAmounts:[],tazDelivered:0,tazActivated:0};
+ bankCaptures.filter(c=>c.emp===emp&&c.branch===bn&&weekKeyOf(dateFromKey(c.day))===wk).forEach(c=>{
+  let d=c.data||{};
+  s.aff+=Number(d.aff)||0;s.port+=Number(d.port)||0;s.funds+=Number(d.funds)||0;
+  s.guardAmounts.push(...(d.guardAmounts||[]));s.somosAmounts.push(...(d.somosAmounts||[]));s.invAmounts.push(...(d.invAmounts||[]));
+  s.tazDelivered+=Number(d.tazDelivered)||0;s.tazActivated+=Number(d.tazActivated)||0;
  });
+ return s;
+}
+function sumCommerceWeek(emp,bn,wk){
+ let s={req:[0,0,0],srv:[0,0,0],nw:[[],[],[]],ina:[[],[],[]],vda:[[],[],[]]};
+ commerceCaptures.filter(c=>c.emp===emp&&c.branch===bn&&c.status!=="correction_rejected"&&weekKeyOf(dateFromKey(c.day))===wk).forEach(c=>{
+  let d=c.data||{};
+  [0,1,2].forEach(i=>{
+   s.req[i]+=Number((d.req||[0,0,0])[i])||0;s.srv[i]+=Number((d.srv||[0,0,0])[i])||0;
+   s.nw[i].push(...((d.nw||[[],[],[]])[i]||[]));s.ina[i].push(...((d.ina||[[],[],[]])[i]||[]));s.vda[i].push(...((d.vda||[[],[],[]])[i]||[]));
+  });
+ });
+ return s;
+}
+function evaluarAsesorSemana(advisor,formType,wk){
+ let bn=branchNum(advisor.branch);
+ let sums=formType==="Banco"?sumBankWeek(advisor.emp,bn,wk):sumCommerceWeek(advisor.emp,bn,wk);
+ let controles=(formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO).map(c=>controlResult(c,sums));
+ let ceros=controles.filter(c=>c.state==="CERO").length,parciales=controles.filter(c=>c.state==="PARCIAL").length,cumple=controles.filter(c=>c.state==="CUMPLE").length,total=controles.length;
+ let enCurso=isCurrentWeek(wk);
+ let estatus=enCurso?"EN_AVANCE":(ceros>0?"ROJO":(parciales>0?"AMARILLO":"VERDE"));
+ return {advisor,formType,week:wk,controles,ceros,parciales,cumple,total,enCurso,estatus,
+  cumplimientoPct:total?Math.round(cumple/total*100):0,coberturaPct:total?Math.round((total-ceros)/total*100):0,
+  requestsTotal:formType==="Comercio"?sums.req.reduce((a,b)=>a+b,0):undefined};
+}
+function weekDaysElapsed(wk){
+ if(!isCurrentWeek(wk))return METAS.DIAS_OPERACION;
+ let {monday}=weekRangeOf(wk),hoy=dateFromKey(dayKey(new Date()));
+ return Math.max(1,Math.min(METAS.DIAS_OPERACION,Math.floor((hoy-monday)/86400000)+1));
+}
+function constanciaAsesorSemana(advisor,formType,wk){
+ let bn=branchNum(advisor.branch);
+ let caps=formType==="Banco"
+  ?bankCaptures.filter(c=>c.emp===advisor.emp&&c.branch===bn&&weekKeyOf(dateFromKey(c.day))===wk)
+  :commerceCaptures.filter(c=>c.emp===advisor.emp&&c.branch===bn&&c.status!=="correction_rejected"&&weekKeyOf(dateFromKey(c.day))===wk);
+ let diasConCaptura=new Set(caps.map(c=>c.day));
+ let diasBase=weekDaysElapsed(wk);
+ let dayFlags=weekDaysOf(wk).map(d=>({date:dayKey(d),dow:d.getDay(),captured:diasConCaptura.has(dayKey(d))}));
+ return {diasConCaptura:diasConCaptura.size,diasBase,pct:diasBase?Math.round(diasConCaptura.size/diasBase*100):0,dayFlags};
+}
+function evaluableAdvisors(formType){
+ let puestos=formType==="Banco"?PUESTOS_BANCO:PUESTOS_COMERCIO;
+ return advisors.filter(a=>a.status==="Activo"&&a.puesto&&puestos.includes(a.puesto)&&(formType!=="Comercio"||commerceBranchNums.has(branchNum(a.branch))));
+}
+function sinPuestoAdvisors(formType){
+ return advisors.filter(a=>a.status==="Activo"&&!a.puesto&&(formType!=="Comercio"||commerceBranchNums.has(branchNum(a.branch))));
+}
+function ejecPrecompute(formType,weekKeysList,advisorList){
+ let m={};
+ advisorList.forEach(a=>{m[a.id]={};weekKeysList.forEach(wk=>{m[a.id][wk]=evaluarAsesorSemana(a,formType,wk)})});
+ return m;
+}
+function persistenciaControlFromMatrix(matrix,advisor,formType,key,fromWeek,weeks6){
+ let idx=weeks6.indexOf(fromWeek),start=idx;
+ if(weeks6[start]===weekKeyOf(new Date()))start--;
+ let streak=0;
+ for(let i=start;i>=0;i--){
+  let e=matrix[advisor.id]&&matrix[advisor.id][weeks6[i]];
+  let c=e&&e.controles.find(x=>x.key===key);
+  if(c&&c.state==="CERO")streak++;else break;
+ }
+ return streak;
+}
+function rubroCritico(evals,formType){
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ let stats=ctrls.map(c=>{
+  let states=evals.map(e=>e.controles.find(x=>x.key===c.key).state);
+  let ceros=states.filter(s=>s==="CERO").length,cumpleN=states.filter(s=>s==="CUMPLE").length;
+  return {key:c.key,label:c.label,ceros,pctCumple:states.length?cumpleN/states.length*100:0};
+ });
+ stats.sort((a,b)=>b.ceros-a.ceros||a.pctCumple-b.pctCumple);
+ return stats[0]&&stats[0].ceros>0?stats[0]:null;
+}
+
+// ---- Generación de datos DEMO (deterministas por número de empleado) ----
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(h*131+s.charCodeAt(i))>>>0;return h}
+function makeRng(seedStr){let state=hashStr(seedStr)||1;return function(){state=(state*1103515245+12345)&0x7fffffff;return state}}
+function splitInt(total,parts,rng){
+ if(parts<=0)return[];
+ if(parts===1)return[Math.max(0,total)];
+ let cuts=[];for(let i=0;i<parts-1;i++)cuts.push(rng()%(total+1));
+ cuts.sort((a,b)=>a-b);
+ let res=[],prev=0;cuts.forEach(c=>{res.push(c-prev);prev=c});res.push(total-prev);
+ return res;
+}
+function distributeList(list,parts,rng){
+ let buckets=Array.from({length:Math.max(1,parts)},()=>[]);
+ list.forEach(v=>{buckets[rng()%buckets.length].push(v)});
+ return buckets;
+}
+function advisorProfile(emp){
+ let r=hashStr(emp+"|profile")%100;
+ if(r<40)return "cumplidor";if(r<70)return "parcial";if(r<90)return "ceros";return "persistente";
+}
+function stuckControlFor(emp,formType){
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ return ctrls[hashStr(emp+"|stuck|"+formType)%ctrls.length].key;
+}
+function decideControlStates(emp,formType,wk,profile){
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO,rng=makeRng(emp+"|"+formType+"|"+wk+"|states"),states={};
+ if(profile==="persistente"){let stuck=stuckControlFor(emp,formType);ctrls.forEach(c=>{states[c.key]=c.key===stuck?"CERO":"CUMPLE"});return states}
+ if(profile==="cumplidor"){ctrls.forEach(c=>{states[c.key]="CUMPLE"});return states}
+ if(profile==="parcial"){ctrls.forEach(c=>{let hasPartialZone=c.kind!=="count"||c.min>1;states[c.key]=hasPartialZone?"PARCIAL":"CUMPLE"});return states}
+ ctrls.forEach(c=>{states[c.key]="CUMPLE"});
+ let n=1+(rng()%2),idxs=new Set(),tries=0;
+ while(idxs.size<n&&tries<30){idxs.add(rng()%ctrls.length);tries++}
+ idxs.forEach(i=>{states[ctrls[i].key]="CERO"});
+ return states;
+}
+function genForThreshold(min,state,rng){
+ if(state==="CERO")return 0;
+ if(state==="PARCIAL"){if(min<=1)return min;return Math.max(0,min-1-(rng()%Math.max(1,min-1)))}
+ return min+(rng()%4);
+}
+function genAmountsForState(needed,montoMin,state,rng){
+ if(state==="CERO")return [];
+ if(state==="CUMPLE"){let count=needed+(rng()%2);return Array.from({length:count},()=>montoMin+(rng()%600))}
+ let count=Math.max(1,needed),lo=Math.max(1,Math.floor(montoMin*0.35)),span=Math.max(1,Math.floor(montoMin*0.4));
+ return Array.from({length:count},()=>lo+(rng()%span));
+}
+function genControlValue(ctrl,state,emp,formType,wk){
+ let rng=makeRng(emp+"|"+formType+"|"+wk+"|"+ctrl.key+"|val");
+ if(ctrl.kind==="amounts")return genAmountsForState(ctrl.needed,ctrl.montoMin,state,rng);
+ return genForThreshold(ctrl.min,state,rng);
+}
+function buildDemoRecord(a,formType,bn,day,hour,vals,seed){
+ let created_at=`${day}T${String(Math.min(21,hour)).padStart(2,"0")}:00:00`;
+ let folio=`DEMO-${formType==="Banco"?"BAN":"COM"}-${day.replaceAll("-","")}-${a.emp}-${seed}`;
+ if(formType==="Banco"){
+  let d={aff:vals.aff||0,port:vals.port||0,funds:vals.funds||0,guardCount:(vals.guard||[]).length,guardAmounts:vals.guard||[],somosCount:(vals.somos||[]).length,somosAmounts:vals.somos||[],invCount:(vals.inv||[]).length,invAmounts:vals.inv||[],tazDelivered:vals.tazD||0,tazActivated:vals.tazA||0,captureDate:day};
+  return {folio,created_at,day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:d,status:"confirmed",demo:true};
+ }
+ let req=[vals.req_0||0,vals.req_1||0,vals.req_2||0];
+ let srv=[Math.min(vals.srv_0||0,req[0]),Math.min(vals.srv_1||0,req[1]),Math.min(vals.srv_2||0,req[2])];
+ let nw=[[],[],[]],ina=[[],[],[]],vda=[[],[],[]];
+ if((vals.nw||[]).length)nw[hashStr(a.emp+day+"nw"+seed)%3]=vals.nw;
+ if((vals.ina||[]).length)ina[hashStr(a.emp+day+"ina"+seed)%3]=vals.ina;
+ if((vals.vda||[]).length)vda[hashStr(a.emp+day+"vda"+seed)%3]=vals.vda;
+ let sum=x=>x.flat().reduce((s,n)=>s+n,0);
+ let totals={requests:req.reduce((s,n)=>s+n,0),served:srv.reduce((s,n)=>s+n,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)};
+ return {folio,created_at,day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:{req,srv,nw,ina,vda,captureDate:day,totals},totals,status:"confirmed",demo:true};
+}
+function buildDemoCaptures(a,formType,wk){
+ let bn=branchNum(a.branch),profile=advisorProfile(a.emp);
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ let states=decideControlStates(a.emp,formType,wk,profile);
+ let values={};ctrls.forEach(c=>{values[c.key]=genControlValue(c,states[c.key],a.emp,formType,wk)});
+ if(formType==="Banco"){values.tazA=Math.min(values.tazA,values.tazD)}
+ else{[0,1,2].forEach(i=>{values["srv_"+i]=Math.min(values["srv_"+i],values["req_"+i])})}
+ let rngDays=makeRng(a.emp+"|"+formType+"|"+wk+"|days");
+ let diasDisponibles=weekDaysElapsed(wk);
+ let dayCountTarget=profile==="cumplidor"?5+rngDays()%3:profile==="ceros"?3+rngDays()%4:4+rngDays()%3;
+ dayCountTarget=Math.max(1,Math.min(diasDisponibles,dayCountTarget));
+ let days=weekDaysOf(wk),dayIdxs=[];for(let i=0;i<diasDisponibles;i++)dayIdxs.push(i);
+ for(let i=dayIdxs.length-1;i>0;i--){let j=rngDays()%(i+1),t=dayIdxs[i];dayIdxs[i]=dayIdxs[j];dayIdxs[j]=t}
+ let capturingIdxs=dayIdxs.slice(0,dayCountTarget).sort((x,y)=>x-y);
+ let rngSub=makeRng(a.emp+"|"+formType+"|"+wk+"|subcount");
+ let subcapsPerDay=capturingIdxs.map(()=>2+(rngSub()%2));
+ let totalSub=subcapsPerDay.reduce((s,n)=>s+n,0);
+ if(!totalSub)return [];
+ let rngSplit=makeRng(a.emp+"|"+formType+"|"+wk+"|split");
+ let perSub=Array.from({length:totalSub},()=>({}));
+ ctrls.forEach(c=>{
+  if(c.kind==="amounts"){distributeList(values[c.key]||[],totalSub,rngSplit).forEach((b,i)=>perSub[i][c.key]=b)}
+  else{splitInt(values[c.key]||0,totalSub,rngSplit).forEach((p,i)=>perSub[i][c.key]=p)}
+ });
+ let recs=[],subIdx=0;
+ capturingIdxs.forEach((dayIdx,di)=>{
+  let n=subcapsPerDay[di];
+  for(let k=0;k<n;k++){recs.push(buildDemoRecord(a,formType,bn,dayKey(days[dayIdx]),8+k*3,perSub[subIdx],subIdx));subIdx++}
+ });
+ return recs;
+}
+function purgeDemoData(){commerceCaptures=commerceCaptures.filter(c=>!c.demo);bankCaptures=bankCaptures.filter(c=>!c.demo)}
+function generateDemoData(){
+ let weeks=lastNWeekKeys(6);
+ let bankAdvisors=advisors.filter(a=>a.status==="Activo"&&PUESTOS_BANCO.includes(a.puesto));
+ let commerceAdvisors=advisors.filter(a=>a.status==="Activo"&&PUESTOS_COMERCIO.includes(a.puesto)&&commerceBranchNums.has(branchNum(a.branch)));
+ weeks.forEach(wk=>{
+  bankAdvisors.forEach(a=>{bankCaptures.push(...buildDemoCaptures(a,"Banco",wk))});
+  commerceAdvisors.forEach(a=>{commerceCaptures.push(...buildDemoCaptures(a,"Comercio",wk))});
+ });
+}
+const DEMO_KEY="crm_demo_kpi_seed_v2";
+function seedDemoKpiData(){
+ if(localStorage.getItem(DEMO_KEY)==="1")return;
+ purgeDemoData();
+ generateDemoData();
  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
  localStorage.setItem(DEMO_KEY,"1");
@@ -472,106 +751,251 @@ function exportRecordsExcel(){
  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500);
 }
 
-function safePct(n,d){return d>0?(n/d*100):0}
-function sumArr(a){return (Array.isArray(a)?a:[]).reduce((s,n)=>s+(Number(n)||0),0)}
-function dashboardRows(){
- let rows=[];
- commerceCaptures.forEach(c=>{let d=c.data||{},req=d.req||[0,0,0],srv=d.srv||[0,0,0],nw=d.nw||[[],[],[]],ina=d.ina||[[],[],[]],vda=d.vda||[[],[],[]];
- rows.push({type:"Comercio",day:c.day,week:c.week,branch:String(c.branch),emp:String(c.emp),advisor:c.advisor,
- req:req.reduce((a,b)=>a+(Number(b)||0),0),srv:srv.reduce((a,b)=>a+(Number(b)||0),0),
- newCount:nw.reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0),newAmt:nw.reduce((s,a)=>s+sumArr(a),0),
- inaCount:ina.reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0),inaAmt:ina.reduce((s,a)=>s+sumArr(a),0),
- vdaNew:sumArr(vda[0]),vdaRep:sumArr(vda[1]),vdaCash:sumArr(vda[2])});});
- bankCaptures.forEach(c=>{let d=c.data||{};rows.push({type:"Banco",day:c.day,week:c.week,branch:String(c.branch),emp:String(c.emp),advisor:c.advisor,
- aff:Number(d.aff)||0,port:Number(d.port)||0,funds:Number(d.funds)||0,guardCount:Number(d.guardCount)||0,guardAmt:sumArr(d.guardAmounts),
- somosCount:Number(d.somosCount)||0,somosAmt:sumArr(d.somosAmounts),invCount:Number(d.invCount)||0,invAmt:sumArr(d.invAmounts),
- tazD:Number(d.tazDelivered)||0,tazA:Number(d.tazActivated)||0});});return rows;
+let ejec={form:"Banco",week:null,branch:"",advisorId:""};
+function hasDemoData(){return commerceCaptures.some(c=>c.demo)||bankCaptures.some(c=>c.demo)}
+function kpiCard(label,value,extra){return `<div class="kpicard"><small>${esc(label)}</small><b>${value}${extra?` ${extra}`:""}</b></div>`}
+function varBadge(v){
+ if(v===null||v===undefined)return "";
+ if(v===0)return `<span class="var-flat">±0 pp</span>`;
+ return v>0?`<span class="var-up">▲${v} pp</span>`:`<span class="var-down">▼${Math.abs(v)} pp</span>`;
 }
-function dashFiltered(){
- let rows=dashboardRows(),date=document.getElementById("dfDate")?.value,week=document.getElementById("dfWeek")?.value,branch=document.getElementById("dfBranch")?.value,emp=document.getElementById("dfAdvisor")?.value,type=document.getElementById("dfType")?.value;
- if(date)rows=rows.filter(r=>r.day===date);if(week)rows=rows.filter(r=>String(r.week)===week);if(branch)rows=rows.filter(r=>r.branch===branch);if(emp)rows=rows.filter(r=>r.emp===emp);if(type)rows=rows.filter(r=>r.type===type);return rows;
+function stackedBar(v,a,r,ea){
+ let total=v+a+r+ea||1;
+ return `<div class="stackbar">${v?`<div class="stackseg seg-verde" style="width:${v/total*100}%">🟢 ${v}</div>`:""}${a?`<div class="stackseg seg-amarillo" style="width:${a/total*100}%">🟡 ${a}</div>`:""}${r?`<div class="stackseg seg-rojo" style="width:${r/total*100}%">🔴 ${r}</div>`:""}${ea?`<div class="stackseg seg-avance" style="width:${ea/total*100}%">⏳ ${ea}</div>`:""}</div>
+ <div class="legendrow"><span class="legenddot" style="background:#28765b"></span>🟢 Cumple todo (${v})<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#e3b341"></span>🟡 Con parciales (${a})<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#c94747"></span>🔴 Con ceros (${r})${ea?`<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#9aa39c"></span>⏳ En avance (${ea})`:""}</div>`;
 }
-function dashAgg(rows){
- let s={req:0,srv:0,newCount:0,newAmt:0,inaCount:0,inaAmt:0,vdaNew:0,vdaRep:0,vdaCash:0,aff:0,port:0,funds:0,guardCount:0,guardAmt:0,somosCount:0,somosAmt:0,invCount:0,invAmt:0,tazD:0,tazA:0};
- rows.forEach(r=>Object.keys(s).forEach(k=>s[k]+=Number(r[k])||0));return s;
+function rubroBarRow(r){
+ return `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:4px"><span>${r.icon} ${esc(r.label)}</span><span>${Math.round(r.pctCumple)}% cumple · ${Math.round(r.pctCero)}% en cero</span></div>
+ <div class="bartrack"><div class="barfill" style="width:${Math.round(r.pctCumple)}%"></div></div>
+ <div class="bartrack" style="margin-top:4px;background:#fbeaea"><div class="barfill" style="width:${Math.round(r.pctCero)}%;background:#c94747"></div></div></div>`;
+}
+function trendSvg(trend){
+ let w=640,h=170,padL=34,padR=10,padT=16,padB=26,innerW=w-padL-padR,innerH=h-padT-padB,n=trend.length;
+ let x=i=>padL+(n<=1?innerW/2:innerW*i/(n-1)),y=v=>padT+innerH-(v/100*innerH);
+ let pathFor=key=>trend.map((t,i)=>`${i===0?"M":"L"}${x(i).toFixed(1)},${y(t[key]).toFixed(1)}`).join(" ");
+ let gridLines=[0,25,50,75,100].map(v=>`<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="#e0e4dc" stroke-width="1"/><text x="${padL-6}" y="${(y(v)+3).toFixed(1)}" font-size="10" fill="#697267" text-anchor="end">${v}%</text>`).join("");
+ let labels=trend.map((t,i)=>`<text x="${x(i).toFixed(1)}" y="${h-6}" font-size="10" fill="#697267" text-anchor="middle">S${t.week.split("-")[1]}</text>`).join("");
+ let dotsC=trend.map((t,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(t.pctC).toFixed(1)}" r="3.2" fill="#08783f"/><text x="${x(i).toFixed(1)}" y="${(y(t.pctC)-7).toFixed(1)}" font-size="10" fill="#08783f" text-anchor="middle">${t.pctC}%</text>`).join("");
+ let dotsP=trend.map((t,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(t.cp).toFixed(1)}" r="3.2" fill="#315c9d"/><text x="${x(i).toFixed(1)}" y="${(y(t.cp)+14).toFixed(1)}" font-size="10" fill="#315c9d" text-anchor="middle">${t.cp}%</text>`).join("");
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Tendencia de completos y cumplimiento">${gridLines}${labels}<path d="${pathFor('pctC')}" fill="none" stroke="#08783f" stroke-width="2.4"/><path d="${pathFor('cp')}" fill="none" stroke="#315c9d" stroke-width="2.4" stroke-dasharray="5,3"/>${dotsC}${dotsP}</svg>
+ <div class="legendrow"><span class="legenddot" style="background:#08783f"></span>% Completos<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#315c9d"></span>Cumplimiento promedio</div>`;
+}
+function estatusBadge(estatus){
+ const map={VERDE:["🟢","Completo","est-verde"],AMARILLO:["🟡","Parcial","est-amarillo"],ROJO:["🔴","Con ceros","est-rojo"],EN_AVANCE:["⏳","En avance","est-avance"]};
+ let [icon,label,cls]=map[estatus]||["","",""];
+ return `<span class="statuspill ${cls}">${icon} ${label}</span>`;
+}
+function cellClass(state,enCurso){if(state==="CUMPLE")return "cell-ok";if(state==="CERO")return enCurso?"cell-pending":"cell-bad";return "cell-warn"}
+function cellIcon(state,enCurso){if(state==="CUMPLE")return "✅";if(state==="CERO")return enCurso?"⏳":"🔴";return "🟡"}
+function ejecSinPuestoNotice(list){
+ return `<div class="notice">⚠️ <b>${list.length} asesor${list.length===1?"":"es"} sin puesto asignado</b> no se incluye${list.length===1?"":"n"} en esta evaluación: ${list.map(a=>esc(a.name)).join(", ")}. Asígnale${list.length===1?"":"s"} un puesto en Alta de asesores.</div>`;
+}
+function ejecCopyText(btn,text){
+ navigator.clipboard.writeText(text).then(()=>{let old=btn.textContent;btn.textContent="✓ Copiado";setTimeout(()=>{btn.textContent=old},1500)}).catch(()=>alert("No se pudo copiar. Copia manualmente:\n\n"+text));
+}
+function ejecIndicacionTexto(advisor,ev,matrix,formType,wk,weeks6){
+ if(ev.estatus==="VERDE")return `${advisor.name}: sin pendientes esta semana.`;
+ let problems=ev.controles.filter(c=>c.state!=="CUMPLE");
+ let mainProblem=problems[0];
+ let persist=mainProblem?persistenciaControlFromMatrix(matrix,advisor,formType,mainProblem.key,wk,weeks6):0;
+ let partsTxt=problems.map(c=>`${c.label} (${c.actualLabel}/${c.minLabel})`).join(" y ");
+ let persistTxt=persist>=2?` Lleva ${persist} semanas sin ${(mainProblem.singular||mainProblem.label).toLowerCase()}.`:"";
+ let accion=mainProblem?(ACCIONES_SUGERIDAS[mainProblem.key]||"Dar seguimiento con el asesor."):"";
+ let prefix=ev.estatus==="EN_AVANCE"?"Pendiente":"Falta";
+ return `${advisor.name}: ${prefix.toLowerCase()} ${partsTxt}.${persistTxt} Acción: ${accion}`;
+}
+function ejecCopyAll(branch,wk){
+ let formType=ejec.form,weeks6=lastNWeekKeys(6);
+ let advisorList=evaluableAdvisors(formType).filter(a=>a.branch===branch);
+ let matrix=ejecPrecompute(formType,weeks6,advisorList);
+ let lines=[`*Sucursal ${branchNum(branch)} · ${weekLabel(wk)} · ${formType}*`,""];
+ advisorList.forEach(a=>{
+  let e=matrix[a.id][wk];if(e.estatus==="VERDE")return;
+  lines.push(`• ${ejecIndicacionTexto(a,e,matrix,formType,wk,weeks6)}`);
+ });
+ if(lines.length<=2)lines.push("Todos los asesores están en verde. Sin pendientes.");
+ let text=lines.join("\n");
+ navigator.clipboard.writeText(text).then(()=>alert("Mensaje copiado. Puedes pegarlo en WhatsApp.")).catch(()=>alert("No se pudo copiar. Copia manualmente:\n\n"+text));
+}
+function ejecFilterBar(){
+ let weeks=lastNWeekKeys(6).slice().reverse();
+ let branchesForForm=ejec.form==="Comercio"?branches.filter(b=>commerceBranchNums.has(branchNum(b))):branches;
+ let advisorsForBranch=ejec.branch?evaluableAdvisors(ejec.form).filter(a=>a.branch===ejec.branch):[];
+ return `<div class="card"><div class="dashboardfilters" style="grid-template-columns:1.3fr 1fr 1.4fr 1.4fr auto">
+ <div class="field"><label>Semana</label><select id="ejWeek" onchange="ejecChangeWeek(this.value)">${weeks.map(w=>`<option value="${w}" ${w===ejec.week?"selected":""}>${weekLabel(w)}${isCurrentWeek(w)?" · en curso":""}</option>`).join("")}</select></div>
+ <div class="field"><label>Formulario</label><select id="ejForm" onchange="ejecChangeForm(this.value)"><option ${ejec.form==="Banco"?"selected":""}>Banco</option><option ${ejec.form==="Comercio"?"selected":""}>Comercio</option></select></div>
+ <div class="field"><label>Sucursal</label><select id="ejBranch" onchange="ejecChangeBranch(this.value)"><option value="">Todas (Región)</option>${branchesForForm.map(b=>`<option value="${esc(b)}" ${b===ejec.branch?"selected":""}>${esc(b)}</option>`).join("")}</select></div>
+ <div class="field"><label>Asesor</label><select id="ejAdvisor" onchange="ejecChangeAdvisor(this.value)" ${!ejec.branch?"disabled":""}><option value="">Todos</option>${advisorsForBranch.map(a=>`<option value="${a.id}" ${a.id===ejec.advisorId?"selected":""}>${esc(a.name)}</option>`).join("")}</select></div>
+ <div class="field" style="align-self:end"><button class="btn secondary" onclick="window.print()">🖨️ Imprimir / PDF</button></div>
+ </div>${ejecBreadcrumb()}</div>`;
+}
+function ejecBreadcrumb(){
+ let parts=[`<a href="#" onclick="ejecGoRegion();return false">Región</a>`];
+ if(ejec.branch){let bParts=ejec.branch.split(" - ");parts.push(`<a href="#" onclick="ejecGoBranch('${esc(ejec.branch)}');return false">${esc(bParts[0])} ${esc(bParts[1]||"")}</a>`)}
+ if(ejec.advisorId){let a=advisors.find(x=>x.id===ejec.advisorId);parts.push(`<span>${esc(a?a.name:"Asesor")}</span>`)}
+ return `<div class="breadcrumb">${parts.join(' <span class="crumb-sep">›</span> ')}</div>`;
+}
+function ejecGoRegion(){ejec.branch="";ejec.advisorId="";renderEjecView()}
+function ejecGoBranch(b){ejec.branch=b;ejec.advisorId="";renderEjecView()}
+function ejecGoAdvisor(b,id){ejec.branch=b;ejec.advisorId=id;renderEjecView()}
+function ejecChangeWeek(w){ejec.week=w;renderEjecView()}
+function ejecChangeForm(f){ejec.form=f;ejec.branch="";ejec.advisorId="";renderEjecView()}
+function ejecChangeBranch(b){ejec.branch=b;ejec.advisorId="";renderEjecView()}
+function ejecChangeAdvisor(id){ejec.advisorId=id;renderEjecView()}
+function ejecPrintHeader(){
+ let a=ejec.advisorId?advisors.find(x=>x.id===ejec.advisorId):null;
+ return `<div class="printhead"><h2>CRM Región San Miguel de Allende — Resumen ejecutivo</h2><p>Generado: ${esc(todayLabel())} · Semana: ${esc(weekLabel(ejec.week))}${isCurrentWeek(ejec.week)?" (en curso)":""} · Formulario: ${esc(ejec.form)}${ejec.branch?` · Sucursal: ${esc(ejec.branch)}`:" · Vista: Región"}${a?` · Asesor: ${esc(a.name)}`:""}</p></div>`;
 }
 function renderExecutiveSummary(){
- topTitle.textContent="Resumen ejecutivo";let all=dashboardRows(),branches=[...new Set(all.map(r=>r.branch))].sort((a,b)=>Number(a)-Number(b));
- let active=advisors.filter(a=>a.status==="Activo"),advisorOpts=active.slice().sort((a,b)=>a.name.localeCompare(b.name));
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">RESULTADOS REALES</span><h1>📊 Resumen ejecutivo</h1><p>Resultados calculados directamente de las capturas de Banco y Comercio. <b>Esta versión contiene datos DEMO genéricos</b> para visualizar los KPIs.</p></div></div>
- <div class="card"><div class="dashboardfilters">
- <div class="field"><label>Formulario</label><select id="dfType" onchange="refreshDashboard()"><option value="">Banco + Comercio</option><option>Banco</option><option>Comercio</option></select></div>
- <div class="field"><label>Fecha</label><input type="date" id="dfDate" onchange="refreshDashboard()"></div>
- <div class="field"><label>Semana</label><input type="number" min="1" max="53" id="dfWeek" placeholder="Todas" oninput="refreshDashboard()"></div>
- <div class="field"><label>Sucursal</label><select id="dfBranch" onchange="refreshDashboard()"><option value="">Todas</option>${branches.map(b=>`<option>${b}</option>`).join("")}</select></div>
- <div class="field"><label>Asesor</label><select id="dfAdvisor" onchange="refreshDashboard()"><option value="">Todos</option>${advisorOpts.map(a=>`<option value="${a.emp}">${esc(a.name)} · ${a.emp}</option>`).join("")}</select></div>
- </div><div id="dashboardBody"></div></div>`;refreshDashboard();
+ topTitle.textContent="Resumen ejecutivo";
+ ejec={form:(ejec&&ejec.form)||"Banco",week:weekKeyOf(new Date()),branch:"",advisorId:""};
+ renderEjecView();
 }
-
-function visualBranchChart(rows,kind){
- let groups={};rows.filter(r=>r.type===kind).forEach(r=>{if(!groups[r.branch])groups[r.branch]=[];groups[r.branch].push(r)});
- let vals=Object.entries(groups).map(([branch,rr])=>{let s=dashAgg(rr);return {branch,value:kind==="Comercio"?safePct(s.srv,s.req):safePct(s.tazA,s.tazD)}}).sort((a,b)=>b.value-a.value);
- if(!vals.length)return '<p class="dashnote">Sin datos para graficar.</p>';
- return vals.map(x=>`<div class="barrow"><b>${x.branch}</b><div class="bartrack"><div class="barfill" style="width:${Math.min(100,x.value)}%"></div></div><span>${x.value.toFixed(1)}%</span></div>`).join("");
+function renderEjecView(){
+ let body=ejec.advisorId?renderEjecAdvisorView():ejec.branch?renderEjecBranchView():renderEjecRegionView();
+ let demoNote=hasDemoData()?`<div class="notice">📊 <b>Datos DEMO</b> — estos resultados incluyen capturas de ejemplo generadas automáticamente para ilustrar el reporte.</div>`:"";
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">PRODUCTIVIDAD SEMANAL</span><h1>📊 Resumen ejecutivo</h1><p>Cumplimiento de mínimos semanales y cobertura por asesor — ${esc(ejec.form)} · ${esc(weekLabel(ejec.week))}${isCurrentWeek(ejec.week)?" (semana en curso)":""}.</p></div></div>
+ ${ejecPrintHeader()}
+ ${demoNote}
+ ${ejecFilterBar()}
+ <div id="ejecBody">${body}</div>`;
 }
-function visualDailyTrend(rows){
- let groups={};rows.forEach(r=>{if(!groups[r.day])groups[r.day]=[];groups[r.day].push(r)});
- let vals=Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([day,rr])=>{let s=dashAgg(rr);return {day,value:s.newAmt+s.inaAmt+s.vdaNew+s.vdaRep+s.vdaCash+s.funds+s.guardAmt+s.somosAmt+s.invAmt}});
- let max=Math.max(1,...vals.map(x=>x.value));
- if(!vals.length)return '<p class="dashnote">Sin datos para graficar.</p>';
- return `<div class="trendbars">${vals.map(x=>`<div class="trendcol" title="${money(x.value)}"><div class="trendbar" style="height:${Math.max(3,x.value/max*150)}px"></div><small>${x.day.slice(5)}</small></div>`).join("")}</div><div class="dashnote" style="margin-top:8px">Monto combinado capturado por día (Banco + Comercio) para visualizar tendencia.</div>`;
+function renderEjecRegionView(){
+ let formType=ejec.form,wk=ejec.week,weeks6=lastNWeekKeys(6);
+ let advisorList=evaluableAdvisors(formType),sinPuesto=sinPuestoAdvisors(formType);
+ if(!advisorList.length){
+  return `<div class="card placeholder"><div><div class="icon">📭</div><h2>Sin asesores para evaluar</h2><p>No hay asesores Activos con puesto de ${esc(formType)} ${formType==="Comercio"?"en sucursales con Comercio ":""}dados de alta.</p></div></div>${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}`;
+ }
+ let matrix=ejecPrecompute(formType,weeks6,advisorList);
+ let evals=advisorList.map(a=>matrix[a.id][wk]);
+ let prevWk=weeks6[weeks6.indexOf(wk)-1];
+ let prevEvals=prevWk?advisorList.map(a=>matrix[a.id][prevWk]):null;
+ let evaluados=evals.length,verdes=evals.filter(e=>e.estatus==="VERDE").length,amarillos=evals.filter(e=>e.estatus==="AMARILLO").length,rojos=evals.filter(e=>e.estatus==="ROJO").length,enAvanceN=evals.filter(e=>e.estatus==="EN_AVANCE").length;
+ let pctCompletos=evaluados?Math.round(verdes/evaluados*100):0;
+ let cumplProm=evaluados?Math.round(evals.reduce((s,e)=>s+e.cumplimientoPct,0)/evaluados):0;
+ let conCeros=evals.filter(e=>e.ceros>0);
+ let constancias=advisorList.map(a=>constanciaAsesorSemana(a,formType,wk).pct);
+ let constanciaProm=constancias.length?Math.round(constancias.reduce((a,b)=>a+b,0)/constancias.length):0;
+ let prevPctCompletos=null,prevCumplProm=null;
+ if(prevEvals&&prevEvals.length){
+  prevPctCompletos=Math.round(prevEvals.filter(e=>e.estatus==="VERDE").length/prevEvals.length*100);
+  prevCumplProm=Math.round(prevEvals.reduce((s,e)=>s+e.cumplimientoPct,0)/prevEvals.length);
+ }
+ let varCompletos=prevPctCompletos===null?null:pctCompletos-prevPctCompletos;
+ let varCumpl=prevCumplProm===null?null:cumplProm-prevCumplProm;
+ let byBranch={};
+ advisorList.forEach(a=>{let bn=branchNum(a.branch);(byBranch[bn]=byBranch[bn]||{branch:a.branch,advisors:[]}).advisors.push(a)});
+ let ranking=Object.values(byBranch).map(g=>{
+  let es=g.advisors.map(a=>matrix[a.id][wk]);
+  let v=es.filter(e=>e.estatus==="VERDE").length,am=es.filter(e=>e.estatus==="AMARILLO").length,r=es.filter(e=>e.estatus==="ROJO").length,ea=es.filter(e=>e.estatus==="EN_AVANCE").length;
+  let pctC=es.length?Math.round(v/es.length*100):0,cp=es.length?Math.round(es.reduce((s,e)=>s+e.cumplimientoPct,0)/es.length):0;
+  let pes=prevEvals?g.advisors.map(a=>matrix[a.id][prevWk]):null;
+  let prevCp=pes&&pes.length?Math.round(pes.reduce((s,e)=>s+e.cumplimientoPct,0)/pes.length):null;
+  return {branch:g.branch,bn:branchNum(g.branch),n:es.length,v,am,r,ea,pctC,cp,varCp:prevCp===null?null:cp-prevCp,rubro:rubroCritico(es,formType)};
+ }).sort((a,b)=>b.cp-a.cp);
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ let rubroStats=ctrls.map(c=>{
+  let states=evals.map(e=>e.controles.find(x=>x.key===c.key).state),n=states.length;
+  return {label:c.label,icon:c.icon,pctCumple:n?states.filter(s=>s==="CUMPLE").length/n*100:0,pctCero:n?states.filter(s=>s==="CERO").length/n*100:0};
+ }).sort((a,b)=>b.pctCero-a.pctCero);
+ let trend=weeks6.map(w=>{
+  let es=advisorList.map(a=>matrix[a.id][w]);
+  let completosReal=es.filter(e=>e.ceros===0&&e.parciales===0).length;
+  return {week:w,pctC:es.length?Math.round(completosReal/es.length*100):0,cp:es.length?Math.round(es.reduce((s,e)=>s+e.cumplimientoPct,0)/es.length):0};
+ });
+ let riesgo=[];
+ advisorList.forEach(a=>{
+  let e=matrix[a.id][wk];
+  e.controles.forEach(c=>{
+   let p=persistenciaControlFromMatrix(matrix,a,formType,c.key,wk,weeks6);
+   if(p>=2)riesgo.push({advisor:a,control:c.label,semanas:p,branch:branchNum(a.branch)});
+  });
+ });
+ riesgo.sort((a,b)=>b.semanas-a.semanas);
+ return `
+ <div class="kpigrid">
+  ${kpiCard("% Asesores completos",pctCompletos+"%",varBadge(varCompletos))}
+  ${kpiCard("Cumplimiento promedio",cumplProm+"%",varBadge(varCumpl))}
+  ${kpiCard("Asesores con ceros",conCeros.length)}
+  ${kpiCard("Asesores evaluados",evaluados)}
+  ${kpiCard("Constancia promedio",constanciaProm+"%")}
+ </div>
+ ${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}
+ <div class="chartcard"><h3>Semáforo de asesores</h3><div class="chartsub">${evaluados} asesores evaluados en ${esc(weekLabel(wk))}.</div>${stackedBar(verdes,amarillos,rojos,enAvanceN)}</div>
+ <div class="chartcard"><h3>Ranking de sucursales</h3><div class="chartsub">Clic en una sucursal para ver su detalle. Ordenado de mayor a menor cumplimiento.</div>
+ <div class="tablewrap"><table><thead><tr><th>Sucursal</th><th>Evaluados</th><th>🟢/🟡/🔴</th><th>% Completos</th><th>Cumplimiento</th><th>Variación</th><th>Rubro crítico</th></tr></thead><tbody>
+ ${ranking.map(r=>`<tr class="rowlink" onclick="ejecGoBranch('${esc(r.branch)}')"><td><b>${r.bn}</b></td><td>${r.n}</td><td>🟢${r.v} 🟡${r.am} 🔴${r.r}${r.ea?` ⏳${r.ea}`:""}</td><td>${r.pctC}%</td><td>${r.cp}%</td><td>${varBadge(r.varCp)}</td><td>${r.rubro?esc(r.rubro.label):"—"}</td></tr>`).join("")||`<tr><td colspan="7" style="text-align:center;padding:20px">Sin datos.</td></tr>`}
+ </tbody></table></div></div>
+ <div class="chartcard"><h3>Cumplimiento por rubro</h3><div class="chartsub">% de asesores que cumplen y % en cero por control, de más a menos crítico.</div>${rubroStats.map(rubroBarRow).join("")}</div>
+ <div class="chartcard"><h3>Tendencia de las últimas 6 semanas</h3><div class="chartsub">% de completos y cumplimiento promedio.</div>${trendSvg(trend)}</div>
+ <div class="chartcard"><h3>⚠️ Asesores en riesgo</h3><div class="chartsub">Persistencia de 2 semanas cerradas o más con el mismo control en cero.</div>
+ ${riesgo.length?`<div class="tablewrap"><table><thead><tr><th>Asesor</th><th>Sucursal</th><th>Control</th><th>Semanas</th></tr></thead><tbody>${riesgo.map(r=>`<tr class="rowlink" onclick="ejecGoAdvisor('${esc(r.advisor.branch)}','${esc(r.advisor.id)}')"><td>${esc(r.advisor.name)}</td><td>${r.branch}</td><td>${esc(r.control)}</td><td><b>${r.semanas}</b></td></tr>`).join("")}</tbody></table></div>`:`<p class="dashnote">Sin asesores en riesgo.</p>`}
+ </div>`;
 }
-function pieCard(title,sub,items){
- let clean=items.map((x,i)=>({name:x[0],value:Number(x[1])||0,color:["#28765b","#e3b341","#c94747","#447a9c"][i%4]}));
- let total=clean.reduce((s,x)=>s+x.value,0);if(total<=0)return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><p class="dashnote">Sin datos para graficar.</p></div>`;
- let deg=0,stops=[];clean.forEach(x=>{let a=deg,b=deg+(x.value/total*360);stops.push(`${x.color} ${a}deg ${b}deg`);deg=b});
- return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><div class="piebox"><div class="donut" style="background:conic-gradient(${stops.join(",")})"></div><div>${clean.map(x=>`<div class="legendrow"><span class="legenddot" style="background:${x.color}"></span><span>${x.name}: <b>${money(x.value)}</b> · ${(x.value/total*100).toFixed(1)}%</span></div>`).join("")}</div></div></div>`;
+function renderEjecBranchView(){
+ let formType=ejec.form,wk=ejec.week,weeks6=lastNWeekKeys(6),branch=ejec.branch;
+ let allAdvisors=evaluableAdvisors(formType).filter(a=>a.branch===branch);
+ let sinPuesto=sinPuestoAdvisors(formType).filter(a=>a.branch===branch);
+ if(!allAdvisors.length){
+  return `<div class="card placeholder"><div><div class="icon">📭</div><h2>Sin asesores para evaluar en esta sucursal</h2></div></div>${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}`;
+ }
+ let matrix=ejecPrecompute(formType,weeks6,allAdvisors);
+ let evals=allAdvisors.map(a=>matrix[a.id][wk]);
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ let rubro=rubroCritico(evals,formType);
+ let evaluados=evals.length,verdes=evals.filter(e=>e.estatus==="VERDE").length,amarillos=evals.filter(e=>e.estatus==="AMARILLO").length,rojos=evals.filter(e=>e.estatus==="ROJO").length,enAvanceN=evals.filter(e=>e.estatus==="EN_AVANCE").length;
+ let pctCompletos=evaluados?Math.round(verdes/evaluados*100):0;
+ let cumplProm=evaluados?Math.round(evals.reduce((s,e)=>s+e.cumplimientoPct,0)/evaluados):0;
+ let constancias=allAdvisors.map(a=>constanciaAsesorSemana(a,formType,wk).pct);
+ let constanciaProm=constancias.length?Math.round(constancias.reduce((a,b)=>a+b,0)/constancias.length):0;
+ let heat=allAdvisors.map(a=>({advisor:a,eval:matrix[a.id][wk],constancia:constanciaAsesorSemana(a,formType,wk)})).sort((x,y)=>x.eval.cumplimientoPct-y.eval.cumplimientoPct);
+ let heatHead=`<th class="stickycol">Asesor</th>${ctrls.map(c=>`<th>${c.icon} ${esc(c.label)}</th>`).join("")}<th>Cumplimiento</th><th>Estatus</th><th>Constancia</th>`;
+ let heatRows=heat.map(h=>{
+  let cells=ctrls.map(c=>{let cr=h.eval.controles.find(x=>x.key===c.key);return `<td class="${cellClass(cr.state,h.eval.enCurso)}" title="${esc(cr.faltante||'Cumple')}">${cellIcon(cr.state,h.eval.enCurso)} ${esc(cr.actualLabel)}/${esc(cr.minLabel)}</td>`}).join("");
+  return `<tr><td class="stickycol rowlink" onclick="ejecGoAdvisor('${esc(h.advisor.branch)}','${esc(h.advisor.id)}')"><b>${esc(h.advisor.name)}</b><br><small>${esc(h.advisor.emp)}</small></td>${cells}<td><b>${h.eval.cumplimientoPct}%</b></td><td>${estatusBadge(h.eval.estatus)}</td><td>${h.constancia.pct}%</td></tr>`;
+ }).join("");
+ let pendientes=heat.filter(h=>h.eval.estatus!=="VERDE");
+ return `
+ <div class="kpigrid">
+  ${kpiCard("% Asesores completos",pctCompletos+"%")}
+  ${kpiCard("Cumplimiento promedio",cumplProm+"%")}
+  ${kpiCard("Asesores con ceros",evals.filter(e=>e.ceros>0).length)}
+  ${kpiCard("Asesores evaluados",evaluados)}
+  ${kpiCard("Constancia promedio",constanciaProm+"%")}
+ </div>
+ ${rubro?`<div class="notice">🔎 <b>Rubro crítico de la sucursal:</b> ${esc(rubro.label)} — ${rubro.ceros} de ${evaluados} asesores en cero.</div>`:""}
+ ${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}
+ <div class="chartcard"><h3>Semáforo</h3>${stackedBar(verdes,amarillos,rojos,enAvanceN)}</div>
+ <div class="chartcard"><h3>Matriz de cumplimiento por asesor</h3><div class="chartsub">Avance real / mínimo por control. Clic en un asesor para ver su ficha.</div>
+ <div class="tablewrap heatwrap"><table><thead><tr>${heatHead}</tr></thead><tbody>${heatRows}</tbody></table></div></div>
+ <div class="chartcard"><h3>📋 Indicaciones para el gerente</h3><div class="chartsub">Sucursal ${branchNum(branch)} · ${esc(weekLabel(wk))}</div>
+ ${pendientes.length?`${pendientes.map(h=>{let t=ejecIndicacionTexto(h.advisor,h.eval,matrix,formType,wk,weeks6);return `<div class="indicrow"><div>${esc(t)}</div><button class="btn secondary" onclick='ejecCopyText(this,${JSON.stringify(t)})'>Copiar</button></div>`}).join("")}<div class="actions"><button class="btn primary" onclick="ejecCopyAll('${esc(branch)}','${wk}')">Copiar todo</button></div>`:`<p class="dashnote">Todos los asesores están en verde. Sin indicaciones pendientes.</p>`}
+ </div>`;
 }
-function countPieCard(title,sub,items){
- let clean=items.map((x,i)=>({name:x[0],value:Number(x[1])||0,color:["#28765b","#e3b341","#c94747","#447a9c"][i%4]})),total=clean.reduce((s,x)=>s+x.value,0);
- if(total<=0)return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><p class="dashnote">Sin datos para graficar.</p></div>`;
- let deg=0,stops=[];clean.forEach(x=>{let a=deg,b=deg+x.value/total*360;stops.push(`${x.color} ${a}deg ${b}deg`);deg=b});
- return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><div class="piebox"><div class="donut" style="background:conic-gradient(${stops.join(",")})"></div><div>${clean.map(x=>`<div class="legendrow"><span class="legenddot" style="background:${x.color}"></span><span>${x.name}: <b>${x.value}</b> · ${(x.value/total*100).toFixed(1)}%</span></div>`).join("")}</div></div></div>`;
-}
-function refreshDashboard(){
- let rows=dashFiltered(),s=dashAgg(rows),selected=document.getElementById("dfType")?.value||"",showC=selected===""||selected==="Comercio",showB=selected===""||selected==="Banco",vda=s.vdaNew+s.vdaRep+s.vdaCash;
- let cardsC=[
- ["Solicitudes",s.req],["Clientes surtidos",s.srv],["Conversión solicitud → surtido",safePct(s.srv,s.req).toFixed(1)+"%"],
- ["Monto Clientes Nuevos",money(s.newAmt)],["Ticket promedio Nuevos",money(s.newCount?s.newAmt/s.newCount:0)],
- ["Monto Clientes Inactivos",money(s.inaAmt)],["Ticket promedio Inactivos",money(s.inaCount?s.inaAmt/s.inaCount:0)],
- ["VDA total",money(vda)],["VDA Nuevas",money(s.vdaNew)],["VDA Recompra",money(s.vdaRep)],["VDA Contado",money(s.vdaCash)]
- ];
- let cardsB=[
- ["Afiliaciones",s.aff],["Portabilidades",s.port],["Fondos de Inversión",money(s.funds)],
- ["Guardadito Remeseros",s.guardCount+" · "+money(s.guardAmt)],["Ticket prom. Guardadito",money(s.guardCount?s.guardAmt/s.guardCount:0)],
- ["Somos",s.somosCount+" · "+money(s.somosAmt)],["Ticket prom. Somos",money(s.somosCount?s.somosAmt/s.somosCount:0)],
- ["Inversiones",s.invCount+" · "+money(s.invAmt)],["Ticket prom. Inversiones",money(s.invCount?s.invAmt/s.invCount:0)],
- ["TAZ entregadas",s.tazD],["TAZ activadas",s.tazA],["Conversión TAZ",safePct(s.tazA,s.tazD).toFixed(1)+"%"]
- ];
- let group={};rows.forEach(r=>{let k=r.emp+"|"+r.branch;if(!group[k])group[k]={advisor:r.advisor,emp:r.emp,branch:r.branch,rows:[]};group[k].rows.push(r)});
- let detail=Object.values(group).map(g=>{let x=dashAgg(g.rows),vv=x.vdaNew+x.vdaRep+x.vdaCash;
-   let commerceCells=showC?`<td>${x.req}</td><td>${x.srv}</td><td>${safePct(x.srv,x.req).toFixed(1)}%</td><td>${money(x.newAmt)}</td><td>${money(x.inaAmt)}</td><td>${money(vv)}</td>`:"";
-   let bankCells=showB?`<td>${x.aff}</td><td>${x.port}</td><td>${money(x.guardAmt)}</td><td>${money(x.somosAmt)}</td><td>${money(x.invAmt)}</td><td>${safePct(x.tazA,x.tazD).toFixed(1)}%</td>`:"";
-   return `<tr><td>${esc(g.advisor)}</td><td>${g.branch}</td>${commerceCells}${bankCells}</tr>`}).join("");
- let heads=`<th>Asesor</th><th>Sucursal</th>${showC?'<th>Solicitudes</th><th>Surtidos</th><th>Conversión</th><th>Nuevos $</th><th>Inactivos $</th><th>VDA $</th>':""}${showB?'<th>Afiliaciones</th><th>Portabilidades</th><th>Guardadito $</th><th>Somos $</th><th>Inversiones $</th><th>TAZ %</th>':""}`;
- let cSection=showC?`<h2 class="sectiontitle">🛍️ Comercio</h2><div class="kpigrid">${cardsC.map(c=>`<div class="kpicard"><small>${c[0]}</small><b>${c[1]}</b></div>`).join("")}</div>
- <div class="visualgrid">
-  <div class="chartcard"><h3>Conversión Comercio por sucursal</h3><div class="chartsub">Clientes surtidos ÷ solicitudes levantadas.</div>${visualBranchChart(rows,"Comercio")}</div>
-  ${pieCard("Mix VDA","Distribución del monto VDA por tipo.",[["Nuevas",s.vdaNew],["Recompra",s.vdaRep],["Contado",s.vdaCash]])}
-  ${pieCard("Origen del monto Comercio","Participación de Clientes Nuevos, Inactivos y VDA.",[["Clientes Nuevos",s.newAmt],["Clientes Inactivos",s.inaAmt],["VDA",vda]])}
- </div>`:"";
- let bSection=showB?`<h2 class="sectiontitle">🏦 Banco</h2><div class="kpigrid">${cardsB.map(c=>`<div class="kpicard"><small>${c[0]}</small><b>${c[1]}</b></div>`).join("")}</div>
- <div class="visualgrid">
-  <div class="chartcard"><h3>Conversión TAZ por sucursal</h3><div class="chartsub">TAZ activadas ÷ TAZ entregadas.</div>${visualBranchChart(rows,"Banco")}</div>
-  ${pieCard("Mix de captación Banco","Distribución de montos entre Fondos, Guardadito, Somos e Inversiones.",[["Fondos",s.funds],["Guardadito",s.guardAmt],["Somos",s.somosAmt],["Inversiones",s.invAmt]])}
-  ${countPieCard("Vinculación","Participación de Afiliaciones y Portabilidades.",[["Afiliaciones",s.aff],["Portabilidades",s.port]])}
-  ${countPieCard("Estado TAZ","Activadas frente a entregadas pendientes de activación.",[["Activadas",s.tazA],["Pendientes",Math.max(0,s.tazD-s.tazA)]])}
- </div>`:"";
- document.getElementById("dashboardBody").innerHTML=`<div class="dashnote">${rows.length} capturas incluidas en los filtros actuales.</div>
- ${cSection}${bSection}
- <h2 class="sectiontitle">Tendencia diaria</h2><div class="visualgrid"><div class="chartcard" style="grid-column:1/-1"><h3>Tendencia diaria de montos</h3><div class="chartsub">${selected?selected:"Banco + Comercio"} · evolución de los montos registrados.</div>${visualDailyTrend(rows)}</div></div>
- <h2 class="sectiontitle">Detalle por asesor</h2><div class="tablewrap"><table><thead><tr>${heads}</tr></thead><tbody>${detail||`<tr><td colspan="${2+(showC?6:0)+(showB?6:0)}" style="text-align:center;padding:25px">No hay capturas con estos filtros.</td></tr>`}</tbody></table></div>
- <p class="dashnote">Vista basada en resultados capturados. Las metas y porcentajes de cumplimiento se incorporarán cuando definamos el catálogo de metas.</p>`;
+function renderEjecAdvisorView(){
+ let formType=ejec.form,wk=ejec.week,weeks6=lastNWeekKeys(6);
+ let a=advisors.find(x=>x.id===ejec.advisorId);
+ if(!a)return `<div class="card placeholder"><div><div class="icon">🙈</div><h2>Asesor no encontrado</h2></div></div>`;
+ let matrix=ejecPrecompute(formType,weeks6,[a]);
+ let ev=matrix[a.id][wk],cons=constanciaAsesorSemana(a,formType,wk);
+ let progressRows=ev.controles.map(c=>{
+  let pct=Math.min(100,Math.round(c.actual/Math.max(1,c.min)*100));
+  let color=c.state==="CUMPLE"?"#2c765d":c.state==="PARCIAL"?"#e3b341":(ev.enCurso?"#b7bdb6":"#c94747");
+  return `<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:4px"><span>${c.icon} ${esc(c.label)}</span><span>${cellIcon(c.state,ev.enCurso)} ${esc(c.actualLabel)} / ${esc(c.minLabel)}</span></div>
+  <div class="bartrack"><div class="barfill" style="width:${pct}%;background:${color}"></div></div>${c.faltante?`<div class="dashnote" style="margin-top:3px">${esc(c.faltante)}</div>`:""}</div>`;
+ }).join("");
+ let historyRows=weeks6.map(w=>{let e=matrix[a.id][w];return `<tr><td>${esc(weekLabel(w))}${isCurrentWeek(w)?" · en curso":""}</td><td>${estatusBadge(e.estatus)}</td><td>${e.cumplimientoPct}%</td><td>${e.coberturaPct}%</td></tr>`}).join("");
+ let dayNames=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+ let dayCells=cons.dayFlags.map((d,i)=>`<div class="daycell ${d.captured?"day-yes":"day-no"}">${dayNames[i]}<br>${d.captured?"✅":"—"}</div>`).join("");
+ let indicacion=ejecIndicacionTexto(a,ev,matrix,formType,wk,weeks6);
+ return `
+ <div class="chartcard"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+  <div><h2 style="margin:0 0 4px">${esc(a.name)}</h2><div class="dashnote">N.º empleado ${esc(a.emp)} · ${esc(a.branch)} · ${esc(a.puesto||"Sin puesto asignado")}</div></div>${estatusBadge(ev.estatus)}</div>
+  <div class="kpigrid" style="margin-top:16px">${kpiCard("Cumplimiento",ev.cumplimientoPct+"%")}${kpiCard("Cobertura",ev.coberturaPct+"%")}${kpiCard("Constancia",cons.pct+"%")}${kpiCard("Controles en cero",ev.ceros)}</div></div>
+ <div class="chartcard"><h3>Avance por control — ${esc(weekLabel(wk))}</h3>${progressRows}</div>
+ <div class="chartcard"><h3>Constancia por día</h3><div class="chartsub">Días con al menos una captura, lunes a domingo.</div><div class="daygrid">${dayCells}</div></div>
+ <div class="chartcard"><h3>Historial — últimas 6 semanas</h3><div class="tablewrap"><table><thead><tr><th>Semana</th><th>Estatus</th><th>Cumplimiento</th><th>Cobertura</th></tr></thead><tbody>${historyRows}</tbody></table></div></div>
+ <div class="chartcard"><h3>📋 Indicación sugerida</h3><div class="indicrow"><div>${esc(indicacion)}</div><button class="btn secondary" onclick='ejecCopyText(this,${JSON.stringify(indicacion)})'>Copiar</button></div></div>`;
 }
 function placeholder(title,sub,icon,msg){topTitle.textContent=title;view.innerHTML=`<div class="pagehead"><div><h1>${title}</h1><p>${sub}</p></div></div><div class="card placeholder"><div><div class="icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div></div>`}
 function renderAdvisors(){topTitle.textContent="Alta de asesores";view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h1>Alta de asesores</h1><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
