@@ -451,7 +451,7 @@ function buildDemoRecord(a,formType,bn,day,hour,vals,seed){
  let folio=`DEMO-${formType==="Banco"?"BAN":"COM"}-${day.replaceAll("-","")}-${a.emp}-${seed}`;
  if(formType==="Banco"){
   let rngCash=makeRng(a.emp+"|"+formType+"|"+day+"|"+seed+"|cash"),cashN=rngCash()%3,cashAmounts=Array.from({length:cashN},()=>500+(rngCash()%5000));
-  let d={aff:vals.aff||0,port:vals.port||0,funds:vals.funds||0,guardCount:(vals.guard||[]).length,guardAmounts:vals.guard||[],somosCount:(vals.somos||[]).length,somosAmounts:vals.somos||[],invCount:(vals.inv||[]).length,invAmounts:vals.inv||[],cashCount:cashAmounts.length,cashAmounts,tazDelivered:vals.taz?vals.taz.d:0,tazActivated:vals.taz?vals.taz.a:0,captureDate:day};
+  let d={aff:vals.aff||0,port:vals.port||0,funds:vals.funds||0,guardCount:(vals.guard||[]).length,guardAmounts:vals.guard||[],somosCount:(vals.somos||[]).length,somosAmounts:vals.somos||[],invCount:(vals.inv||[]).length,invAmounts:vals.inv||[],cashAmounts,tazDelivered:vals.taz?vals.taz.d:0,tazActivated:vals.taz?vals.taz.a:0,captureDate:day};
   return {folio,created_at,day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:d,status:"confirmed",demo:true};
  }
  let req=[vals.req_0||0,vals.req_1||0,vals.req_2||0];
@@ -514,7 +514,7 @@ function generateDemoData(){
   commerceAdvisors.forEach(a=>{commerceCaptures.push(...buildDemoCaptures(a,"Comercio",wk))});
  });
 }
-const DEMO_KEY="crm_demo_kpi_seed_v4";
+const DEMO_KEY="crm_demo_kpi_seed_v5";
 function seedDemoKpiData(){
  if(localStorage.getItem(DEMO_KEY)==="1")return;
  purgeDemoData();
@@ -669,10 +669,10 @@ function openBank(){
  ${bankPairCard("💰","Guardadito Remeseros","guard","Guardadito")}
  ${bankPairCard("👥","Somos","somos","Somos")}
  ${bankPairCard("💵","Inversiones","inv","Inversión")}
- ${bankPairCard("💵","Colocación de Efectivo","cash","colocación")}
+ <div class="capturesec"><h3>💵 Colocación de Efectivo</h3><div class="three"><div class="field"><label>Montos de Colocación de Efectivo</label><input id="bkCashAmounts" value="" placeholder="Ejemplo: 1500, 300, 0" oninput="sanitizeMoneyListLive(this);updateCashCalc()"><small>Escribe cada monto separado por coma. Solo números enteros (sin decimales ni negativos). Déjalo vacío si no capturaste.</small></div><div class="calc" id="bkCashCalc">0 montos · Total $0</div></div></div>
  <div class="capturesec"><h3>💳 TAZ</h3><div class="three"><div class="field"><label>Número de TAZ entregadas</label><input type="number" min="0" step="1" id="bkTazDelivered" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);validateTaz()"></div><div class="field"><label>Número de TAZ activadas</label><input type="number" min="0" step="1" id="bkTazActivated" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);validateTaz()"></div><div class="calc" id="tazMsg">0 entregadas · 0 activadas</div></div><div id="tazError" style="color:#b3261e;font-weight:800;margin-top:8px"></div></div>
  <div class="actions"><button class="btn primary" onclick="reviewBank()">Revisar avance →</button></div></div>`;
- ["guard","somos","inv","cash"].forEach(p=>{document.getElementById("bk_"+p+"_count").addEventListener("input",()=>updateBankPair(p));document.getElementById("bk_"+p+"_amounts").addEventListener("input",()=>updateBankPair(p))});
+ ["guard","somos","inv"].forEach(p=>{document.getElementById("bk_"+p+"_count").addEventListener("input",()=>updateBankPair(p));document.getElementById("bk_"+p+"_amounts").addEventListener("input",()=>updateBankPair(p))});
  document.getElementById("bkTazDelivered").addEventListener("input",validateTaz);document.getElementById("bkTazActivated").addEventListener("input",validateTaz);
 }
 function bankPairCard(icon,title,p,singular){
@@ -688,6 +688,10 @@ function updateBankPair(p){
  calc.textContent=`${vals.length===count?"✓":"⚠️"} ${vals.length} de ${count} montos capturados · Total ${money(total)}`;
  err.textContent=vals.length<count?`⚠️ Falta${count-vals.length===1?"":"n"} ${count-vals.length} monto${count-vals.length===1?"":"s"}. Registraste ${count}; debes ingresar ${count} montos.`:vals.length>count?`⚠️ Sobran ${vals.length-count} monto${vals.length-count===1?"":"s"}. Registraste ${count}; debes ingresar exactamente ${count} montos.`:"";
 }
+function updateCashCalc(){
+ let vals=parseAmounts(document.getElementById("bkCashAmounts").value),total=vals.reduce((a,b)=>a+b,0);
+ document.getElementById("bkCashCalc").textContent=`${vals.length} monto${vals.length===1?"":"s"} · Total ${money(total)}`;
+}
 function parseAmountsKeepZero(v){
  let raw=String(v??"").trim();if(!raw||raw==="0")return raw==="0"?[0]:[];
  return raw.split(",").map(x=>x.trim()).filter(x=>x!=="").map(x=>sanitizeMoneyAmount(x).value).filter(x=>Number.isFinite(x)&&x>=0);
@@ -700,8 +704,8 @@ function validateTaz(){
 }
 function getBankDraft(){
  let intval=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0)),moneyval=id=>cleanMoneyValue(document.getElementById(id).value);
- let d={aff:intval("bkAff"),port:intval("bkPort"),funds:moneyval("bkFunds"),guardCount:intval("bk_guard_count"),guardAmounts:parseAmountsKeepZero(document.getElementById("bk_guard_amounts").value),somosCount:intval("bk_somos_count"),somosAmounts:parseAmountsKeepZero(document.getElementById("bk_somos_amounts").value),invCount:intval("bk_inv_count"),invAmounts:parseAmountsKeepZero(document.getElementById("bk_inv_amounts").value),cashCount:intval("bk_cash_count"),cashAmounts:parseAmountsKeepZero(document.getElementById("bk_cash_amounts").value),tazDelivered:intval("bkTazDelivered"),tazActivated:intval("bkTazActivated"),captureDate:selectedCaptureDate()};
- if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];if(d.cashCount===0)d.cashAmounts=[];return d;
+ let d={aff:intval("bkAff"),port:intval("bkPort"),funds:moneyval("bkFunds"),guardCount:intval("bk_guard_count"),guardAmounts:parseAmountsKeepZero(document.getElementById("bk_guard_amounts").value),somosCount:intval("bk_somos_count"),somosAmounts:parseAmountsKeepZero(document.getElementById("bk_somos_amounts").value),invCount:intval("bk_inv_count"),invAmounts:parseAmountsKeepZero(document.getElementById("bk_inv_amounts").value),cashAmounts:parseAmounts(document.getElementById("bkCashAmounts").value),tazDelivered:intval("bkTazDelivered"),tazActivated:intval("bkTazActivated"),captureDate:selectedCaptureDate()};
+ if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];return d;
 }
 function reviewBank(){
  ["guard","somos","inv"].forEach(updateBankPair);if(!validateTaz())return;
@@ -709,7 +713,6 @@ function reviewBank(){
  if(d.guardAmounts.length!==d.guardCount)bad.push("Guardadito Remeseros");
  if(d.somosAmounts.length!==d.somosCount)bad.push("Somos");
  if(d.invAmounts.length!==d.invCount)bad.push("Inversiones");
- if(d.cashAmounts.length!==d.cashCount)bad.push("Colocación de Efectivo");
  if(bad.length){alert("Completa correctamente número y montos de: "+bad.join(", ")+".");return}
  advance.draft=d;let sum=a=>a.reduce((s,n)=>s+n,0);
  view.innerHTML=`<div class="card confirmbox" style="max-width:900px"><h2>Revisa tu avance — Banco</h2><p>Esta captura se <b>sumará</b> al acumulado de la fecha seleccionada. No sustituye capturas anteriores.</p>
@@ -719,7 +722,7 @@ function reviewBank(){
  <tr><td>Guardadito Remeseros</td><td>${d.guardCount}</td><td>${money(sum(d.guardAmounts))}<br><small>${esc(d.guardAmounts.join(", "))}</small></td></tr>
  <tr><td>Somos</td><td>${d.somosCount}</td><td>${money(sum(d.somosAmounts))}<br><small>${esc(d.somosAmounts.join(", "))}</small></td></tr>
  <tr><td>Inversiones</td><td>${d.invCount}</td><td>${money(sum(d.invAmounts))}<br><small>${esc(d.invAmounts.join(", "))}</small></td></tr>
- <tr><td>Colocación de Efectivo</td><td>${d.cashCount}</td><td>${money(sum(d.cashAmounts))}<br><small>${esc(d.cashAmounts.join(", "))}</small></td></tr>
+ <tr><td>Colocación de Efectivo</td><td>${d.cashAmounts.length}</td><td>${money(sum(d.cashAmounts))}<br><small>${esc(d.cashAmounts.join(", "))}</small></td></tr>
  <tr><td>TAZ</td><td>${d.tazDelivered} entregadas · ${d.tazActivated} activadas</td><td>—</td></tr></tbody></table></div>
  <div class="actions"><button class="btn secondary" onclick="openBankWithDate('${d.captureDate}')">Cancelar</button><button class="btn primary" onclick="saveBank()">Confirmar y guardar</button></div></div>`;
 }
@@ -746,7 +749,7 @@ function commerceRows(){
 }
 function bankRows(){
  let sum=a=>(a||[]).reduce((s,n)=>s+(Number(n)||0),0);
- return bankCaptures.map(c=>{let d=c.data||{};return {tipo:"Banco",folio:c.folio,fecha:c.day,semana:c.week,sucursal:c.branch,empleado:c.emp,asesor:c.advisor,resumen:`Afiliaciones ${d.aff||0} · Portabilidades ${d.port||0} · Fondos ${money(d.funds||0)} · Guardadito ${d.guardCount||0}/${money(sum(d.guardAmounts))} · Somos ${d.somosCount||0}/${money(sum(d.somosAmounts))} · Inversiones ${d.invCount||0}/${money(sum(d.invAmounts))} · Efectivo ${d.cashCount||0}/${money(sum(d.cashAmounts))} · TAZ ${d.tazDelivered||0}/${d.tazActivated||0}`,registrado:c.created_at?new Date(c.created_at).toLocaleString("es-MX"):""};});
+ return bankCaptures.map(c=>{let d=c.data||{};return {tipo:"Banco",folio:c.folio,fecha:c.day,semana:c.week,sucursal:c.branch,empleado:c.emp,asesor:c.advisor,resumen:`Afiliaciones ${d.aff||0} · Portabilidades ${d.port||0} · Fondos ${money(d.funds||0)} · Guardadito ${d.guardCount||0}/${money(sum(d.guardAmounts))} · Somos ${d.somosCount||0}/${money(sum(d.somosAmounts))} · Inversiones ${d.invCount||0}/${money(sum(d.invAmounts))} · Efectivo ${(d.cashAmounts||[]).length}/${money(sum(d.cashAmounts))} · TAZ ${d.tazDelivered||0}/${d.tazActivated||0}`,registrado:c.created_at?new Date(c.created_at).toLocaleString("es-MX"):""};});
 }
 function filteredRows(){
  let rows=[...commerceRows(),...bankRows()].sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))),f=document.getElementById("rfDate"),b=document.getElementById("rfBranch"),e=document.getElementById("rfEmp"),w=document.getElementById("rfWeek"),t=document.getElementById("rfType");
@@ -781,7 +784,8 @@ function editBankRecord(folio){
  view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Banco</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card">
  <div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="ebrDate" value="${c.day}"></div></div>
  <h3>📈 Captación y vinculación</h3><div class="three"><div class="field"><label>Afiliaciones</label><input type="number" min="0" id="ebrAff" value="${d.aff}"></div><div class="field"><label>Portabilidades</label><input type="number" min="0" id="ebrPort" value="${d.port}"></div><div class="field"><label>Fondos de Inversión</label><input type="text" inputmode="numeric" id="ebrFunds" value="${Math.trunc(Number(d.funds)||0)}" oninput="sanitizeMoneyFieldLive(this)"></div></div>
- ${adminBankPair("Guardadito Remeseros","guard",d.guardCount,list(d.guardAmounts))}${adminBankPair("Somos","somos",d.somosCount,list(d.somosAmounts))}${adminBankPair("Inversiones","inv",d.invCount,list(d.invAmounts))}${adminBankPair("Colocación de Efectivo","cash",d.cashCount||0,list(d.cashAmounts))}
+ ${adminBankPair("Guardadito Remeseros","guard",d.guardCount,list(d.guardAmounts))}${adminBankPair("Somos","somos",d.somosCount,list(d.somosAmounts))}${adminBankPair("Inversiones","inv",d.invCount,list(d.invAmounts))}
+ <h3>Colocación de Efectivo</h3><div class="three"><div class="field"><label>Montos (separados por coma)</label><input id="ebr_cash_amounts" value="${esc(list(d.cashAmounts))}" oninput="sanitizeMoneyListLive(this)"><small>Deja el campo vacío si no hubo colocación.</small></div></div>
  <h3>💳 TAZ</h3><div class="three"><div class="field"><label>Entregadas</label><input type="number" min="0" id="ebrTazD" value="${d.tazDelivered}"></div><div class="field"><label>Activadas</label><input type="number" min="0" id="ebrTazA" value="${d.tazActivated}"></div></div><div class="actions"><button class="btn primary" onclick="saveBankRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
 function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}" oninput="sanitizeMoneyListLive(this)"><small>Debe coincidir exactamente con el número. Solo números enteros (sin decimales).</small></div></div>`}
@@ -789,9 +793,9 @@ function saveBankRecordEdit(folio){
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let intv=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0));
  let amts=id=>parseAmountsKeepZero(document.getElementById(id).value);
- let d={aff:intv("ebrAff"),port:intv("ebrPort"),funds:cleanMoneyValue(document.getElementById("ebrFunds").value),guardCount:intv("ebr_guard_count"),guardAmounts:amts("ebr_guard_amounts"),somosCount:intv("ebr_somos_count"),somosAmounts:amts("ebr_somos_amounts"),invCount:intv("ebr_inv_count"),invAmounts:amts("ebr_inv_amounts"),cashCount:intv("ebr_cash_count"),cashAmounts:amts("ebr_cash_amounts"),tazDelivered:intv("ebrTazD"),tazActivated:intv("ebrTazA")};
- if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];if(d.cashCount===0)d.cashAmounts=[];
- if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount||d.cashAmounts.length!==d.cashCount){alert("Guardadito, Somos, Inversiones y Colocación de Efectivo deben tener exactamente un monto por cada operación.");return}
+ let d={aff:intv("ebrAff"),port:intv("ebrPort"),funds:cleanMoneyValue(document.getElementById("ebrFunds").value),guardCount:intv("ebr_guard_count"),guardAmounts:amts("ebr_guard_amounts"),somosCount:intv("ebr_somos_count"),somosAmounts:amts("ebr_somos_amounts"),invCount:intv("ebr_inv_count"),invAmounts:amts("ebr_inv_amounts"),cashAmounts:parseAmounts(document.getElementById("ebr_cash_amounts").value),tazDelivered:intv("ebrTazD"),tazActivated:intv("ebrTazA")};
+ if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];
+ if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount){alert("Guardadito, Somos e Inversiones deben tener exactamente un monto por cada operación.");return}
  if(d.tazActivated>d.tazDelivered){alert("Las TAZ activadas no pueden ser mayores que las entregadas.");return}
  let day=document.getElementById("ebrDate").value||c.day;d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));renderRecords();
 }
