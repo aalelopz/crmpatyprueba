@@ -318,6 +318,16 @@ function regionalBankTotals(wk,advisorList){
  return {totalAff,totalPort,totalCash,metaAff:META_AFILIACIONES_REGION,metaPort:META_PORTABILIDADES_REGION,metaCash:META_EFECTIVO_REGION_PESOS,
   pctAff:Math.round(totalAff/META_AFILIACIONES_REGION*100),pctPort:Math.round(totalPort/META_PORTABILIDADES_REGION*100),pctCash:META_EFECTIVO_REGION_PESOS?Math.round(totalCash/META_EFECTIVO_REGION_PESOS*100):0};
 }
+function sucursalBankTotals(wk,advisorList,bn){
+ let totalAff=0,totalPort=0,totalCash=0;
+ advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),wk);totalAff+=s.aff;totalPort+=s.port;totalCash+=sumArr(s.cashAmounts)});
+ let cuota=META_SUCURSAL[bn];
+ if(!cuota)return {totalAff,totalPort,totalCash,metaAff:null,metaPort:null,metaCash:null,pctAff:null,pctPort:null,pctCash:null};
+ return {totalAff,totalPort,totalCash,metaAff:cuota.afiliaciones_cuota_semanal,metaPort:cuota.portabilidades_cuota_semanal,metaCash:cuota.efectivo_cuota_semanal_pesos,
+  pctAff:cuota.afiliaciones_cuota_semanal?Math.round(totalAff/cuota.afiliaciones_cuota_semanal*100):0,
+  pctPort:cuota.portabilidades_cuota_semanal?Math.round(totalPort/cuota.portabilidades_cuota_semanal*100):0,
+  pctCash:cuota.efectivo_cuota_semanal_pesos?Math.round(totalCash/cuota.efectivo_cuota_semanal_pesos*100):0};
+}
 function controlResult(ctrl,sums,ctx){
  if(ctrl.special==="taz"){
   let d=sums.tazDelivered||0,a=sums.tazActivated||0,state=evalTaz(d,a,ctrl.idealMin);
@@ -1100,6 +1110,12 @@ function renderEjecBranchView(){
  }).join("");
  let pendientes=heat.filter(h=>h.eval.estatus!=="VERDE");
  let activacionCard=formType==="Banco"?kpiCard("Activación baja en TAZ",activacionBaja.length):"";
+ let sucursalName=branch.split(" - ")[1]||branch;
+ let sucursalTotals=formType==="Banco"?sucursalBankTotals(wk,allAdvisors,branchNum(branch)):null;
+ let sucursalCards=sucursalTotals?(sucursalTotals.metaAff==null
+  ?`${kpiCard(`Afiliaciones ${sucursalName}`,"Meta no definida")}${kpiCard(`Portabilidades ${sucursalName}`,"Meta no definida")}${kpiCard(`Efectivo ${sucursalName}`,"Meta no definida")}`
+  :`${kpiCard(`Afiliaciones ${sucursalName}`,`${sucursalTotals.totalAff} de ${sucursalTotals.metaAff}`,`(${sucursalTotals.pctAff}%)`)}${kpiCard(`Portabilidades ${sucursalName}`,`${sucursalTotals.totalPort} de ${sucursalTotals.metaPort}`,`(${sucursalTotals.pctPort}%)`)}${kpiCard(`Efectivo ${sucursalName}`,`${money(sucursalTotals.totalCash)} de ${money(sucursalTotals.metaCash)}`,`(${sucursalTotals.pctCash}%)`)}`
+ ):"";
  return `
  <div class="kpigrid">
   ${kpiCard("Asesores sin mudos",sinMudos.length,`(${pctSinMudos}%)`)}
@@ -1107,6 +1123,7 @@ function renderEjecBranchView(){
   ${kpiCard("Asesores en Ideal completo",idealCompleto.length)}
   ${kpiCard("Foco rojo de constancia",focoRojo.length)}
   ${activacionCard}
+  ${sucursalCards}
  </div>
  ${rubro?`<div class="notice">🔎 <b>Rubro crítico de la sucursal:</b> ${esc(rubro.label)} — ${rubro.mudos} de ${evaluados} asesores en mudo.</div>`:""}
  ${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}
