@@ -146,16 +146,46 @@ const METAS={
  DIAS_OPERACION:7,
  DIAS_SIN_CAPTURA_ALERTA:2,
  BANCO:{
-  affRegional:180,
-  portRegional:60,
   funds:{mudo:1000,ideal:10000},
   guard:{ideal:10,montoComision:500},
   somos:{ideal:4,montoComision:3000},
   inv:{ideal:2},
   taz:{idealMin:3}
  },
- COMERCIO:{hogarNuevoIdeal:1500}
+ COMERCIO:{
+  nuevosInactivosIdeal:[15000,1500,3000], // Movilidad, Hogar, Conectividad
+  vdaIdeal:1000
+ }
 };
+// ============================================================
+// META_SUCURSAL: cuotas fijas por sucursal para Afiliaciones,
+// Portabilidades y Colocación de Efectivo (Banco). Cargadas desde
+// metas_sucursales_banco.csv (11 sucursales). Edita a mano estos
+// valores cada trimestre cuando cambien las cuotas.
+// ============================================================
+const META_SUCURSAL={
+ "708":{sucursal:"DAZ SAN DIEGO DE LA UNION",afiliaciones_cuota_13sem:155,afiliaciones_cuota_semanal:12,portabilidades_cuota_13sem:39,portabilidades_cuota_semanal:3,efectivo_cuota_13sem_pesos:5400000,efectivo_cuota_semanal_pesos:415000},
+ "9846":{sucursal:"DAZ SAN LUIS DE LA PAZ",afiliaciones_cuota_13sem:88,afiliaciones_cuota_semanal:7,portabilidades_cuota_13sem:26,portabilidades_cuota_semanal:2,efectivo_cuota_13sem_pesos:2061000,efectivo_cuota_semanal_pesos:159000},
+ "2111":{sucursal:"EKT COMONFORT",afiliaciones_cuota_13sem:162,afiliaciones_cuota_semanal:12,portabilidades_cuota_13sem:51,portabilidades_cuota_semanal:4,efectivo_cuota_13sem_pesos:11230000,efectivo_cuota_semanal_pesos:864000},
+ "4155":{sucursal:"EKT GTO SAN JOSE ITURBIDE",afiliaciones_cuota_13sem:250,afiliaciones_cuota_semanal:19,portabilidades_cuota_13sem:52,portabilidades_cuota_semanal:4,efectivo_cuota_13sem_pesos:10050000,efectivo_cuota_semanal_pesos:773000},
+ "2083":{sucursal:"EKT GUANAJUATO SAN LUIS DE LA PAZ",afiliaciones_cuota_13sem:483,afiliaciones_cuota_semanal:37,portabilidades_cuota_13sem:117,portabilidades_cuota_semanal:9,efectivo_cuota_13sem_pesos:14562000,efectivo_cuota_semanal_pesos:1120000},
+ "2082":{sucursal:"EKT QUERETARO SATELITE",afiliaciones_cuota_13sem:240,afiliaciones_cuota_semanal:18,portabilidades_cuota_13sem:81,portabilidades_cuota_semanal:6,efectivo_cuota_13sem_pesos:16818000,efectivo_cuota_semanal_pesos:1294000},
+ "4183":{sucursal:"EKT SANTIAGO QUERETARO SANTA R",afiliaciones_cuota_13sem:331,afiliaciones_cuota_semanal:25,portabilidades_cuota_13sem:97,portabilidades_cuota_semanal:7,efectivo_cuota_13sem_pesos:17978000,efectivo_cuota_semanal_pesos:1383000},
+ "9510":{sucursal:"MEGA AV PENAFLOR QRO",afiliaciones_cuota_13sem:110,afiliaciones_cuota_semanal:8,portabilidades_cuota_13sem:39,portabilidades_cuota_semanal:3,efectivo_cuota_13sem_pesos:10878000,efectivo_cuota_semanal_pesos:837000},
+ "6787":{sucursal:"MEGA JUVENTINO ROSAS",afiliaciones_cuota_13sem:322,afiliaciones_cuota_semanal:25,portabilidades_cuota_13sem:65,portabilidades_cuota_semanal:5,efectivo_cuota_13sem_pesos:18178000,efectivo_cuota_semanal_pesos:1398000},
+ "3105":{sucursal:"MEGA SAN JOSE DE ITURBIDE",afiliaciones_cuota_13sem:178,afiliaciones_cuota_semanal:14,portabilidades_cuota_13sem:39,portabilidades_cuota_semanal:3,efectivo_cuota_13sem_pesos:5612000,efectivo_cuota_semanal_pesos:432000},
+ "1054":{sucursal:"MEGA SAN MIGUEL DE ALLENDE",afiliaciones_cuota_13sem:300,afiliaciones_cuota_semanal:23,portabilidades_cuota_13sem:97,portabilidades_cuota_semanal:7,efectivo_cuota_13sem_pesos:17495000,efectivo_cuota_semanal_pesos:1346000}
+};
+const META_AFILIACIONES_REGION=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.afiliaciones_cuota_semanal,0);
+const META_EFECTIVO_REGION_PESOS=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.efectivo_cuota_semanal_pesos,0);
+// Meta aspiracional del regional: NO se deriva de la suma de cuotas por
+// sucursal (esa suma da 53). Es un número fijo aparte, intencional.
+const META_PORTABILIDADES_REGION=60;
+// Trimestre vigente para congelar meta_individual de Afiliaciones,
+// Portabilidades y Colocación de Efectivo. Edita a mano al cerrar el
+// trimestre (esto crea automáticamente un nuevo congelamiento).
+const TRIMESTRE_ACTUAL={anio:2026,semanaIsoInicio:40,numSemanas:13};
+function trimestreKey(){return `${TRIMESTRE_ACTUAL.anio}-S${TRIMESTRE_ACTUAL.semanaIsoInicio}-N${TRIMESTRE_ACTUAL.numSemanas}`}
 const ACCIONES_SUGERIDAS={
  aff:"Reforzar prospección de afiliaciones nuevas.",
  port:"Buscar candidatos a portabilidad en la cartera actual.",
@@ -164,6 +194,7 @@ const ACCIONES_SUGERIDAS={
  somos:"Abrir más cuentas de Somos en la semana.",
  inv:"Cerrar al menos una Inversión en la semana.",
  taz:"Entregar y activar más TAZ; basta 1 de cada para salir de mudo.",
+ cash:"Impulsar la colocación de efectivo con clientes elegibles.",
  req_0:"Levantar más solicitudes de Movilidad.",
  req_1:"Levantar más solicitudes de Hogar.",
  req_2:"Levantar más solicitudes de Conectividad.",
@@ -184,6 +215,7 @@ function sumArr(a){return (Array.isArray(a)?a:[]).reduce((s,n)=>s+(Number(n)||0)
 const CONTROLES_BANCO=[
  {key:"aff",label:"Afiliaciones",singular:"afiliación",icon:"🧾",special:"regional",regionalKey:"aff",getSum:s=>s.aff},
  {key:"port",label:"Portabilidades",singular:"portabilidad",icon:"🔄",special:"regional",regionalKey:"port",getSum:s=>s.port},
+ {key:"cash",label:"Colocación de Efectivo",singular:"colocación",icon:"💵",valueKind:"money",special:"regional",regionalKey:"cash",getSum:s=>sumArr(s.cashAmounts)},
  {key:"funds",label:"Fondos de Inversión",icon:"💰",valueKind:"money",getSum:s=>s.funds,mudoBelow:METAS.BANCO.funds.mudo,idealAt:METAS.BANCO.funds.ideal},
  {key:"guard",label:"Guardadito Remeseros",icon:"💰",unit:"cuenta",unitPlural:"cuentas",getAmounts:s=>s.guardAmounts,mudoBelow:1,idealAt:METAS.BANCO.guard.ideal,montoComision:METAS.BANCO.guard.montoComision},
  {key:"somos",label:"Somos",icon:"👥",unit:"cuenta",unitPlural:"cuentas",getAmounts:s=>s.somosAmounts,mudoBelow:1,idealAt:METAS.BANCO.somos.ideal,montoComision:METAS.BANCO.somos.montoComision},
@@ -194,9 +226,9 @@ const CAT_LABELS=["Movilidad","Hogar","Conectividad"];
 const CONTROLES_COMERCIO=[
  ...CAT_LABELS.map((n,i)=>({key:"req_"+i,label:"Solicitudes "+n,singular:"solicitud de "+n,icon:"🛍️",getSum:s=>s.req[i],mudoBelow:1,idealAt:1})),
  ...CAT_LABELS.map((n,i)=>({key:"srv_"+i,label:"Surtidos "+n,singular:"surtido de "+n,icon:"👥",getSum:s=>s.srv[i],mudoBelow:1,idealAt:1})),
- ...CAT_LABELS.map((n,i)=>({key:"nw_"+i,label:"Monto nuevos "+n,icon:"💰",valueKind:"money",getSum:s=>sumArr(s.nw[i]),mudoBelow:1,idealAt:1,metaIdealMonto:i===1?METAS.COMERCIO.hogarNuevoIdeal:undefined})),
- ...CAT_LABELS.map((n,i)=>({key:"ina_"+i,label:"Monto inactivos "+n,icon:"♻️",valueKind:"money",getSum:s=>sumArr(s.ina[i]),mudoBelow:1,idealAt:1,rubroCriticoFlag:i===1})),
- ...["Nuevas","Recompra","Contado"].map((n,i)=>({key:"vda_"+i,label:"VDA "+n,icon:"💳",valueKind:"money",getSum:s=>sumArr(s.vda[i]),mudoBelow:1,idealAt:1}))
+ ...CAT_LABELS.map((n,i)=>({key:"nw_"+i,label:"Monto nuevos "+n,icon:"💰",valueKind:"money",getSum:s=>sumArr(s.nw[i]),mudoBelow:1,idealAt:METAS.COMERCIO.nuevosInactivosIdeal[i]})),
+ ...CAT_LABELS.map((n,i)=>({key:"ina_"+i,label:"Monto inactivos "+n,icon:"♻️",valueKind:"money",getSum:s=>sumArr(s.ina[i]),mudoBelow:1,idealAt:METAS.COMERCIO.nuevosInactivosIdeal[i],rubroCriticoFlag:i===1})),
+ ...["Nuevas","Recompra","Contado"].map((n,i)=>({key:"vda_"+i,label:"VDA "+n,icon:"💳",valueKind:"money",getSum:s=>sumArr(s.vda[i]),mudoBelow:1,idealAt:METAS.COMERCIO.vdaIdeal}))
 ];
 const seedAdvisors=[{"id":"seed-1199656","emp":"1199656","name":"MIRIAM GARCIA ESTRADA","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1210404","emp":"1210404","name":"ALMA ANGELICA MENDIOLA BUENROSTRO","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1024593","emp":"1024593","name":"ANGELICA MAYELI LANDEROS YAÑEZ","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1171169","emp":"1171169","name":"PAULINA FERNANDA GARCIA VEGA","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1216757","emp":"1216757","name":"SONIA ESTEFANIA VAZQUEZ DELGADO","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-203904","emp":"203904","name":"MARIA TERESA PAZ HERNANDEZ","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1210961","emp":"1210961","name":"ADRIAN HERNANDEZ SANCHEZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1156264","emp":"1156264","name":"JUAN FELIPE BORJA PALACIOS","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-325106","emp":"325106","name":"MARIA DE LOURDES VELAZQUEZ LOPEZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1065609","emp":"1065609","name":"DAVID EMILIANO MATA RUBIO","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-51039","emp":"51039","name":"ANA CECILIA MORALES ARAIZA","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1141967","emp":"1141967","name":"CHRISTOPHER MARTIN AGUILAR OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-718639","emp":"718639","name":"FELIPE LANTEN OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-163832","emp":"163832","name":"MIRNA ONTIVEROS DIAZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1036979","emp":"1036979","name":"OFELIA CAPULIN SILVA","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-326875","emp":"326875","name":"JORGE PACHECO TORRES","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1190668","emp":"1190668","name":"JOSE EDUARDO ACOSTA GARCIA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1181835","emp":"1181835","name":"DULCE ALEJANDRA DIAZ VEGA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1157630","emp":"1157630","name":"CARLOS DANIEL RESENDIZ RUBIO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1075710","emp":"1075710","name":"INES BECERRA MEDINA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1191221","emp":"1191221","name":"JAQUELINE HERNANDEZ HERNANDEZ","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1017425","emp":"1017425","name":"JOSE ERNESTO BALDERAS ESTRADA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1093249","emp":"1093249","name":"ROSA ELIA MATA RIVERA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1181738","emp":"1181738","name":"FATIMA ALEXANDRA AGUILAR ARELLANO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1207055","emp":"1207055","name":"JUAN DANIEL MOYA ALVAREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1127877","emp":"1127877","name":"YOLANDA LIZBETH SANCHEZ MORIN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-858596","emp":"858596","name":"MANUEL RAMIREZ LUNA","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1208458","emp":"1208458","name":"JESUS YAHELD RICO RESENDIZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1200292","emp":"1200292","name":"OSCAR JAIR RAMIREZ HERNANDEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1158823","emp":"1158823","name":"ESMERALDA ROSARIO DE LEON CHAVEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1021634","emp":"1021634","name":"CARLOS JESUS CRUZ FLORES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1127088","emp":"1127088","name":"ALONDRA TORRES PEREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1043103","emp":"1043103","name":"YANET RUBI SEGUNDO DIAZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-878796","emp":"878796","name":"MARIA DE LOURDES BERTADILLO CERVANTES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-889793","emp":"889793","name":"MARTIN CORONILLA DURAN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-990242","emp":"990242","name":"JUANA ELENA GOMEZ SALAZAR","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1188721","emp":"1188721","name":"ANA ROSA ALVAREZ RAMIREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-334816","emp":"334816","name":"MARISELA FIGUEROA CONTRERAS","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1074999","emp":"1074999","name":"MARIA JOSE SERRANO NAVA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-88026","emp":"88026","name":"LAURA LETICIA ALCALA ARANDA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1227935","emp":"1227935","name":"VICTOR BERTOLEON MONTIEL","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1225473","emp":"1225473","name":"JESUS CERON HERNANDEZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-67497","emp":"67497","name":"LLUVIA ANGELICA VALENZUELA GARCIA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1184074","emp":"1184074","name":"LAURA PATRICIA PARDO BELTRAN","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1219669","emp":"1219669","name":"DANIEL ESCAMILLA FLORES","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1214031","emp":"1214031","name":"LUIS GABRIEL RUIZ JUAREZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1211196","emp":"1211196","name":"CARLOS ANDRES CURIEL LIQUIDANO","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-534667","emp":"534667","name":"SANDRA ESCOBEDO ACOSTA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1048917","emp":"1048917","name":"AKARI SALAZAR ISLAS","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-719590","emp":"719590","name":"MANUELA AGUILAR JIMENEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1223016","emp":"1223016","name":"LUIS ALBERTO CHAVEZ LEAL","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1031524","emp":"1031524","name":"MARTIN FUENTES ORTEGA","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1098635","emp":"1098635","name":"ABRAHAM PATIÑO PEREZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-692186","emp":"692186","name":"BERENICE HERMINIA HERNANDEZ LOPEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-181870","emp":"181870","name":"AARON GARCIA GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1082918","emp":"1082918","name":"LAURA GOMEZ GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1044500","emp":"1044500","name":"SAHILA ROCIO ROJO SALINAS","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1047138","emp":"1047138","name":"LUIS ANGEL GOMEZ MANZANO","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1123286","emp":"1123286","name":"ZAYRA ZAVALA RAMIREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-712368","emp":"712368","name":"IRMA MARTINEZ OCHOA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1216856","emp":"1216856","name":"JOSE ULISES RIOS CASTAÑEDA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1177804","emp":"1177804","name":"DORA IMELDA SALDAÑA MORALES","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1089773","emp":"1089773","name":"JULIO CESAR SANTIAGO PEREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1218737","emp":"1218737","name":"JONATHAN JOSUE JIMENEZ SILVA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1117293","emp":"1117293","name":"ADOLFO CERROBLANCO SANCHEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1167173","emp":"1167173","name":"JORGE LUIS PIZANO CASTILLO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1126644","emp":"1126644","name":"JESUS ALBERTO CONEJO DELGADO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1161954","emp":"1161954","name":"JORGE LUIS FLORES ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1052761","emp":"1052761","name":"LUCINO ANGEL MOLINA CARRANCO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1186294","emp":"1186294","name":"CAROLINA ZARATE AGOSTADERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-1206609","emp":"1206609","name":"CECILIA CASTILLO DECIGA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-366253","emp":"366253","name":"CECILIA GONZALEZ ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1047773","emp":"1047773","name":"MARIA DE JESUS HORTELANO SALDAÑA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1200270","emp":"1200270","name":"GENESIS AURORA CANO JIMENEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1198972","emp":"1198972","name":"JESUS MIGUEL NAVARRO GUERRERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-1184781","emp":"1184781","name":"LAURA GISELA BERTADILLO BARCENAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-299294","emp":"299294","name":"MARIA ELIZABETH AGUILERA BARRAZA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-964848","emp":"964848","name":"MARIA DEL CARMEN ALVIREZ HERNANDEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-38603","emp":"38603","name":"JOSE MANUEL GONZALEZ SOTO","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-92273","emp":"92273","name":"JAVIER BRIGIDO ROJAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1139066","emp":"1139066","name":"VERONICA SUJEY GUEVARA GOMEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1185274","emp":"1185274","name":"SUSANA GUERRERO MORALES","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1170850","emp":"1170850","name":"GABRIELA RESENDIZ CONTRERAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1204847","emp":"1204847","name":"MARIA ISABEL BAZALDUA MEDINA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"},{"id":"seed-302001","emp":"302001","name":"RICARDO GUIA PEREZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1199116","emp":"1199116","name":"JOSE GUADALUPE MEDINA ARIZA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA ENTRENAMIENTO"},{"id":"seed-673794","emp":"673794","name":"MARINO GARCIA AGUILAR","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-920880","emp":"920880","name":"JUAN MANUEL LICEA ESTRADA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-1231279","emp":"1231279","name":"RIEL DUARTE ARREDONDO","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS ELEKTRA"},{"id":"seed-82651","emp":"82651","name":"RICARDO GONZALEZ OLVERA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"},{"id":"seed-1091177","emp":"1091177","name":"JOSE MIGUEL CERON GONZALEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-1208314","emp":"1208314","name":"LUIS ALBERTO MARTINEZ VARGAS","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-46574","emp":"46574","name":"MARIA VIRIDIANA PERU CORTES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR AFILIACIÓN"},{"id":"seed-685580","emp":"685580","name":"MARIA DEL CARMEN MARTINEZ MORALES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"ASESOR PRÉSTAMOS Y SF MADURO"}];
 function genAdvisorId(){return "adv-"+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
@@ -253,16 +285,38 @@ function weekLabel(wk){
 function evalTwoThreshold(v,mudoBelow,idealAt){if(v<mudoBelow)return "MUDO";if(v<idealAt)return "PARCIAL";return "IDEAL"}
 function evalTaz(d,a,idealMin){if(d<=0||a<=0)return "MUDO";if(d>=idealMin&&a>=idealMin)return "IDEAL";return "PARCIAL"}
 function pesoAsesor(a){return a.puesto==="ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"?PESO_ENTRENAMIENTO:1}
-function bankWeekWeights(){
- let advs=evaluableAdvisors("Banco");
+// ---- Congelamiento trimestral de meta_individual (Afiliaciones/Portabilidades/Efectivo) ----
+let metasCongeladas=JSON.parse(localStorage.getItem("crm_metas_congeladas")||"{}");
+function computeMetaSucursalFrozen(bn){
+ let cuota=META_SUCURSAL[bn];
+ if(!cuota)return {};
+ let advs=advisors.filter(a=>a.status==="Activo"&&a.puesto&&PUESTOS_BANCO.includes(a.puesto)&&branchNum(a.branch)===bn);
  let sumW=advs.reduce((s,a)=>s+pesoAsesor(a),0)||1;
- return {sumW,metaAff:METAS.BANCO.affRegional/sumW,metaPort:METAS.BANCO.portRegional/sumW};
+ let out={};
+ advs.forEach(a=>{
+  let peso=pesoAsesor(a);
+  out[a.id]={aff:cuota.afiliaciones_cuota_semanal*peso/sumW,port:cuota.portabilidades_cuota_semanal*peso/sumW,cash:cuota.efectivo_cuota_semanal_pesos*peso/sumW};
+ });
+ return out;
+}
+function ensureMetaSucursalFrozen(bn){
+ let tk=trimestreKey();
+ metasCongeladas[tk]=metasCongeladas[tk]||{};
+ if(metasCongeladas[tk][bn])return metasCongeladas[tk][bn];
+ let frozen=computeMetaSucursalFrozen(bn);
+ metasCongeladas[tk][bn]=frozen;
+ localStorage.setItem("crm_metas_congeladas",JSON.stringify(metasCongeladas));
+ return frozen;
+}
+function getFrozenMetaIndividual(advisorId,bn){
+ let frozen=ensureMetaSucursalFrozen(bn);
+ return frozen[advisorId]||null;
 }
 function regionalBankTotals(wk,advisorList){
- let totalAff=0,totalPort=0;
- advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),wk);totalAff+=s.aff;totalPort+=s.port});
- return {totalAff,totalPort,metaAff:METAS.BANCO.affRegional,metaPort:METAS.BANCO.portRegional,
-  pctAff:Math.round(totalAff/METAS.BANCO.affRegional*100),pctPort:Math.round(totalPort/METAS.BANCO.portRegional*100)};
+ let totalAff=0,totalPort=0,totalCash=0;
+ advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),wk);totalAff+=s.aff;totalPort+=s.port;totalCash+=sumArr(s.cashAmounts)});
+ return {totalAff,totalPort,totalCash,metaAff:META_AFILIACIONES_REGION,metaPort:META_PORTABILIDADES_REGION,metaCash:META_EFECTIVO_REGION_PESOS,
+  pctAff:Math.round(totalAff/META_AFILIACIONES_REGION*100),pctPort:Math.round(totalPort/META_PORTABILIDADES_REGION*100),pctCash:META_EFECTIVO_REGION_PESOS?Math.round(totalCash/META_EFECTIVO_REGION_PESOS*100):0};
 }
 function controlResult(ctrl,sums,ctx){
  if(ctrl.special==="taz"){
@@ -273,12 +327,16 @@ function controlResult(ctrl,sums,ctx){
   return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:`${d} entreg. / ${a} activ.`,minLabel:`≥${ctrl.idealMin}/≥${ctrl.idealMin}`,faltante,progressPct,tazDelivered:d,tazActivated:a,tasaActivacion:tasa};
  }
  if(ctrl.special==="regional"){
-  let sum=ctrl.getSum(sums)||0,meta=ctx&&ctx[ctrl.regionalKey]!=null?ctx[ctrl.regionalKey]:1;
+  let sum=ctrl.getSum(sums)||0,isMoney=ctrl.valueKind==="money";
+  let meta=ctx&&ctx[ctrl.regionalKey]!=null?ctx[ctrl.regionalKey]:null;
+  if(meta==null){
+   return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state:"SIN_META",actualLabel:isMoney?money(sum):String(sum),minLabel:"—",faltante:"Sin meta asignada este trimestre",progressPct:0,metaIndividual:null};
+  }
   let state=evalTwoThreshold(sum,1,meta);
-  let metaR=Math.round(meta*10)/10,diff=Math.max(0,Math.ceil(meta-sum));
-  let faltante=state==="IDEAL"?"":`Falta${diff===1?"":"n"} ${diff} ${diff===1?ctrl.singular:ctrl.label.toLowerCase()} para tu meta de ${metaR}`;
+  let metaR=isMoney?Math.round(meta):Math.round(meta*10)/10,diff=Math.max(0,Math.ceil(meta-sum));
+  let faltante=state==="IDEAL"?"":isMoney?`Faltan ${money(meta-sum)} para tu meta de ${money(metaR)}`:`Falta${diff===1?"":"n"} ${diff} ${diff===1?ctrl.singular:ctrl.label.toLowerCase()} para tu meta de ${metaR}`;
   let progressPct=Math.max(0,Math.min(100,Math.round(sum/Math.max(0.0001,meta)*100)));
-  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:String(sum),minLabel:String(metaR),faltante,progressPct,metaIndividual:metaR};
+  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:isMoney?money(sum):String(sum),minLabel:isMoney?money(metaR):String(metaR),faltante,progressPct,metaIndividual:metaR};
  }
  let raw=ctrl.getAmounts?ctrl.getAmounts(sums).length:(ctrl.getSum(sums)||0);
  let state=evalTwoThreshold(raw,ctrl.mudoBelow,ctrl.idealAt);
@@ -294,16 +352,16 @@ function controlResult(ctrl,sums,ctx){
  let progressPct=Math.max(0,Math.min(100,Math.round(raw/Math.max(1,ctrl.idealAt)*100)));
  let extra={};
  if(ctrl.getAmounts&&ctrl.montoComision)extra.belowComision=ctrl.getAmounts(sums).filter(x=>x<ctrl.montoComision).length;
- if(ctrl.metaIdealMonto&&raw>ctrl.metaIdealMonto)extra.metaIdealAlcanzada=true;
  if(ctrl.rubroCriticoFlag)extra.rubroCriticoFlag=true;
  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:display,minLabel:idealDisplay,faltante,progressPct,...extra};
 }
 function sumBankWeek(emp,bn,wk){
- let s={aff:0,port:0,funds:0,guardAmounts:[],somosAmounts:[],invAmounts:[],tazDelivered:0,tazActivated:0};
+ let s={aff:0,port:0,funds:0,guardAmounts:[],somosAmounts:[],invAmounts:[],cashAmounts:[],tazDelivered:0,tazActivated:0};
  bankCaptures.filter(c=>c.emp===emp&&c.branch===bn&&weekKeyOf(dateFromKey(c.day))===wk).forEach(c=>{
   let d=c.data||{};
   s.aff+=Number(d.aff)||0;s.port+=Number(d.port)||0;s.funds+=Number(d.funds)||0;
   s.guardAmounts.push(...(d.guardAmounts||[]));s.somosAmounts.push(...(d.somosAmounts||[]));s.invAmounts.push(...(d.invAmounts||[]));
+  s.cashAmounts.push(...(d.cashAmounts||[]));
   s.tazDelivered+=Number(d.tazDelivered)||0;s.tazActivated+=Number(d.tazActivated)||0;
  });
  return s;
@@ -324,11 +382,12 @@ function evaluarAsesorSemana(advisor,formType,wk){
  let sums=formType==="Banco"?sumBankWeek(advisor.emp,bn,wk):sumCommerceWeek(advisor.emp,bn,wk);
  let ctx=null;
  if(formType==="Banco"){
-  let w=bankWeekWeights(),peso=pesoAsesor(advisor);
-  ctx={aff:w.metaAff*peso,port:w.metaPort*peso};
+  let frozen=getFrozenMetaIndividual(advisor.id,bn);
+  ctx=frozen?{aff:frozen.aff,port:frozen.port,cash:frozen.cash}:{aff:null,port:null,cash:null};
  }
  let controles=(formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO).map(c=>controlResult(c,sums,ctx));
- let mudos=controles.filter(c=>c.state==="MUDO").length,parciales=controles.filter(c=>c.state==="PARCIAL").length,ideales=controles.filter(c=>c.state==="IDEAL").length,total=controles.length;
+ let evaluados=controles.filter(c=>c.state!=="SIN_META");
+ let mudos=evaluados.filter(c=>c.state==="MUDO").length,parciales=evaluados.filter(c=>c.state==="PARCIAL").length,ideales=evaluados.filter(c=>c.state==="IDEAL").length,total=evaluados.length;
  let enCurso=isCurrentWeek(wk);
  let estatus=enCurso?"EN_AVANCE":(mudos>0?"ROJO":(parciales>0?"AMARILLO":"VERDE"));
  let tazCtrl=controles.find(c=>c.key==="taz");
@@ -442,7 +501,7 @@ function genTazForState(idealMin,state,rng){
 function genControlValue(ctrl,state,emp,formType,wk,metaCtx){
  let rng=makeRng(emp+"|"+formType+"|"+wk+"|"+ctrl.key+"|val");
  if(ctrl.special==="taz")return genTazForState(ctrl.idealMin,state,rng);
- if(ctrl.special==="regional"){let meta=metaCtx?metaCtx[ctrl.regionalKey]:1;return genNumericForState(1,Math.max(1,Math.round(meta)),state,rng)}
+ if(ctrl.special==="regional"){let meta=metaCtx?metaCtx[ctrl.regionalKey]:null;if(meta==null)return 0;return genNumericForState(1,Math.max(1,Math.round(meta)),state,rng)}
  if(ctrl.getAmounts)return genAmountsForState(ctrl.idealAt,state,rng);
  return genNumericForState(ctrl.mudoBelow,ctrl.idealAt,state,rng);
 }
@@ -450,7 +509,7 @@ function buildDemoRecord(a,formType,bn,day,hour,vals,seed){
  let created_at=`${day}T${String(Math.min(21,hour)).padStart(2,"0")}:00:00`;
  let folio=`DEMO-${formType==="Banco"?"BAN":"COM"}-${day.replaceAll("-","")}-${a.emp}-${seed}`;
  if(formType==="Banco"){
-  let rngCash=makeRng(a.emp+"|"+formType+"|"+day+"|"+seed+"|cash"),cashN=rngCash()%3,cashAmounts=Array.from({length:cashN},()=>500+(rngCash()%5000));
+  let cashAmounts=vals.cash?[vals.cash]:[];
   let d={aff:vals.aff||0,port:vals.port||0,funds:vals.funds||0,guardCount:(vals.guard||[]).length,guardAmounts:vals.guard||[],somosCount:(vals.somos||[]).length,somosAmounts:vals.somos||[],invCount:(vals.inv||[]).length,invAmounts:vals.inv||[],cashAmounts,tazDelivered:vals.taz?vals.taz.d:0,tazActivated:vals.taz?vals.taz.a:0,captureDate:day};
   return {folio,created_at,day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:d,status:"confirmed",demo:true};
  }
@@ -468,7 +527,7 @@ function buildDemoCaptures(a,formType,wk){
  let bn=branchNum(a.branch),profile=advisorProfile(a.emp);
  let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
  let metaCtx=null;
- if(formType==="Banco"){let w=bankWeekWeights(),peso=pesoAsesor(a);metaCtx={aff:w.metaAff*peso,port:w.metaPort*peso}}
+ if(formType==="Banco"){metaCtx=getFrozenMetaIndividual(a.id,bn)}
  let states=decideControlStates(a.emp,formType,wk,profile);
  let values={};
  ctrls.forEach(c=>{values[c.key]=genControlValue(c,states[c.key],a.emp,formType,wk,metaCtx)});
@@ -514,7 +573,7 @@ function generateDemoData(){
   commerceAdvisors.forEach(a=>{commerceCaptures.push(...buildDemoCaptures(a,"Comercio",wk))});
  });
 }
-const DEMO_KEY="crm_demo_kpi_seed_v5";
+const DEMO_KEY="crm_demo_kpi_seed_v6";
 function seedDemoKpiData(){
  if(localStorage.getItem(DEMO_KEY)==="1")return;
  purgeDemoData();
@@ -864,8 +923,8 @@ function estatusBadge(estatus){
  let [icon,label,cls]=map[estatus]||["","",""];
  return `<span class="statuspill ${cls}">${icon} ${label}</span>`;
 }
-function cellClass(state,enCurso){if(state==="IDEAL")return "cell-ok";if(state==="MUDO")return enCurso?"cell-pending":"cell-bad";return "cell-warn"}
-function cellIcon(state,enCurso){if(state==="IDEAL")return "✅";if(state==="MUDO")return enCurso?"⏳":"🔴";return "🟡"}
+function cellClass(state,enCurso){if(state==="IDEAL")return "cell-ok";if(state==="SIN_META")return "cell-pending";if(state==="MUDO")return enCurso?"cell-pending":"cell-bad";return "cell-warn"}
+function cellIcon(state,enCurso){if(state==="IDEAL")return "✅";if(state==="SIN_META")return "➖";if(state==="MUDO")return enCurso?"⏳":"🔴";return "🟡"}
 function ejecSinPuestoNotice(list){
  return `<div class="notice">⚠️ <b>${list.length} asesor${list.length===1?"":"es"} sin puesto asignado</b> no se incluye${list.length===1?"":"n"} en esta evaluación: ${list.map(a=>esc(a.name)).join(", ")}. Asígnale${list.length===1?"":"s"} un puesto en Alta de asesores.</div>`;
 }
@@ -874,7 +933,7 @@ function ejecCopyText(btn,text){
 }
 function ejecIndicacionTexto(advisor,ev,matrix,formType,wk,weeks6){
  if(ev.estatus==="VERDE")return `${advisor.name}: sin pendientes esta semana.`;
- let problems=ev.controles.filter(c=>c.state!=="IDEAL");
+ let problems=ev.controles.filter(c=>c.state!=="IDEAL"&&c.state!=="SIN_META");
  let mainProblem=problems[0];
  let persist=mainProblem?persistenciaControlFromMatrix(matrix,advisor,formType,mainProblem.key,wk,weeks6):0;
  let partsTxt=problems.map(c=>`${c.label} (${c.actualLabel}/${c.minLabel})`).join(" y ");
@@ -990,7 +1049,7 @@ function renderEjecRegionView(){
   });
  });
  riesgo.sort((a,b)=>b.semanas-a.semanas);
- let regionalCards=regional?`${kpiCard("Afiliaciones región",`${regional.totalAff} de ${regional.metaAff}`,`(${regional.pctAff}%)`)}${kpiCard("Portabilidades región",`${regional.totalPort} de ${regional.metaPort}`,`(${regional.pctPort}%)`)}`:"";
+ let regionalCards=regional?`${kpiCard("Afiliaciones región",`${regional.totalAff} de ${regional.metaAff}`,`(${regional.pctAff}%)`)}${kpiCard("Portabilidades región",`${regional.totalPort} de ${regional.metaPort}`,`(${regional.pctPort}%)`)}${kpiCard("Efectivo región",`${money(regional.totalCash)} de ${money(regional.metaCash)}`,`(${regional.pctCash}%)`)}`:"";
  let activacionCard=formType==="Banco"?kpiCard("Activación baja en TAZ",activacionBaja.length):"";
  let rubroDesglose=porRubro.filter(r=>r.mudoCount>0).map(r=>`${esc(r.label)}: ${r.mudoCount} asesor${r.mudoCount===1?"":"es"} en mudo`).join(" · ");
  return `
@@ -1066,10 +1125,9 @@ function renderEjecAdvisorView(){
  let ev=matrix[a.id][wk],cons=constanciaAsesorSemana(a,formType,wk);
  let progressRows=ev.controles.map(c=>{
   let pct=c.progressPct;
-  let color=c.state==="IDEAL"?"#2c765d":c.state==="PARCIAL"?"#e3b341":(ev.enCurso?"#b7bdb6":"#c94747");
+  let color=c.state==="IDEAL"?"#2c765d":c.state==="PARCIAL"?"#e3b341":c.state==="SIN_META"?"#b7bdb6":(ev.enCurso?"#b7bdb6":"#c94747");
   let extraBits=[];
   if(c.belowComision!=null)extraBits.push(`${c.belowComision} cuenta${c.belowComision===1?"":"s"} debajo de ${money(c.montoComision||0)} (no paga comisión)`);
-  if(c.metaIdealAlcanzada)extraBits.push("Meta ideal alcanzada");
   if(c.key==="taz"&&c.tasaActivacion!=null)extraBits.push(`Tasa de activación: ${Math.round(c.tasaActivacion*100)}%${c.tasaActivacion<TASA_ACTIVACION_MIN?" ⚠️ baja":""}`);
   return `<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:4px"><span>${c.icon} ${esc(c.label)}</span><span>${cellIcon(c.state,ev.enCurso)} ${esc(c.actualLabel)} / ${esc(c.minLabel)}</span></div>
   <div class="bartrack"><div class="barfill" style="width:${pct}%;background:${color}"></div></div>
