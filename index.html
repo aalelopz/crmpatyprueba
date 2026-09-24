@@ -39,7 +39,9 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 @media(max-width:600px){.choicegrid,.advisorgrid,.formtypes,.review{grid-template-columns:1fr}.infohead,.kpis{grid-template-columns:1fr}}
 
 .adminbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-.loginbox{max-width:440px;margin:35px auto}.loginbox .field{margin-bottom:14px}
+.admintabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.admintab{border:0;background:transparent;color:var(--muted);font-weight:800;font-size:14px;padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent}
+.admintab.active{color:var(--green);border-bottom-color:var(--green)}
 .filtersbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:14px 0}
 .tablewrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:12px}
 .tablewrap table{min-width:1550px}.tablewrap thead th{position:sticky;top:0;background:#f2f6f2;z-index:1}
@@ -99,16 +101,16 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 <aside class="side">
  <div class="brand">CRM <small>REGIÓN SAN MIGUEL DE ALLENDE</small></div><div class="brandline"></div><div class="scope">BANCO · COMERCIO</div>
  <nav class="nav">
-  <button class="active" data-page="asesores"><span class="ico">👥</span>Alta de asesores</button>
-  <button data-page="avance"><span class="ico">📝</span>Registro de avance</button>
+  <button class="active" data-page="avance"><span class="ico">📝</span>Registro de avance</button>
   <button data-page="resumen"><span class="ico">📊</span>Resumen ejecutivo</button>
- <button class="navitem" onclick="openAdminLogin()">🔐 <span>Administración</span></button></nav>
+  <button data-page="administracion"><span class="ico">🛠️</span>Administración</button>
+ </nav>
 </aside>
 <main class="main">
  <div class="mobilebar">
-  <button data-page="asesores">👥 Alta de asesores</button><button data-page="avance">📝 Registro de avance</button><button data-page="resumen">📊 Resumen ejecutivo</button>
+  <button data-page="avance">📝 Registro de avance</button><button data-page="resumen">📊 Resumen ejecutivo</button><button data-page="administracion">🛠️ Administración</button>
  </div>
- <header class="top"><strong id="topTitle">Alta de asesores</strong><span class="pill">Seguimiento Banco + Comercio · San Miguel de Allende</span></header>
+ <header class="top"><strong id="topTitle">Registro de avance</strong><span class="pill">Seguimiento Banco + Comercio · San Miguel de Allende</span></header>
  <section class="content" id="view"></section>
 </main>
 </div>
@@ -250,7 +252,7 @@ let advisors=Array.from(byId.values()), editing=null;
 localStorage.setItem("crm_advisors",JSON.stringify(advisors));
 const view=document.getElementById("view"), topTitle=document.getElementById("topTitle");
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function nav(page){document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page)); if(page==="asesores") renderAdvisors(); if(page==="avance") renderAdvance(); if(page==="resumen") renderExecutiveSummary();}
+function nav(page){document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page)); if(page==="avance") renderAdvance(); if(page==="resumen") renderExecutiveSummary(); if(page==="administracion") renderAdministracion();}
 
 const commerceBranchNums=new Set(["1054","2082","2083","2111","3105","4155","4183","6787","9510"]);
 let advance={branch:null,advisor:null,type:null};
@@ -802,13 +804,22 @@ function saveBank(){
 }
 
 
-let adminSession=false;
-function openAdminLogin(){
- if(adminSession){renderRecords();return}
- view.innerHTML=`<div class="pagehead"><div><h1>Administración</h1><p>Acceso exclusivo para consultar, exportar y modificar registros de Banco y Comercio.</p></div><button class="btn secondary" onclick="renderAdvance()">← Regresar</button></div><div class="card loginbox"><h2>Acceso de administrador</h2><div class="field"><label>Usuario</label><input id="adminUser"></div><div class="field"><label>Contraseña</label><input id="adminPass" type="password" onkeydown="if(event.key==='Enter')adminLogin()"></div><div id="loginError" style="color:#b3261e;font-weight:700;min-height:20px"></div><button class="btn primary" style="width:100%" onclick="adminLogin()">Ingresar</button><p class="adminnote">Protección temporal del prototipo.</p></div>`;
+// ============================================================
+// TEMPORAL: sin protección. Pendiente agregar login de administrador
+// antes de publicar. Ver indicación de Fase B / Supabase.
+// ============================================================
+let adminTab="asesores";
+function renderAdministracion(){
+ topTitle.textContent="Administración";
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>🛠️ Administración</h1><p>Gestión de asesores y de los registros de Banco y Comercio.</p></div></div>
+ <div class="admintabs">
+  <button class="admintab${adminTab==="asesores"?" active":""}" onclick="switchAdminTab('asesores')">👥 Asesores</button>
+  <button class="admintab${adminTab==="registros"?" active":""}" onclick="switchAdminTab('registros')">📋 Registros</button>
+ </div>
+ <div id="adminTabBody"></div>`;
+ if(adminTab==="asesores")renderAdminAsesoresTab();else renderAdminRegistrosTab();
 }
-function adminLogin(){let u=document.getElementById("adminUser").value.trim(),p=document.getElementById("adminPass").value;if(u==="pfajardo"&&p==="ale2003"){adminSession=true;renderRecords()}else document.getElementById("loginError").textContent="Usuario o contraseña incorrectos."}
-function logoutAdmin(){adminSession=false;renderAdvance()}
+function switchAdminTab(tab){adminTab=tab;renderAdministracion()}
 function getEffectiveCapture(c){return {data:c.data,totals:c.totals}}
 
 function commerceRows(){
@@ -825,31 +836,34 @@ function filteredRows(){
  if(e&&e.value.trim()){let q=e.value.trim().toLowerCase();rows=rows.filter(r=>String(r.empleado).includes(q)||String(r.asesor).toLowerCase().includes(q))}
  if(w&&w.value)rows=rows.filter(r=>String(r.semana)===w.value);return rows;
 }
-function renderRecords(){
- if(!adminSession){openAdminLogin();return}let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));topTitle.textContent="Administración";
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>📋 Registros Banco + Comercio</h1><p>Consulta, exporta y modifica directamente los registros existentes.</p></div><button class="btn secondary" onclick="logoutAdmin()">Cerrar sesión</button></div>
+function renderAdminRegistrosTab(){
+ let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));
+ document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><h2 style="margin:0 0 4px">📋 Registros Banco + Comercio</h2><p>Consulta, exporta y modifica directamente los registros existentes.</p></div></div>
  <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados</div><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div>
  <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable()"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable()"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable()"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable()"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable()"></div></div>
  <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div></div>`;refreshRecordTable();
 }
 function refreshRecordTable(){let rows=filteredRows();document.getElementById("recordCount").textContent=rows.length;document.getElementById("recordsBody").innerHTML=rows.length?rows.map(r=>`<tr><td><button class="linkbtn" onclick="${r.tipo==="Banco"?"editBankRecord":"editCommerceRecord"}('${r.folio}')">Editar</button></td><td><b>${r.tipo}</b></td><td>${r.folio}</td><td>${r.fecha}</td><td>${r.semana}</td><td>${r.sucursal}</td><td>${r.empleado}</td><td>${esc(r.asesor)}</td><td>${r.resumen}</td><td>${r.registrado}</td></tr>`).join(""):`<tr><td colspan="10" style="text-align:center;padding:28px">No hay registros con estos filtros.</td></tr>`}
+// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function editCommerceRecord(folio){
  let c=commerceCaptures.find(x=>x.folio===folio);if(!c)return;let d=c.data,names=["Movilidad","Hogar","Conectividad"],vnames=["Nuevas","Recompra","Contado"],list=(g,i)=>Array.isArray(d[g][i])?d[g][i].join(", "):"0";
- view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Comercio</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card"><div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="erDate" value="${c.day}"></div></div>
+ view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Comercio</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderAdministracion()">← Cancelar</button></div><div class="card"><div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="erDate" value="${c.day}"></div></div>
  <h3>Solicitudes levantadas</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_req_${i}" value="${d.req[i]}"></div>`).join("")}</div><h3>Clientes nuevos surtidos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_srv_${i}" value="${d.srv[i]}"></div>`).join("")}</div><h3>Clientes nuevos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_nw_${i}" value="${esc(list("nw",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>Clientes inactivos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_ina_${i}" value="${esc(list("ina",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>VDA</h3><div class="three">${vnames.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_vda_${i}" value="${esc(list("vda",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><div class="actions"><button class="btn primary" onclick="saveCommerceRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
+// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function saveCommerceRecordEdit(folio){
  let c=commerceCaptures.find(x=>x.folio===folio); if(!c) return;
  let counts=g=>[0,1,2].map(i=>Math.max(0,Math.trunc(Number(document.getElementById(`er_${g}_${i}`).value)||0)));
  let amounts=g=>[0,1,2].map(i=>parseAmounts(document.getElementById(`er_${g}_${i}`).value));
  let req=counts("req"),srv=counts("srv"),nw=amounts("nw"),ina=amounts("ina"),vda=amounts("vda");
  let sum=a=>a.flat().reduce((s,n)=>s+n,0),newDay=document.getElementById("erDate").value||c.day;
- c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));renderRecords();
+ c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));renderAdministracion();
 }
+// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function editBankRecord(folio){
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let d=c.data, list=a=>(a||[]).join(", ");
- view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Banco</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card">
+ view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Banco</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderAdministracion()">← Cancelar</button></div><div class="card">
  <div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="ebrDate" value="${c.day}"></div></div>
  <h3>📈 Captación y vinculación</h3><div class="three"><div class="field"><label>Afiliaciones</label><input type="number" min="0" id="ebrAff" value="${d.aff}"></div><div class="field"><label>Portabilidades</label><input type="number" min="0" id="ebrPort" value="${d.port}"></div><div class="field"><label>Fondos de Inversión</label><input type="text" inputmode="numeric" id="ebrFunds" value="${Math.trunc(Number(d.funds)||0)}" oninput="sanitizeMoneyFieldLive(this)"></div></div>
  ${adminBankPair("Guardadito Remeseros","guard",d.guardCount,list(d.guardAmounts))}${adminBankPair("Somos","somos",d.somosCount,list(d.somosAmounts))}${adminBankPair("Inversiones","inv",d.invCount,list(d.invAmounts))}
@@ -857,6 +871,7 @@ function editBankRecord(folio){
  <h3>💳 TAZ</h3><div class="three"><div class="field"><label>Entregadas</label><input type="number" min="0" id="ebrTazD" value="${d.tazDelivered}"></div><div class="field"><label>Activadas</label><input type="number" min="0" id="ebrTazA" value="${d.tazActivated}"></div></div><div class="actions"><button class="btn primary" onclick="saveBankRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
 function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}" oninput="sanitizeMoneyListLive(this)"><small>Debe coincidir exactamente con el número. Solo números enteros (sin decimales).</small></div></div>`}
+// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function saveBankRecordEdit(folio){
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let intv=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0));
@@ -865,10 +880,10 @@ function saveBankRecordEdit(folio){
  if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];
  if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount){alert("Guardadito, Somos e Inversiones deben tener exactamente un monto por cada operación.");return}
  if(d.tazActivated>d.tazDelivered){alert("Las TAZ activadas no pueden ser mayores que las entregadas.");return}
- let day=document.getElementById("ebrDate").value||c.day;d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));renderRecords();
+ let day=document.getElementById("ebrDate").value||c.day;d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));renderAdministracion();
 }
+// ADMIN-ONLY: exportar todos los registros — proteger cuando se agregue el login.
 function exportRecordsExcel(){
- if(!adminSession)return;
  let rows=filteredRows();
  if(!rows.length){alert("No hay registros para exportar.");return}
  let headers=["Formulario","Folio","Fecha","Semana","Sucursal","N.º empleado","Asesor","Resumen","Registrado"];
@@ -935,7 +950,7 @@ function estatusBadge(estatus){
 function cellClass(state,enCurso){if(state==="IDEAL")return "cell-ok";if(state==="SIN_META")return "cell-pending";if(state==="MUDO")return enCurso?"cell-pending":"cell-bad";return "cell-warn"}
 function cellIcon(state,enCurso){if(state==="IDEAL")return "✅";if(state==="SIN_META")return "➖";if(state==="MUDO")return enCurso?"⏳":"🔴";return "🟡"}
 function ejecSinPuestoNotice(list){
- return `<div class="notice">⚠️ <b>${list.length} asesor${list.length===1?"":"es"} sin puesto asignado</b> no se incluye${list.length===1?"":"n"} en esta evaluación: ${list.map(a=>esc(a.name)).join(", ")}. Asígnale${list.length===1?"":"s"} un puesto en Alta de asesores.</div>`;
+ return `<div class="notice">⚠️ <b>${list.length} asesor${list.length===1?"":"es"} sin puesto asignado</b> no se incluye${list.length===1?"":"n"} en esta evaluación: ${list.map(a=>esc(a.name)).join(", ")}. Asígnale${list.length===1?"":"s"} un puesto en Administración › Asesores.</div>`;
 }
 function ejecCopyText(btn,text){
  navigator.clipboard.writeText(text).then(()=>{let old=btn.textContent;btn.textContent="✓ Copiado";setTimeout(()=>{btn.textContent=old},1500)}).catch(()=>alert("No se pudo copiar. Copia manualmente:\n\n"+text));
@@ -1168,14 +1183,16 @@ function renderEjecAdvisorView(){
  <div class="chartcard"><h3>📋 Indicación sugerida</h3><div class="indicrow"><div>${esc(indicacion)}</div><button class="btn secondary" onclick='ejecCopyText(this,${JSON.stringify(indicacion)})'>Copiar</button></div></div>`;
 }
 function placeholder(title,sub,icon,msg){topTitle.textContent=title;view.innerHTML=`<div class="pagehead"><div><h1>${title}</h1><p>${sub}</p></div></div><div class="card placeholder"><div><div class="icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div></div>`}
-function renderAdvisors(){topTitle.textContent="Alta de asesores";view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h1>Alta de asesores</h1><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
+function renderAdminAsesoresTab(){document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h2 style="margin:6px 0 4px">Asesores</h2><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
 function drawRows(){let q=(document.getElementById("q")?.value||"").toLowerCase(),fb=document.getElementById("fb")?.value||"",fs=document.getElementById("fs")?.value||"";let a=advisors.filter(x=>x.status!=="Baja"&&(x.name.toLowerCase().includes(q)||x.emp.includes(q))&&(!fb||x.branch===fb)&&(!fs||x.status===fs));document.getElementById("rows").innerHTML=a.length?`<table><thead><tr><th>N.º empleado</th><th>Nombre</th><th>Puesto</th><th>Sucursal</th><th>Actividad</th><th></th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.emp)}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.puesto||"Sin puesto asignado")}</td><td>${esc(x.branch)}</td><td><span class="badge ${x.status.toLowerCase()}">${x.status}</span></td><td><button class="linkbtn" onclick="openModal('${esc(x.id)}')">Editar</button></td></tr>`).join("")}</tbody></table>`:`<div style="padding:36px;text-align:center;color:#6f7b91">No hay asesores para mostrar. Usa <b>+ Nuevo asesor</b> para comenzar.</div>`}
+// ADMIN-ONLY: dar de baja / cambiar estatus — proteger cuando se agregue el login.
 function deactivateAdvisor(id){
  const a=advisors.find(x=>x.id===id); if(!a)return;
  if(!confirm(`¿Dar de baja a ${a.name}?\n\nEl asesor dejará de estar disponible para nuevas capturas. Su información e historial se conservarán.`))return;
  a.status="Baja"; a.deactivated_at=new Date().toISOString(); a.deactivated_by="Administrador"; a.updated_at=new Date().toISOString();
  localStorage.setItem("crm_advisors",JSON.stringify(advisors)); drawRows();
 }
+// ADMIN-ONLY: reactivar / cambiar estatus — proteger cuando se agregue el login.
 function reactivateAdvisor(id){
  const a=advisors.find(x=>x.id===id); if(!a)return;
  if(!confirm(`¿Reactivar a ${a.name}?\n\nSu actividad volverá a Activo.`))return;
@@ -1184,7 +1201,8 @@ function reactivateAdvisor(id){
 }
 function openModal(id){editing=id||null;document.getElementById("branch").innerHTML=branches.map(x=>`<option>${x}</option>`).join("");document.getElementById("puesto").innerHTML=`<option value="">Sin puesto asignado</option>`+PUESTOS_ALL.map(p=>`<option>${esc(p)}</option>`).join("");document.getElementById("modalTitle").textContent=editing?"Editar asesor":"Nuevo asesor";let a=advisors.find(x=>x.id===editing);document.getElementById("emp").value=a?.emp||"";document.getElementById("name").value=a?.name||"";document.getElementById("branch").value=a?.branch||branches[0];document.getElementById("status").value=a?.status||"Activo";document.getElementById("puesto").value=a?.puesto||"";document.getElementById("error").textContent="";document.getElementById("modalbg").classList.add("open")}
 function closeModal(){document.getElementById("modalbg").classList.remove("open")}
-function saveAdvisor(){let emp=document.getElementById("emp").value.trim(),name=document.getElementById("name").value.trim(),branch=document.getElementById("branch").value,status=document.getElementById("status").value,puesto=document.getElementById("puesto").value,err=document.getElementById("error");if(!/^\d+$/.test(emp)||!name){err.textContent="Captura un número de empleado válido y el nombre completo.";return}if(!editing&&!puesto){err.textContent="Selecciona un puesto para el nuevo asesor.";return}if(editing){let i=advisors.findIndex(x=>x.id===editing);advisors[i]={...advisors[i],emp,name,branch,status,puesto,updated_at:new Date().toISOString()}}else advisors.push({id:genAdvisorId(),emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});localStorage.setItem("crm_advisors",JSON.stringify(advisors));closeModal();renderAdvisors()}
-document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));nav("asesores");
+// ADMIN-ONLY: alta / edición / cambio de estatus de asesor — proteger cuando se agregue el login.
+function saveAdvisor(){let emp=document.getElementById("emp").value.trim(),name=document.getElementById("name").value.trim(),branch=document.getElementById("branch").value,status=document.getElementById("status").value,puesto=document.getElementById("puesto").value,err=document.getElementById("error");if(!/^\d+$/.test(emp)||!name){err.textContent="Captura un número de empleado válido y el nombre completo.";return}if(!editing&&!puesto){err.textContent="Selecciona un puesto para el nuevo asesor.";return}if(editing){let i=advisors.findIndex(x=>x.id===editing);advisors[i]={...advisors[i],emp,name,branch,status,puesto,updated_at:new Date().toISOString()}}else advisors.push({id:genAdvisorId(),emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});localStorage.setItem("crm_advisors",JSON.stringify(advisors));closeModal();renderAdminAsesoresTab()}
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));nav("avance");
 </script>
 </body></html>
