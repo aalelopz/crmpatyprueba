@@ -42,6 +42,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 .admintabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--line)}
 .admintab{border:0;background:transparent;color:var(--muted);font-weight:800;font-size:14px;padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent}
 .admintab.active{color:var(--green);border-bottom-color:var(--green)}
+.notice-error{background:#fdeaea;border:1px solid #f3b3b3;color:#7a1420}
 .pager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--muted)}
 .pager .btn{padding:8px 14px}.pager .btn:disabled{opacity:.4;cursor:default}
 .filtersbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:14px 0}
@@ -591,9 +592,14 @@ function seedDemoKpiData(){
  if(localStorage.getItem(DEMO_KEY)==="1")return;
  purgeDemoData();
  generateDemoData();
- localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
- localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
- localStorage.setItem(DEMO_KEY,"1");
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+  localStorage.setItem(DEMO_KEY,"1");
+ }catch(e){
+  console.error("No se pudieron guardar los datos DEMO en localStorage:",e);
+  alert("No se pudieron generar los datos de ejemplo (DEMO): el dispositivo se quedó sin espacio de almacenamiento. Esto no afecta tus capturas reales.");
+ }
 }
 seedDemoKpiData();
 
@@ -706,11 +712,33 @@ function reviewCommerce(){
  <h3 style="margin-top:22px">Ventas por VDA</h3><div style="overflow:auto"><table><thead><tr><th>Tipo</th><th>N.º de montos</th><th>Total</th></tr></thead><tbody>${vrows}<tr><td><b>TOTAL VDA</b></td><td></td><td><b>${money(t.vda)}</b></td></tr></tbody></table></div>
  <div class="actions"><button class="btn secondary" onclick="openCommerceWithDate('${d.captureDate}')">Cancelar</button><button class="btn primary" onclick="saveCommerce()">Confirmar y guardar</button></div></div>`;
 }
+// Muestra un error de guardado CLARO y VISIBLE que no desaparece solo: un banner
+// fijo al inicio de la pantalla actual (no se pierde el formulario) más un alert()
+// que obliga al usuario a confirmar que lo vio antes de seguir.
+function showStorageSaveError(htmlMessage,plainMessage){
+ let existing=document.getElementById("saveErrorBanner");
+ if(existing)existing.remove();
+ let banner=document.createElement("div");
+ banner.id="saveErrorBanner";
+ banner.className="notice notice-error";
+ banner.innerHTML="⛔ "+htmlMessage;
+ if(view.firstChild)view.insertBefore(banner,view.firstChild);else view.appendChild(banner);
+ alert(plainMessage);
+}
 function saveCommerce(){
  let now=new Date(),seq=commerceCaptures.length+1,folio=`COM-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`;
  let captureDay=advance.draft.captureDate, captureDateObj=dateFromKey(captureDay);
  commerceCaptures.push({folio,created_at:now.toISOString(),day:captureDay,week:isoWeek(captureDateObj),emp:advance.advisor.emp,advisor:advance.advisor.name,branch:branchNum(advance.branch),data:advance.draft,totals:advance.draft.totals,status:"confirmed"});
- localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+ }catch(e){
+  commerceCaptures.pop();
+  showStorageSaveError(
+   "<b>No se pudo guardar tu captura.</b> El dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando. Tu información <b>NO se guardó</b>, por favor no cierres esta pantalla.",
+   "No se pudo guardar tu captura.\n\nEl dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando.\n\nTu información NO se guardó. No cierres esta pantalla; vuelve a intentar guardar."
+  );
+  return;
+ }
  view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance registrado!</h1><p>Tu información se agregó correctamente al acumulado de hoy.</p><span class="folio">Folio: ${folio}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openCommerce()">Agregar otro avance</button></div></div>`;
 }
 function requestCorrection(folio){startCorrectionForFolio(folio)}
@@ -801,7 +829,16 @@ function reviewBank(){
 function saveBank(){
  let now=new Date(),seq=bankCaptures.length+1,folio=`BAN-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`,d=advance.draft;
  bankCaptures.push({folio,created_at:now.toISOString(),day:d.captureDate,week:isoWeek(dateFromKey(d.captureDate)),emp:advance.advisor.emp,advisor:advance.advisor.name,branch:branchNum(advance.branch),data:d,status:"confirmed"});
- localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ try{
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ }catch(e){
+  bankCaptures.pop();
+  showStorageSaveError(
+   "<b>No se pudo guardar tu captura.</b> El dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando. Tu información <b>NO se guardó</b>, por favor no cierres esta pantalla.",
+   "No se pudo guardar tu captura.\n\nEl dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando.\n\nTu información NO se guardó. No cierres esta pantalla; vuelve a intentar guardar."
+  );
+  return;
+ }
  view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance de Banco registrado!</h1><p>La captura se agregó al acumulado de la fecha seleccionada.</p><span class="folio">Folio: ${folio}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openBank()">Agregar otro avance</button></div></div>`;
 }
 
@@ -873,7 +910,19 @@ function saveCommerceRecordEdit(folio){
  let amounts=g=>[0,1,2].map(i=>parseAmounts(document.getElementById(`er_${g}_${i}`).value));
  let req=counts("req"),srv=counts("srv"),nw=amounts("nw"),ina=amounts("ina"),vda=amounts("vda");
  let sum=a=>a.flat().reduce((s,n)=>s+n,0),newDay=document.getElementById("erDate").value||c.day;
- c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));renderAdministracion();
+ let prevDay=c.day,prevWeek=c.week,prevData=c.data,prevTotals=c.totals,prevModified=c.admin_modified_at;
+ c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+ }catch(e){
+  c.day=prevDay;c.week=prevWeek;c.data=prevData;c.totals=prevTotals;c.admin_modified_at=prevModified;
+  showStorageSaveError(
+   "<b>No se pudieron guardar los cambios.</b> El dispositivo se quedó sin espacio de almacenamiento. Los cambios <b>NO se guardaron</b>; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo.",
+   "No se pudieron guardar los cambios.\n\nEl dispositivo se quedó sin espacio de almacenamiento.\n\nLos cambios NO se guardaron; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo."
+  );
+  return;
+ }
+ renderAdministracion();
 }
 // ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function editBankRecord(folio){
@@ -896,7 +945,20 @@ function saveBankRecordEdit(folio){
  if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];
  if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount){alert("Guardadito, Somos e Inversiones deben tener exactamente un monto por cada operación.");return}
  if(d.tazActivated>d.tazDelivered){alert("Las TAZ activadas no pueden ser mayores que las entregadas.");return}
- let day=document.getElementById("ebrDate").value||c.day;d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));renderAdministracion();
+ let day=document.getElementById("ebrDate").value||c.day;
+ let prevDay=c.day,prevWeek=c.week,prevData=c.data,prevModified=c.admin_modified_at;
+ d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();
+ try{
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ }catch(e){
+  c.day=prevDay;c.week=prevWeek;c.data=prevData;c.admin_modified_at=prevModified;
+  showStorageSaveError(
+   "<b>No se pudieron guardar los cambios.</b> El dispositivo se quedó sin espacio de almacenamiento. Los cambios <b>NO se guardaron</b>; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo.",
+   "No se pudieron guardar los cambios.\n\nEl dispositivo se quedó sin espacio de almacenamiento.\n\nLos cambios NO se guardaron; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo."
+  );
+  return;
+ }
+ renderAdministracion();
 }
 // ADMIN-ONLY: exportar todos los registros — proteger cuando se agregue el login.
 function exportRecordsExcel(){
