@@ -140,7 +140,6 @@ const PUESTOS_ALL=[...PUESTOS_BANCO,...PUESTOS_COMERCIO];
 // al ideal; "Ideal" = meta cumplida). Edita únicamente los valores de
 // este bloque para ajustar metas o textos de acción sugerida.
 // ============================================================
-const PESO_ENTRENAMIENTO=0.5;
 const TASA_ACTIVACION_MIN=0.6;
 const METAS={
  DIAS_OPERACION:7,
@@ -284,18 +283,18 @@ function weekLabel(wk){
 
 function evalTwoThreshold(v,mudoBelow,idealAt){if(v<mudoBelow)return "MUDO";if(v<idealAt)return "PARCIAL";return "IDEAL"}
 function evalTaz(d,a,idealMin){if(d<=0||a<=0)return "MUDO";if(d>=idealMin&&a>=idealMin)return "IDEAL";return "PARCIAL"}
-function pesoAsesor(a){return a.puesto==="ASESOR PRÉSTAMOS Y SF ENTRENAMIENTO"?PESO_ENTRENAMIENTO:1}
 // ---- Congelamiento trimestral de meta_individual (Afiliaciones/Portabilidades/Efectivo) ----
+// Reparto por partes iguales entre los asesores de Banco activos de la
+// sucursal: todos pesan lo mismo, sin distinguir por puesto.
 let metasCongeladas=JSON.parse(localStorage.getItem("crm_metas_congeladas")||"{}");
 function computeMetaSucursalFrozen(bn){
  let cuota=META_SUCURSAL[bn];
  if(!cuota)return {};
  let advs=advisors.filter(a=>a.status==="Activo"&&a.puesto&&PUESTOS_BANCO.includes(a.puesto)&&branchNum(a.branch)===bn);
- let sumW=advs.reduce((s,a)=>s+pesoAsesor(a),0)||1;
+ let n=advs.length||1;
  let out={};
  advs.forEach(a=>{
-  let peso=pesoAsesor(a);
-  out[a.id]={aff:cuota.afiliaciones_cuota_semanal*peso/sumW,port:cuota.portabilidades_cuota_semanal*peso/sumW,cash:cuota.efectivo_cuota_semanal_pesos*peso/sumW};
+  out[a.id]={aff:cuota.afiliaciones_cuota_semanal/n,port:cuota.portabilidades_cuota_semanal/n,cash:cuota.efectivo_cuota_semanal_pesos/n};
  });
  return out;
 }
