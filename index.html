@@ -42,6 +42,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 .admintabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--line)}
 .admintab{border:0;background:transparent;color:var(--muted);font-weight:800;font-size:14px;padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent}
 .admintab.active{color:var(--green);border-bottom-color:var(--green)}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--muted)}
+.pager .btn{padding:8px 14px}.pager .btn:disabled{opacity:.4;cursor:default}
 .filtersbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:14px 0}
 .tablewrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:12px}
 .tablewrap table{min-width:1550px}.tablewrap thead th{position:sticky;top:0;background:#f2f6f2;z-index:1}
@@ -806,7 +808,7 @@ function saveBank(){
 
 // ============================================================
 // TEMPORAL: sin protección. Pendiente agregar login de administrador
-// antes de publicar. Ver indicación de Fase B / Supabase.
+// (ver Fase Supabase) antes de publicar.
 // ============================================================
 let adminTab="asesores";
 function renderAdministracion(){
@@ -836,14 +838,28 @@ function filteredRows(){
  if(e&&e.value.trim()){let q=e.value.trim().toLowerCase();rows=rows.filter(r=>String(r.empleado).includes(q)||String(r.asesor).toLowerCase().includes(q))}
  if(w&&w.value)rows=rows.filter(r=>String(r.semana)===w.value);return rows;
 }
+const ADMIN_PAGE_SIZE=50;
+let adminRecordsPage=1;
 function renderAdminRegistrosTab(){
  let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));
  document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><h2 style="margin:0 0 4px">📋 Registros Banco + Comercio</h2><p>Consulta, exporta y modifica directamente los registros existentes.</p></div></div>
  <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados</div><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div>
- <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable()"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable()"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable()"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable()"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable()"></div></div>
- <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div></div>`;refreshRecordTable();
+ <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable(true)"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable(true)"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable(true)"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable(true)"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable(true)"></div></div>
+ <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
+ <div class="pager" id="recordsPager"></div></div>`;refreshRecordTable(true);
 }
-function refreshRecordTable(){let rows=filteredRows();document.getElementById("recordCount").textContent=rows.length;document.getElementById("recordsBody").innerHTML=rows.length?rows.map(r=>`<tr><td><button class="linkbtn" onclick="${r.tipo==="Banco"?"editBankRecord":"editCommerceRecord"}('${r.folio}')">Editar</button></td><td><b>${r.tipo}</b></td><td>${r.folio}</td><td>${r.fecha}</td><td>${r.semana}</td><td>${r.sucursal}</td><td>${r.empleado}</td><td>${esc(r.asesor)}</td><td>${r.resumen}</td><td>${r.registrado}</td></tr>`).join(""):`<tr><td colspan="10" style="text-align:center;padding:28px">No hay registros con estos filtros.</td></tr>`}
+function refreshRecordTable(resetPage){
+ if(resetPage)adminRecordsPage=1;
+ let rows=filteredRows();
+ document.getElementById("recordCount").textContent=rows.length;
+ let totalPages=Math.max(1,Math.ceil(rows.length/ADMIN_PAGE_SIZE));
+ if(adminRecordsPage>totalPages)adminRecordsPage=totalPages;
+ let start=(adminRecordsPage-1)*ADMIN_PAGE_SIZE,pageRows=rows.slice(start,start+ADMIN_PAGE_SIZE);
+ document.getElementById("recordsBody").innerHTML=pageRows.length?pageRows.map(r=>`<tr><td><button class="linkbtn" onclick="${r.tipo==="Banco"?"editBankRecord":"editCommerceRecord"}('${r.folio}')">Editar</button></td><td><b>${r.tipo}</b></td><td>${r.folio}</td><td>${r.fecha}</td><td>${r.semana}</td><td>${r.sucursal}</td><td>${r.empleado}</td><td>${esc(r.asesor)}</td><td>${r.resumen}</td><td>${r.registrado}</td></tr>`).join(""):`<tr><td colspan="10" style="text-align:center;padding:28px">No hay registros con estos filtros.</td></tr>`;
+ let pager=document.getElementById("recordsPager");
+ if(pager)pager.innerHTML=rows.length?`<span>Mostrando ${start+1}–${Math.min(start+ADMIN_PAGE_SIZE,rows.length)} de ${rows.length}</span><span><button class="btn secondary" ${adminRecordsPage<=1?"disabled":""} onclick="changeRecordsPage(-1)">‹ Anterior</button> <span>Página ${adminRecordsPage} de ${totalPages}</span> <button class="btn secondary" ${adminRecordsPage>=totalPages?"disabled":""} onclick="changeRecordsPage(1)">Siguiente ›</button></span>`:"";
+}
+function changeRecordsPage(delta){adminRecordsPage+=delta;refreshRecordTable(false)}
 // ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function editCommerceRecord(folio){
  let c=commerceCaptures.find(x=>x.folio===folio);if(!c)return;let d=c.data,names=["Movilidad","Hogar","Conectividad"],vnames=["Nuevas","Recompra","Contado"],list=(g,i)=>Array.isArray(d[g][i])?d[g][i].join(", "):"0";
