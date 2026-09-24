@@ -89,13 +89,19 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 .printhead{display:none}
 @media(max-width:900px){.daygrid{grid-template-columns:repeat(4,1fr)}}
 @media print{
- .side,.mobilebar,.top,.btn,#ejWeek,#ejForm,#ejBranch,#ejAdvisor{display:none!important}
+ .side,.mobilebar,.top,.btn,.dashboardfilters{display:none!important}
  .app{display:block;height:auto}
  .main{height:auto;overflow:visible}
  .content{padding:0}
  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .printhead{display:block}
  .breadcrumb{display:none}
+ @page{size:landscape}
+ .tablewrap{overflow:visible!important;max-height:none!important;border:none!important}
+ .tablewrap table,.heatwrap table{min-width:0!important;width:100%!important;table-layout:fixed}
+ .tablewrap thead th{position:static!important}
+ .tablewrap th,.tablewrap td{font-size:9px!important;padding:4px 3px!important;white-space:normal!important;word-break:break-word}
+ .stickycol{position:static!important;box-shadow:none!important}
 }
 </style>
 </head>
