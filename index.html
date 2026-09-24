@@ -188,6 +188,11 @@ const META_SUCURSAL={
 };
 const META_AFILIACIONES_REGION=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.afiliaciones_cuota_semanal,0);
 const META_EFECTIVO_REGION_PESOS=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.efectivo_cuota_semanal_pesos,0);
+// Totales de 13 semanas a nivel región, para el "Ritmo del trimestre" — misma
+// suma que las constantes semanales de arriba, sobre los campos *_cuota_13sem
+// que ya existen en META_SUCURSAL (no son cuotas nuevas).
+const META_AFILIACIONES_REGION_13SEM=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.afiliaciones_cuota_13sem,0);
+const META_EFECTIVO_REGION_13SEM=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.efectivo_cuota_13sem_pesos,0);
 // Meta aspiracional del regional: NO se deriva de la suma de cuotas por
 // sucursal (esa suma da 53). Es un número fijo aparte, intencional.
 const META_PORTABILIDADES_REGION=60;
@@ -1015,6 +1020,66 @@ function rubroBarRow(r){
  <div class="bartrack" style="background:#fbeaea"><div class="barfill" style="width:${Math.round(r.pctMudo)}%;background:#c94747"></div></div>
  <div class="bartrack" style="margin-top:4px"><div class="barfill" style="width:${Math.round(r.pctIdeal)}%"></div></div></div>`;
 }
+// ---- Ritmo del trimestre (burn-up): reutiliza sumBankWeek/META_SUCURSAL/
+// TRIMESTRE_ACTUAL ya existentes, solo acumulando varias semanas en vez de una. ----
+function trimestreWeekKeys(){
+ let start=weekRangeOf(`${TRIMESTRE_ACTUAL.anio}-${String(TRIMESTRE_ACTUAL.semanaIsoInicio).padStart(2,"0")}`).monday;
+ return Array.from({length:TRIMESTRE_ACTUAL.numSemanas},(_,i)=>{let d=new Date(start);d.setDate(d.getDate()+i*7);return weekKeyOf(d)});
+}
+function trimestreElapsedWeeks(wk){
+ let all=trimestreWeekKeys(),idx=all.indexOf(wk);
+ return idx>=0?all.slice(0,idx+1):[];
+}
+function burnupSvg(points,unit){
+ let w=300,h=150,padL=44,padR=8,padT=12,padB=24,innerW=w-padL-padR,innerH=h-padT-padB,n=points.length;
+ let maxVal=Math.max(1,...points.map(p=>Math.max(p.real,p.esperado)))*1.08;
+ let x=i=>padL+(n<=1?innerW/2:innerW*i/(n-1)),y=v=>padT+innerH-(v/maxVal*innerH);
+ let fmt=v=>unit==="money"?money(v):Math.round(v).toLocaleString("es-MX");
+ let gridLines=[0,0.5,1].map(f=>{let v=maxVal*f;return `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="#e0e4dc" stroke-width="1"/><text x="${padL-4}" y="${(y(v)+3).toFixed(1)}" font-size="8" fill="#697267" text-anchor="end">${fmt(v)}</text>`}).join("");
+ let bands=[];
+ for(let i=0;i<n-1;i++){
+  let p0=points[i],p1=points[i+1];
+  if(p0.real<p0.esperado||p1.real<p1.esperado){
+   bands.push(`<polygon points="${x(i).toFixed(1)},${y(p0.real).toFixed(1)} ${x(i+1).toFixed(1)},${y(p1.real).toFixed(1)} ${x(i+1).toFixed(1)},${y(p1.esperado).toFixed(1)} ${x(i).toFixed(1)},${y(p0.esperado).toFixed(1)}" fill="#c51d2b" fill-opacity="0.12"/>`);
+  }
+ }
+ let pathEsp=points.map((p,i)=>`${i===0?"M":"L"}${x(i).toFixed(1)},${y(p.esperado).toFixed(1)}`).join(" ");
+ let pathReal=points.map((p,i)=>`${i===0?"M":"L"}${x(i).toFixed(1)},${y(p.real).toFixed(1)}`).join(" ");
+ let last=points[n-1],onTrack=last.real>=last.esperado,realColor=onTrack?"#08783f":"#c51d2b";
+ let labels=points.map((p,i)=>`<text x="${x(i).toFixed(1)}" y="${h-6}" font-size="8" fill="#697267" text-anchor="middle">S${p.week.split("-")[1]}</text>`).join("");
+ let dots=points.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.real).toFixed(1)}" r="2.6" fill="${realColor}"/>`).join("");
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Avance real acumulado contra ritmo esperado del trimestre">${gridLines}${bands.join("")}<path d="${pathEsp}" fill="none" stroke="#9aa39c" stroke-width="1.8" stroke-dasharray="4,3"/><path d="${pathReal}" fill="none" stroke="${realColor}" stroke-width="2.4"/>${dots}${labels}</svg>`;
+}
+function ritmoTrimestreCard(wk,advisorList,meta13){
+ let elapsed=trimestreElapsedWeeks(wk);
+ if(!elapsed.length){
+  return `<div class="chartcard"><h3>📈 Ritmo del trimestre</h3><p class="dashnote">El trimestre (${TRIMESTRE_ACTUAL.anio}, a partir de la semana ${TRIMESTRE_ACTUAL.semanaIsoInicio}) todavía no inicia para la semana seleccionada.</p></div>`;
+ }
+ let semanal={aff:meta13.aff/TRIMESTRE_ACTUAL.numSemanas,port:meta13.port/TRIMESTRE_ACTUAL.numSemanas,cash:meta13.cash/TRIMESTRE_ACTUAL.numSemanas};
+ let accAff=0,accPort=0,accCash=0,pointsAff=[],pointsPort=[],pointsCash=[];
+ elapsed.forEach((w,i)=>{
+  let wAff=0,wPort=0,wCash=0;
+  advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),w);wAff+=s.aff;wPort+=s.port;wCash+=sumArr(s.cashAmounts)});
+  accAff+=wAff;accPort+=wPort;accCash+=wCash;
+  let n=i+1;
+  pointsAff.push({week:w,real:accAff,esperado:semanal.aff*n});
+  pointsPort.push({week:w,real:accPort,esperado:semanal.port*n});
+  pointsCash.push({week:w,real:accCash,esperado:semanal.cash*n});
+ });
+ let enCurso=isCurrentWeek(wk);
+ let resumen=(pts,unit)=>{
+  let last=pts[pts.length-1],diff=last.real-last.esperado,fmt=v=>unit==="money"?money(v):Math.round(v).toLocaleString("es-MX");
+  return `<div class="dashnote" style="margin-top:6px">Real: <b>${fmt(last.real)}</b> · Esperado: <b>${fmt(last.esperado)}</b> · <b style="color:${diff>=0?"var(--green)":"var(--red)"}">${diff>=0?"+":""}${fmt(diff)}</b> vs ritmo · Semana ${elapsed.length} de ${TRIMESTRE_ACTUAL.numSemanas}</div>`;
+ };
+ return `<div class="chartcard"><h3>📈 Ritmo del trimestre</h3><div class="chartsub">Avance real acumulado vs. ritmo esperado, desde la semana ${TRIMESTRE_ACTUAL.semanaIsoInicio} del trimestre.${enCurso?" La semana en curso muestra un avance provisional (aún no cierra).":""}</div>
+ <div class="three">
+  <div><b style="font-size:13px">🧾 Afiliaciones</b>${burnupSvg(pointsAff,"num")}${resumen(pointsAff,"num")}</div>
+  <div><b style="font-size:13px">🔄 Portabilidades</b>${burnupSvg(pointsPort,"num")}${resumen(pointsPort,"num")}</div>
+  <div><b style="font-size:13px">💵 Colocación de Efectivo</b>${burnupSvg(pointsCash,"money")}${resumen(pointsCash,"money")}</div>
+ </div>
+ <div class="legendrow"><span class="legenddot" style="background:#08783f"></span>Real (verde = a tiempo o adelantado)<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#c51d2b"></span>Real (rojo = atrasado)<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#9aa39c"></span>Esperado (línea punteada)</div>
+ </div>`;
+}
 function trendSvg(trend){
  let w=640,h=170,padL=34,padR=10,padT=16,padB=26,innerW=w-padL-padR,innerH=h-padT-padB,n=trend.length;
  let x=i=>padL+(n<=1?innerW/2:innerW*i/(n-1)),y=v=>padT+innerH-(v/100*innerH);
@@ -1178,6 +1243,7 @@ function renderEjecRegionView(){
  </tbody></table></div></div>
  <div class="chartcard"><h3>Rubros con más asesores en mudo</h3><div class="chartsub">Ordenado de más a menos asesores en mudo.</div>${porRubro.map(rubroBarRow).join("")}</div>
  <div class="chartcard"><h3>Tendencia de las últimas 6 semanas</h3><div class="chartsub">% de asesores sin mudos y cumplimiento promedio.</div>${trendSvg(trend)}</div>
+ ${formType==="Banco"?ritmoTrimestreCard(wk,advisorList,{aff:META_AFILIACIONES_REGION_13SEM,port:META_PORTABILIDADES_REGION*TRIMESTRE_ACTUAL.numSemanas,cash:META_EFECTIVO_REGION_13SEM}):""}
  <div class="chartcard"><h3>⚠️ Asesores en riesgo</h3><div class="chartsub">Persistencia de 2 semanas cerradas o más con el mismo control en mudo.</div>
  ${riesgo.length?`<div class="tablewrap"><table><thead><tr><th>Asesor</th><th>Sucursal</th><th>Control</th><th>Semanas</th></tr></thead><tbody>${riesgo.map(r=>`<tr class="rowlink" onclick="ejecGoAdvisor('${esc(r.advisor.branch)}','${esc(r.advisor.id)}')"><td>${esc(r.advisor.name)}</td><td>${r.branch}</td><td>${esc(r.control)}</td><td><b>${r.semanas}</b></td></tr>`).join("")}</tbody></table></div>`:`<p class="dashnote">Sin asesores en riesgo.</p>`}
  </div>`;
@@ -1226,6 +1292,7 @@ function renderEjecBranchView(){
  ${rubro?`<div class="notice">🔎 <b>Rubro crítico de la sucursal:</b> ${esc(rubro.label)} — ${rubro.mudos} de ${evaluados} asesores en mudo.</div>`:""}
  ${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}
  <div class="chartcard"><h3>Semáforo</h3>${stackedBar(evals.filter(e=>e.estatus==="VERDE").length,evals.filter(e=>e.estatus==="AMARILLO").length,evals.filter(e=>e.estatus==="ROJO").length,evals.filter(e=>e.estatus==="EN_AVANCE").length)}</div>
+ ${formType==="Banco"?(META_SUCURSAL[branchNum(branch)]?ritmoTrimestreCard(wk,allAdvisors,{aff:META_SUCURSAL[branchNum(branch)].afiliaciones_cuota_13sem,port:META_SUCURSAL[branchNum(branch)].portabilidades_cuota_13sem,cash:META_SUCURSAL[branchNum(branch)].efectivo_cuota_13sem_pesos}):`<div class="chartcard"><h3>📈 Ritmo del trimestre</h3><p class="dashnote">Esta sucursal no tiene cuota de trimestre definida en META_SUCURSAL.</p></div>`):""}
  <div class="chartcard"><h3>Matriz de cumplimiento por asesor</h3><div class="chartsub">Avance real / meta por control. Clic en un asesor para ver su ficha.</div>
  <div class="tablewrap heatwrap"><table><thead><tr>${heatHead}</tr></thead><tbody>${heatRows}</tbody></table></div></div>
  <div class="chartcard"><h3>📋 Indicaciones para el gerente</h3><div class="chartsub">Sucursal ${branchNum(branch)} · ${esc(weekLabel(wk))}</div>
