@@ -9,11 +9,11 @@
 <style>
 :root{--nav:#173f32;--nav2:#0d6b45;--bg:#f5f6f3;--card:#fff;--text:#20251f;--muted:#697267;--line:#e0e4dc;--blue:#0b6b43;--green:#08783f;--amber:#b96c00;--red:#c51d2b;--yellow:#ffd500;--elektra:#d91f2b}
 *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial;background:var(--bg);color:var(--text)}
-.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}.side{background:linear-gradient(180deg,#087846 0%,#075c39 58%,#173f32 100%);color:#fff;padding:24px 16px;border-right:4px solid var(--yellow)}
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh}.side{background:linear-gradient(180deg,#087846 0%,#075c39 58%,#173f32 100%);color:#fff;padding:24px 16px;border-right:4px solid var(--yellow);height:100vh;overflow-y:auto;position:sticky;top:0}
 .brand{font-weight:900;font-size:20px;padding:4px 10px 18px}.brand small{display:block;font-size:11px;opacity:.82;margin-top:5px;letter-spacing:.06em}.brandline{height:4px;border-radius:99px;background:linear-gradient(90deg,var(--yellow) 0 52%,var(--elektra) 52%);margin:0 10px 20px}.scope{font-size:11px;font-weight:800;letter-spacing:.08em;color:#e8f5ee;padding:0 12px 8px}
 .nav button{width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:13px 14px;border-radius:10px;margin:4px 0;font-size:15px;cursor:pointer}
 .nav button.active,.nav button:hover{background:rgba(255,255,255,.16)}.nav .ico{display:inline-block;width:28px}
-.main{min-width:0}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:0 2px 10px rgba(18,60,43,.05)}
+.main{min-width:0;height:100vh;overflow-y:auto}.top{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:0 2px 10px rgba(18,60,43,.05)}
 .top strong{font-size:18px}.pill{font-size:12px;background:#edf3ff;color:#315c9d;padding:7px 11px;border-radius:99px}
 .content{padding:28px}.pagehead{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:20px}.pagehead h1{margin:0;font-size:28px}.pagehead p{margin:5px 0 0;color:var(--muted)}
 .btn{border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer}.primary{background:var(--green);color:white}.primary:hover{filter:brightness(.94)}
@@ -39,7 +39,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 @media(max-width:600px){.choicegrid,.advisorgrid,.formtypes,.review{grid-template-columns:1fr}.infohead,.kpis{grid-template-columns:1fr}}
 
 .adminbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-.loginbox{max-width:440px;margin:35px auto}.loginbox .field{margin-bottom:14px}
+.admintabs{display:flex;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.admintab{border:0;background:transparent;color:var(--muted);font-weight:800;font-size:14px;padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent}
+.admintab.active{color:var(--green);border-bottom-color:var(--green)}
+.notice-error{background:#fdeaea;border:1px solid #f3b3b3;color:#7a1420}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--muted)}
+.pager .btn{padding:8px 14px}.pager .btn:disabled{opacity:.4;cursor:default}
 .filtersbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:14px 0}
 .tablewrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:12px}
 .tablewrap table{min-width:1550px}.tablewrap thead th{position:sticky;top:0;background:#f2f6f2;z-index:1}
@@ -57,24 +62,47 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 .kpigrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 20px}
 .kpicard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px}
 .kpicard small{display:block;color:var(--muted);font-weight:700}.kpicard b{font-size:23px;display:block;margin-top:6px}
-.sectiontitle{margin:25px 0 8px}.dashnote{font-size:12px;color:var(--muted)}
+.dashnote{font-size:12px;color:var(--muted)}
 @media(max-width:900px){.dashboardfilters{grid-template-columns:repeat(2,1fr)}.kpigrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.dashboardfilters,.kpigrid{grid-template-columns:1fr}}
 
-.visualgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0 22px}
-.chartcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px}
+.chartcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;margin:16px 0}
 .chartcard h3{margin:0 0 4px}.chartsub{font-size:12px;color:var(--muted);margin-bottom:14px}
-.barrow{display:grid;grid-template-columns:minmax(95px,1.2fr) 3fr 70px;gap:8px;align-items:center;margin:9px 0;font-size:12px}
-.bartrack{height:13px;background:#edf1ef;border-radius:999px;overflow:hidden}.barfill{height:100%;background:#2c765d;border-radius:999px}
-.trendbars{height:180px;display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid var(--line);padding:8px 5px 0}
-.trendcol{flex:1;text-align:center;min-width:45px}.trendbar{background:#2c765d;border-radius:7px 7px 0 0;min-height:3px}.trendcol small{display:block;margin-top:6px;color:var(--muted)}
-@media(max-width:760px){.visualgrid{grid-template-columns:1fr}}
+.bartrack{height:13px;background:#edf1ef;border-radius:999px;overflow:hidden;position:relative}.barfill{height:100%;background:#2c765d;border-radius:999px}
+.legendrow{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px;flex-wrap:wrap}.legenddot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
 
-.piebox{display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center}
-.donut{width:160px;height:160px;border-radius:50%;position:relative;margin:auto}
-.donut:after{content:"";position:absolute;inset:34px;background:#fff;border-radius:50%}
-.legendrow{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12px}.legenddot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
-@media(max-width:560px){.piebox{grid-template-columns:1fr}.donut{width:145px;height:145px}}
+.breadcrumb{font-size:12px;color:var(--muted);margin-top:10px}.breadcrumb a{color:var(--blue);text-decoration:none;font-weight:700}.crumb-sep{margin:0 4px;color:#aab3a6}
+.stackbar{display:flex;height:34px;border-radius:10px;overflow:hidden;font-size:12px;font-weight:800;color:#fff}
+.stackseg{display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:30px;padding:0 4px}
+.seg-verde{background:#28765b}.seg-amarillo{background:#e3b341;color:#3a2f00}.seg-rojo{background:#c94747}.seg-avance{background:#9aa39c}
+.statuspill{padding:5px 10px;border-radius:99px;font-size:12px;font-weight:800;white-space:nowrap}
+.est-verde{background:#e6f6ed;color:var(--green)}.est-amarillo{background:#fff1d8;color:var(--amber)}.est-rojo{background:#fdeaea;color:var(--red)}.est-avance{background:#eef1f6;color:#5a6472}
+.cell-ok{background:#eaf7ef}.cell-warn{background:#fff6df}.cell-bad{background:#fbeaea}.cell-pending{background:#f0f1ee;color:#7b847a}
+.heatwrap table{min-width:1100px}.heatwrap td,.heatwrap th{white-space:nowrap;font-size:12px;text-align:center}.heatwrap td:first-child,.heatwrap th:first-child{text-align:left}
+.stickycol{position:sticky;left:0;background:#fff;z-index:1;box-shadow:2px 0 4px rgba(0,0,0,.05)}
+.indicrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.daycell{text-align:center;padding:10px 4px;border-radius:10px;background:#f7f9f6;border:1px solid var(--line);font-size:12px;font-weight:700}
+.day-yes{background:#e6f6ed;color:var(--green)}.day-no{background:#f6f1f1;color:#9e8f8f}
+.var-up{color:var(--green);font-size:12px;font-weight:800}.var-down{color:var(--red);font-size:12px;font-weight:800}.var-flat{color:var(--muted);font-size:12px;font-weight:800}
+.rowlink{cursor:pointer}.rowlink:hover{background:#f5f8f5}
+.printhead{display:none}
+@media(max-width:900px){.daygrid{grid-template-columns:repeat(4,1fr)}}
+@media print{
+ .side,.mobilebar,.top,.btn,.dashboardfilters{display:none!important}
+ .app{display:block;height:auto}
+ .main{height:auto;overflow:visible}
+ .content{padding:0}
+ body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .printhead{display:block}
+ .breadcrumb{display:none}
+ @page{size:landscape}
+ .tablewrap{overflow:visible!important;max-height:none!important;border:none!important}
+ .tablewrap table,.heatwrap table{min-width:0!important;width:100%!important;table-layout:fixed}
+ .tablewrap thead th{position:static!important}
+ .tablewrap th,.tablewrap td{font-size:9px!important;padding:4px 3px!important;white-space:normal!important;word-break:break-word}
+ .stickycol{position:static!important;box-shadow:none!important}
+}
 </style>
 </head>
 <body>
@@ -82,16 +110,16 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
 <aside class="side">
  <div class="brand">CRM <small>REGIÓN SAN MIGUEL DE ALLENDE</small></div><div class="brandline"></div><div class="scope">BANCO · COMERCIO</div>
  <nav class="nav">
-  <button class="active" data-page="asesores"><span class="ico">👥</span>Alta de asesores</button>
-  <button data-page="avance"><span class="ico">📝</span>Registro de avance</button>
+  <button class="active" data-page="avance"><span class="ico">📝</span>Registro de avance</button>
   <button data-page="resumen"><span class="ico">📊</span>Resumen ejecutivo</button>
- <button class="navitem" onclick="openAdminLogin()">🔐 <span>Administración</span></button></nav>
+  <button data-page="administracion"><span class="ico">🛠️</span>Administración</button>
+ </nav>
 </aside>
 <main class="main">
  <div class="mobilebar">
-  <button data-page="asesores">👥 Alta de asesores</button><button data-page="avance">📝 Registro de avance</button><button data-page="resumen">📊 Resumen ejecutivo</button>
+  <button data-page="avance">📝 Registro de avance</button><button data-page="resumen">📊 Resumen ejecutivo</button><button data-page="administracion">🛠️ Administración</button>
  </div>
- <header class="top"><strong id="topTitle">Alta de asesores</strong><span class="pill">Seguimiento Banco + Comercio · San Miguel de Allende</span></header>
+ <header class="top"><strong id="topTitle">Registro de avance</strong><span class="pill">Seguimiento Banco + Comercio · San Miguel de Allende</span></header>
  <section class="content" id="view"></section>
 </main>
 </div>
@@ -102,61 +130,443 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
   <div class="field"><label>Nombre completo</label><input id="name" placeholder="Nombre del asesor"></div>
   <div class="field"><label>Sucursal</label><select id="branch"></select></div>
   <div class="field"><label>Actividad</label><select id="status"><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option><option>Baja</option></select></div>
+  <div class="field"><label>Puesto</label><select id="puesto"></select></div>
  </div>
  <div id="error" style="color:#b84242;font-size:13px;margin-top:10px"></div>
  <div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAdvisor()">Guardar</button></div>
 </div></div>
+<div id="bootOverlay" style="position:fixed;inset:0;background:#f5f6f3;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:Inter,ui-sans-serif,system-ui;font-weight:800;color:#173f32;font-size:16px">Cargando datos de Supabase…</div>
+<!-- Cliente de Supabase (opcional). Si esta carga falla (sin internet, CDN
+bloqueado, etc.) window.supabase simplemente no existe y el CRM sigue
+funcionando en modo local, sin ningún error visible para el usuario. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<!-- Configuración de Supabase (opcional). Si config.js no existe en este
+servidor, el navegador simplemente no puede cargarlo y el CRM sigue
+funcionando en modo local. Ver supabase/LEEME.md para activarlo. -->
+<script src="config.js"></script>
 <script>
 const branches=["2111 - EKT COMONFORT","4155 - EKT GTO SAN JOSE ITURBIDE","2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","2082 - EKT QUERETARO SATELITE","4183 - EKT SANTIAGO QUERETARO SANTA R","9510 - MEGA AV PENAFLOR QRO","6787 - MEGA JUVENTINO ROSAS","3105 - MEGA SAN JOSE DE ITURBIDE","1054 - MEGA SAN MIGUEL DE ALLENDE","708 - DAZ SAN DIEGO DE LA UNION","9846 - DAZ SAN LUIS DE LA PAZ"];
-const seedAdvisors=[{"emp":"1199656","name":"MIRIAM GARCIA ESTRADA","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo"},{"emp":"1210404","name":"ALMA ANGELICA MENDIOLA BUENROSTRO","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo"},{"emp":"1024593","name":"ANGELICA MAYELI LANDEROS YAÑEZ","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo"},{"emp":"1171169","name":"PAULINA FERNANDA GARCIA VEGA","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1216757","name":"SONIA ESTEFANIA VAZQUEZ DELGADO","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"203904","name":"MARIA TERESA PAZ HERNANDEZ","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1210961","name":"ADRIAN HERNANDEZ SANCHEZ","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"1156264","name":"JUAN FELIPE BORJA PALACIOS","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"325106","name":"MARIA DE LOURDES VELAZQUEZ LOPEZ","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"1065609","name":"DAVID EMILIANO MATA RUBIO","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"51039","name":"ANA CECILIA MORALES ARAIZA","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"1141967","name":"CHRISTOPHER MARTIN AGUILAR OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"718639","name":"FELIPE LANTEN OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"163832","name":"MIRNA ONTIVEROS DIAZ","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"1036979","name":"OFELIA CAPULIN SILVA","branch":"2111 - EKT COMONFORT","status":"Activo"},{"emp":"326875","name":"JORGE PACHECO TORRES","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1190668","name":"JOSE EDUARDO ACOSTA GARCIA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1181835","name":"DULCE ALEJANDRA DIAZ VEGA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1157630","name":"CARLOS DANIEL RESENDIZ RUBIO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1075710","name":"INES BECERRA MEDINA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1191221","name":"JAQUELINE HERNANDEZ HERNANDEZ","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1017425","name":"JOSE ERNESTO BALDERAS ESTRADA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1093249","name":"ROSA ELIA MATA RIVERA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1181738","name":"FATIMA ALEXANDRA AGUILAR ARELLANO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo"},{"emp":"1207055","name":"JUAN DANIEL MOYA ALVAREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1127877","name":"YOLANDA LIZBETH SANCHEZ MORIN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"858596","name":"MANUEL RAMIREZ LUNA","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1208458","name":"JESUS YAHELD RICO RESENDIZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1200292","name":"OSCAR JAIR RAMIREZ HERNANDEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1158823","name":"ESMERALDA ROSARIO DE LEON CHAVEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1021634","name":"CARLOS JESUS CRUZ FLORES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1127088","name":"ALONDRA TORRES PEREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1043103","name":"YANET RUBI SEGUNDO DIAZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"878796","name":"MARIA DE LOURDES BERTADILLO CERVANTES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"889793","name":"MARTIN CORONILLA DURAN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"990242","name":"JUANA ELENA GOMEZ SALAZAR","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"1188721","name":"ANA ROSA ALVAREZ RAMIREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo"},{"emp":"334816","name":"MARISELA FIGUEROA CONTRERAS","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1074999","name":"MARIA JOSE SERRANO NAVA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"88026","name":"LAURA LETICIA ALCALA ARANDA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1227935","name":"VICTOR BERTOLEON MONTIEL","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1225473","name":"JESUS CERON HERNANDEZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"67497","name":"LLUVIA ANGELICA VALENZUELA GARCIA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1184074","name":"LAURA PATRICIA PARDO BELTRAN","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1219669","name":"DANIEL ESCAMILLA FLORES","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1214031","name":"LUIS GABRIEL RUIZ JUAREZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1211196","name":"CARLOS ANDRES CURIEL LIQUIDANO","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"534667","name":"SANDRA ESCOBEDO ACOSTA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo"},{"emp":"1048917","name":"AKARI SALAZAR ISLAS","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"719590","name":"MANUELA AGUILAR JIMENEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"1223016","name":"LUIS ALBERTO CHAVEZ LEAL","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"1031524","name":"MARTIN FUENTES ORTEGA","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"1098635","name":"ABRAHAM PATIÑO PEREZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"692186","name":"BERENICE HERMINIA HERNANDEZ LOPEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"181870","name":"AARON GARCIA GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"1082918","name":"LAURA GOMEZ GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo"},{"emp":"1044500","name":"SAHILA ROCIO ROJO SALINAS","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1047138","name":"LUIS ANGEL GOMEZ MANZANO","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1123286","name":"ZAYRA ZAVALA RAMIREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"712368","name":"IRMA MARTINEZ OCHOA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1216856","name":"JOSE ULISES RIOS CASTAÑEDA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1177804","name":"DORA IMELDA SALDAÑA MORALES","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1089773","name":"JULIO CESAR SANTIAGO PEREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1218737","name":"JONATHAN JOSUE JIMENEZ SILVA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo"},{"emp":"1117293","name":"ADOLFO CERROBLANCO SANCHEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1167173","name":"JORGE LUIS PIZANO CASTILLO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1126644","name":"JESUS ALBERTO CONEJO DELGADO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1161954","name":"JORGE LUIS FLORES ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1052761","name":"LUCINO ANGEL MOLINA CARRANCO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1186294","name":"CAROLINA ZARATE AGOSTADERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1206609","name":"CECILIA CASTILLO DECIGA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"366253","name":"CECILIA GONZALEZ ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1047773","name":"MARIA DE JESUS HORTELANO SALDAÑA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1200270","name":"GENESIS AURORA CANO JIMENEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1198972","name":"JESUS MIGUEL NAVARRO GUERRERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo"},{"emp":"1184781","name":"LAURA GISELA BERTADILLO BARCENAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"299294","name":"MARIA ELIZABETH AGUILERA BARRAZA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"964848","name":"MARIA DEL CARMEN ALVIREZ HERNANDEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"38603","name":"JOSE MANUEL GONZALEZ SOTO","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"92273","name":"JAVIER BRIGIDO ROJAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"1139066","name":"VERONICA SUJEY GUEVARA GOMEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"1185274","name":"SUSANA GUERRERO MORALES","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"1170850","name":"GABRIELA RESENDIZ CONTRERAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"1204847","name":"MARIA ISABEL BAZALDUA MEDINA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo"},{"emp":"302001","name":"RICARDO GUIA PEREZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"1199116","name":"JOSE GUADALUPE MEDINA ARIZA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"673794","name":"MARINO GARCIA AGUILAR","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"920880","name":"JUAN MANUEL LICEA ESTRADA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"1231279","name":"RIEL DUARTE ARREDONDO","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"82651","name":"RICARDO GONZALEZ OLVERA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"1091177","name":"JOSE MIGUEL CERON GONZALEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"1208314","name":"LUIS ALBERTO MARTINEZ VARGAS","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"46574","name":"MARIA VIRIDIANA PERU CORTES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"},{"emp":"685580","name":"MARIA DEL CARMEN MARTINEZ MORALES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo"}];
-let storedAdvisors=JSON.parse(localStorage.getItem("crm_advisors")||"[]");
-let byEmp=new Map(seedAdvisors.map(x=>[x.emp,{...x}]));
-storedAdvisors.forEach(x=>byEmp.set(x.emp,{...byEmp.get(x.emp),...x}));
-let advisors=Array.from(byEmp.values()), editing=null;
-localStorage.setItem("crm_advisors",JSON.stringify(advisors));
+const PUESTOS_BANCO=["BANCO"];
+const PUESTOS_COMERCIO=["COMERCIO"];
+const PUESTOS_ALL=[...PUESTOS_BANCO,...PUESTOS_COMERCIO];
+// ============================================================
+// Capa de datos: Supabase (si config.js está presente y completo) o
+// almacenamiento 100% local (comportamiento de siempre). Ver
+// supabase/LEEME.md. Nada de lo que sigue en este bloque cambia el
+// comportamiento cuando no hay config.js: usingSupabase() da false y
+// SB queda en null.
+// ============================================================
+const SB=(function(){
+ try{
+  const cfg=window.SUPABASE_CONFIG;
+  if(!cfg||!cfg.url||!cfg.anonKey)return null;
+  if(typeof window.supabase==="undefined"||typeof window.supabase.createClient!=="function")return null;
+  return window.supabase.createClient(cfg.url,cfg.anonKey);
+ }catch(e){console.error("No se pudo iniciar el cliente de Supabase:",e);return null}
+})();
+function usingSupabase(){return SB!==null}
+let adminSession=null;
+let savingInFlight=false;
+if(SB){
+ SB.auth.onAuthStateChange((_event,session)=>{adminSession=session});
+}else{
+ // Modo local: la pantalla de carga es solo para el arranque de Supabase.
+ let ov=document.getElementById("bootOverlay");
+ if(ov)ov.remove();
+}
+function showSavingIndicator(){
+ if(document.getElementById("savingIndicator"))return;
+ let el=document.createElement("div");
+ el.id="savingIndicator";el.textContent="Guardando…";
+ el.style.cssText="position:fixed;top:14px;right:14px;background:#173f32;color:#fff;padding:8px 16px;border-radius:8px;font-weight:800;z-index:99999;box-shadow:0 2px 10px rgba(0,0,0,.25)";
+ document.body.appendChild(el);
+}
+function hideSavingIndicator(){let el=document.getElementById("savingIndicator");if(el)el.remove()}
+function supabaseErrorText(err){return (err&&(err.message||err.error_description||err.hint))||"Error desconocido de conexión."}
+function showSupabaseSaveError(accion,err){
+ let msg=supabaseErrorText(err);
+ showStorageSaveError(
+  `<b>No se pudo ${accion}.</b> Hubo un problema al conectar con Supabase. Detalle: ${esc(msg)}. Tu información <b>NO se guardó</b>, por favor no cierres esta pantalla.`,
+  `No se pudo ${accion}.\n\nHubo un problema al conectar con Supabase.\nDetalle: ${msg}\n\nTu información NO se guardó. No cierres esta pantalla; vuelve a intentar guardar.`
+ );
+}
+function mapCapturaRow(row){if(!row)return row;const{tipo,...rest}=row;return rest}
+// ============================================================
+// METAS — mínimos semanales de productividad por control.
+// Edita únicamente los valores de este bloque para ajustar metas
+// o textos de acción sugerida; el resto del sistema los usa tal cual.
+// ============================================================
+// ============================================================
+// METAS — mínimos semanales de productividad por control ("MUDO" =
+// termina la semana en cero en ese rubro; "Parcial" = avance sin llegar
+// al ideal; "Ideal" = meta cumplida). Edita únicamente los valores de
+// este bloque para ajustar metas o textos de acción sugerida.
+// ============================================================
+const TASA_ACTIVACION_MIN=0.6;
+const METAS={
+ DIAS_OPERACION:7,
+ DIAS_SIN_CAPTURA_ALERTA:2,
+ BANCO:{
+  funds:{mudo:1000,ideal:10000},
+  guard:{ideal:10,montoComision:500},
+  somos:{ideal:4,montoComision:3000},
+  inv:{ideal:2},
+  taz:{idealMin:3}
+ },
+ COMERCIO:{
+  nuevosInactivosIdeal:[15000,1500,3000], // Movilidad, Hogar, Conectividad
+  vdaIdeal:1000
+ }
+};
+// ============================================================
+// META_SUCURSAL: cuotas fijas por sucursal para Afiliaciones,
+// Portabilidades y Colocación de Efectivo (Banco). Cargadas desde
+// metas_sucursales_banco.csv (11 sucursales). Edita a mano estos
+// valores cada trimestre cuando cambien las cuotas.
+// ============================================================
+const META_SUCURSAL={
+ "708":{sucursal:"DAZ SAN DIEGO DE LA UNION",afiliaciones_cuota_13sem:155,afiliaciones_cuota_semanal:12,portabilidades_cuota_13sem:39,portabilidades_cuota_semanal:3,efectivo_cuota_13sem_pesos:5400000,efectivo_cuota_semanal_pesos:415000},
+ "9846":{sucursal:"DAZ SAN LUIS DE LA PAZ",afiliaciones_cuota_13sem:88,afiliaciones_cuota_semanal:7,portabilidades_cuota_13sem:26,portabilidades_cuota_semanal:2,efectivo_cuota_13sem_pesos:2061000,efectivo_cuota_semanal_pesos:159000},
+ "2111":{sucursal:"EKT COMONFORT",afiliaciones_cuota_13sem:162,afiliaciones_cuota_semanal:12,portabilidades_cuota_13sem:51,portabilidades_cuota_semanal:4,efectivo_cuota_13sem_pesos:11230000,efectivo_cuota_semanal_pesos:864000},
+ "4155":{sucursal:"EKT GTO SAN JOSE ITURBIDE",afiliaciones_cuota_13sem:250,afiliaciones_cuota_semanal:19,portabilidades_cuota_13sem:52,portabilidades_cuota_semanal:4,efectivo_cuota_13sem_pesos:10050000,efectivo_cuota_semanal_pesos:773000},
+ "2083":{sucursal:"EKT GUANAJUATO SAN LUIS DE LA PAZ",afiliaciones_cuota_13sem:483,afiliaciones_cuota_semanal:37,portabilidades_cuota_13sem:117,portabilidades_cuota_semanal:9,efectivo_cuota_13sem_pesos:14562000,efectivo_cuota_semanal_pesos:1120000},
+ "2082":{sucursal:"EKT QUERETARO SATELITE",afiliaciones_cuota_13sem:240,afiliaciones_cuota_semanal:18,portabilidades_cuota_13sem:81,portabilidades_cuota_semanal:6,efectivo_cuota_13sem_pesos:16818000,efectivo_cuota_semanal_pesos:1294000},
+ "4183":{sucursal:"EKT SANTIAGO QUERETARO SANTA R",afiliaciones_cuota_13sem:331,afiliaciones_cuota_semanal:25,portabilidades_cuota_13sem:97,portabilidades_cuota_semanal:7,efectivo_cuota_13sem_pesos:17978000,efectivo_cuota_semanal_pesos:1383000},
+ "9510":{sucursal:"MEGA AV PENAFLOR QRO",afiliaciones_cuota_13sem:110,afiliaciones_cuota_semanal:8,portabilidades_cuota_13sem:39,portabilidades_cuota_semanal:3,efectivo_cuota_13sem_pesos:10878000,efectivo_cuota_semanal_pesos:837000},
+ "6787":{sucursal:"MEGA JUVENTINO ROSAS",afiliaciones_cuota_13sem:322,afiliaciones_cuota_semanal:25,portabilidades_cuota_13sem:65,portabilidades_cuota_semanal:5,efectivo_cuota_13sem_pesos:18178000,efectivo_cuota_semanal_pesos:1398000},
+ "3105":{sucursal:"MEGA SAN JOSE DE ITURBIDE",afiliaciones_cuota_13sem:178,afiliaciones_cuota_semanal:14,portabilidades_cuota_13sem:39,portabilidades_cuota_semanal:3,efectivo_cuota_13sem_pesos:5612000,efectivo_cuota_semanal_pesos:432000},
+ "1054":{sucursal:"MEGA SAN MIGUEL DE ALLENDE",afiliaciones_cuota_13sem:300,afiliaciones_cuota_semanal:23,portabilidades_cuota_13sem:97,portabilidades_cuota_semanal:7,efectivo_cuota_13sem_pesos:17495000,efectivo_cuota_semanal_pesos:1346000}
+};
+const META_AFILIACIONES_REGION=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.afiliaciones_cuota_semanal,0);
+const META_EFECTIVO_REGION_PESOS=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.efectivo_cuota_semanal_pesos,0);
+// Totales de 13 semanas a nivel región, para el "Ritmo del trimestre" — misma
+// suma que las constantes semanales de arriba, sobre los campos *_cuota_13sem
+// que ya existen en META_SUCURSAL (no son cuotas nuevas).
+const META_AFILIACIONES_REGION_13SEM=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.afiliaciones_cuota_13sem,0);
+const META_EFECTIVO_REGION_13SEM=Object.values(META_SUCURSAL).reduce((s,m)=>s+m.efectivo_cuota_13sem_pesos,0);
+// Meta aspiracional del regional: NO se deriva de la suma de cuotas por
+// sucursal (esa suma da 53). Es un número fijo aparte, intencional.
+const META_PORTABILIDADES_REGION=60;
+// Trimestre vigente, usado por "Ritmo del trimestre" en el Resumen
+// ejecutivo. Edita a mano al cerrar el trimestre.
+const TRIMESTRE_ACTUAL={anio:2026,semanaIsoInicio:40,numSemanas:13};
+const ACCIONES_SUGERIDAS={
+ aff:"Reforzar prospección de afiliaciones nuevas.",
+ port:"Buscar candidatos a portabilidad en la cartera actual.",
+ funds:"Ofrecer Fondos de Inversión en cada interacción con cliente.",
+ guard:"Abrir más cuentas de Guardadito Remeseros en la semana.",
+ somos:"Abrir más cuentas de Somos en la semana.",
+ inv:"Cerrar al menos una Inversión en la semana.",
+ taz:"Entregar y activar más TAZ; basta 1 de cada para salir de mudo.",
+ cash:"Impulsar la colocación de efectivo con clientes elegibles.",
+ req_0:"Levantar más solicitudes de Movilidad.",
+ req_1:"Levantar más solicitudes de Hogar.",
+ req_2:"Levantar más solicitudes de Conectividad.",
+ srv_0:"Dar seguimiento y surtir solicitudes de Movilidad.",
+ srv_1:"Dar seguimiento y surtir solicitudes de Hogar.",
+ srv_2:"Dar seguimiento y surtir solicitudes de Conectividad.",
+ nw_0:"Cerrar ventas de clientes nuevos en Movilidad.",
+ nw_1:"Cerrar ventas de clientes nuevos en Hogar.",
+ nw_2:"Cerrar ventas de clientes nuevos en Conectividad.",
+ ina_0:"Reactivar clientes inactivos en Movilidad.",
+ ina_1:"Reactivar clientes inactivos en Hogar.",
+ ina_2:"Reactivar clientes inactivos en Conectividad.",
+ vda_0:"Impulsar ventas VDA Nuevas.",
+ vda_1:"Impulsar ventas VDA Recompra.",
+ vda_2:"Impulsar ventas VDA Contado."
+};
+function sumArr(a){return (Array.isArray(a)?a:[]).reduce((s,n)=>s+(Number(n)||0),0)}
+const CONTROLES_BANCO=[
+ {key:"aff",label:"Afiliaciones",singular:"afiliación",icon:"🧾",special:"regional",regionalKey:"aff",getSum:s=>s.aff},
+ {key:"port",label:"Portabilidades",singular:"portabilidad",icon:"🔄",special:"regional",regionalKey:"port",getSum:s=>s.port},
+ {key:"cash",label:"Colocación de Efectivo",singular:"colocación",icon:"💵",valueKind:"money",special:"regional",regionalKey:"cash",getSum:s=>sumArr(s.cashAmounts)},
+ {key:"funds",label:"Fondos de Inversión",icon:"💰",valueKind:"money",getSum:s=>s.funds,mudoBelow:METAS.BANCO.funds.mudo,idealAt:METAS.BANCO.funds.ideal},
+ {key:"guard",label:"Guardadito Remeseros",icon:"💰",unit:"cuenta",unitPlural:"cuentas",getAmounts:s=>s.guardAmounts,mudoBelow:1,idealAt:METAS.BANCO.guard.ideal,montoComision:METAS.BANCO.guard.montoComision},
+ {key:"somos",label:"Somos",icon:"👥",unit:"cuenta",unitPlural:"cuentas",getAmounts:s=>s.somosAmounts,mudoBelow:1,idealAt:METAS.BANCO.somos.ideal,montoComision:METAS.BANCO.somos.montoComision},
+ {key:"inv",label:"Inversiones",icon:"💵",unit:"inversión",unitPlural:"inversiones",getAmounts:s=>s.invAmounts,mudoBelow:1,idealAt:METAS.BANCO.inv.ideal},
+ {key:"taz",label:"TAZ",icon:"💳",special:"taz",idealMin:METAS.BANCO.taz.idealMin}
+];
+const CAT_LABELS=["Movilidad","Hogar","Conectividad"];
+const CONTROLES_COMERCIO=[
+ ...CAT_LABELS.map((n,i)=>({key:"req_"+i,label:"Solicitudes "+n,singular:"solicitud de "+n,icon:"🛍️",getSum:s=>s.req[i],mudoBelow:1,idealAt:1})),
+ ...CAT_LABELS.map((n,i)=>({key:"srv_"+i,label:"Surtidos "+n,singular:"surtido de "+n,icon:"👥",getSum:s=>s.srv[i],mudoBelow:1,idealAt:1})),
+ ...CAT_LABELS.map((n,i)=>({key:"nw_"+i,label:"Monto nuevos "+n,icon:"💰",valueKind:"money",getSum:s=>sumArr(s.nw[i]),mudoBelow:1,idealAt:METAS.COMERCIO.nuevosInactivosIdeal[i]})),
+ ...CAT_LABELS.map((n,i)=>({key:"ina_"+i,label:"Monto inactivos "+n,icon:"♻️",valueKind:"money",getSum:s=>sumArr(s.ina[i]),mudoBelow:1,idealAt:METAS.COMERCIO.nuevosInactivosIdeal[i],rubroCriticoFlag:i===1})),
+ ...["Nuevas","Recompra","Contado"].map((n,i)=>({key:"vda_"+i,label:"VDA "+n,icon:"💳",valueKind:"money",getSum:s=>sumArr(s.vda[i]),mudoBelow:1,idealAt:METAS.COMERCIO.vdaIdeal}))
+];
+const seedAdvisors=[{"id":"seed-1024593","emp":"1024593","name":"ANGELICA MAYELI LANDEROS YAÑEZ","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"BANCO"},{"id":"seed-1210404","emp":"1210404","name":"ALMA ANGELICA MENDIOLA BUENROSTRO","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"BANCO"},{"id":"seed-1199656","emp":"1199656","name":"MIRIAM GARCIA ESTRADA","branch":"708 - DAZ SAN DIEGO DE LA UNION","status":"Activo","puesto":"BANCO"},{"id":"seed-203904","emp":"203904","name":"MARIA TERESA PAZ HERNANDEZ","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1216757","emp":"1216757","name":"SONIA ESTEFANIA VAZQUEZ DELGADO","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1232254","emp":"1232254","name":"JUAN MANUEL PEREZ PADRON","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1171169","emp":"1171169","name":"PAULINA FERNANDA GARCIA VEGA","branch":"9846 - DAZ SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-51039","emp":"51039","name":"ANA CECILIA MORALES ARAIZA","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"BANCO"},{"id":"seed-718639","emp":"718639","name":"FELIPE LANTEN OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"BANCO"},{"id":"seed-163832","emp":"163832","name":"MIRNA ONTIVEROS DIAZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"BANCO"},{"id":"seed-1036979","emp":"1036979","name":"OFELIA CAPULIN SILVA","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"BANCO"},{"id":"seed-1229039","emp":"1229039","name":"ANDREA ELIZBETH GARCIA RAMIREZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"BANCO"},{"id":"seed-1141967","emp":"1141967","name":"CHRISTOPHER MARTIN AGUILAR OLALDE","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"BANCO"},{"id":"seed-1188721","emp":"1188721","name":"ANA ROSA ALVAREZ RAMIREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-990242","emp":"990242","name":"JUANA ELENA GOMEZ SALAZAR","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-889793","emp":"889793","name":"MARTIN CORONILLA DURAN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-878796","emp":"878796","name":"MARIA DE LOURDES BERTADILLO CERVANTES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1043103","emp":"1043103","name":"YANET RUBI SEGUNDO DIAZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1127088","emp":"1127088","name":"ALONDRA TORRES PEREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1021634","emp":"1021634","name":"CARLOS JESUS CRUZ FLORES","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1158823","emp":"1158823","name":"ESMERALDA ROSARIO DE LEON CHAVEZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"BANCO"},{"id":"seed-1198972","emp":"1198972","name":"JESUS MIGUEL NAVARRO GUERRERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1200270","emp":"1200270","name":"GENESIS AURORA CANO JIMENEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1230731","emp":"1230731","name":"ANA PATRICIA RUIZ RUIZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-366253","emp":"366253","name":"CECILIA GONZALEZ ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1206609","emp":"1206609","name":"CECILIA CASTILLO DECIGA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1047773","emp":"1047773","name":"MARIA DE JESUS HORTELANO SALDAÑA","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1052761","emp":"1052761","name":"LUCINO ANGEL MOLINA CARRANCO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1161954","emp":"1161954","name":"JORGE LUIS FLORES ZARATE","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"BANCO"},{"id":"seed-1221990","emp":"1221990","name":"JUAN DAVID LANTEN JIMENEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1173450","emp":"1173450","name":"FERNANDA MARISOL CAZARES CRISANTO","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1212722","emp":"1212722","name":"ADRIAN PADILLA VAZQUEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-685580","emp":"685580","name":"MARIA DEL CARMEN MARTINEZ MORALES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1229957","emp":"1229957","name":"ARTURO FABIAN GLORIA GUERRERO","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-46574","emp":"46574","name":"MARIA VIRIDIANA PERU CORTES","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1229218","emp":"1229218","name":"DANIELA LOPEZ GONZALEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1091177","emp":"1091177","name":"JOSE MIGUEL CERON GONZALEZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-82651","emp":"82651","name":"RICARDO GONZALEZ OLVERA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1184074","emp":"1184074","name":"LAURA PATRICIA PARDO BELTRAN","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-1182781","emp":"1182781","name":"YESENIA RODRIGUEZ MONDRAGON","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-963203","emp":"963203","name":"MARIA FERNANDA MONSERRAT URIBE LOPEZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-1138670","emp":"1138670","name":"LORENA HERNANDEZ TOLENTINO","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-1167424","emp":"1167424","name":"LUIS MANUEL CORTES SANDOVAL","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-67497","emp":"67497","name":"LLUVIA ANGELICA VALENZUELA GARCIA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-534667","emp":"534667","name":"SANDRA ESCOBEDO ACOSTA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"BANCO"},{"id":"seed-1139066","emp":"1139066","name":"VERONICA SUJEY GUEVARA GOMEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1185274","emp":"1185274","name":"SUSANA GUERRERO MORALES","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1170850","emp":"1170850","name":"GABRIELA RESENDIZ CONTRERAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1017425","emp":"1017425","name":"JOSE ERNESTO BALDERAS ESTRADA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1093249","emp":"1093249","name":"ROSA ELIA MATA RIVERA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1181738","emp":"1181738","name":"FATIMA ALEXANDRA AGUILAR ARELLANO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1191221","emp":"1191221","name":"JAQUELINE HERNANDEZ HERNANDEZ","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1075710","emp":"1075710","name":"INES BECERRA MEDINA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-64502","emp":"64502","name":"OLGA JOAQUINA GARCIA PALESTINA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"BANCO"},{"id":"seed-1070177","emp":"1070177","name":"EDGAR BAUTISTA NAVARRO","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"BANCO"},{"id":"seed-1115059","emp":"1115059","name":"TANIA GUADALUPE CESAREO VASQUEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"BANCO"},{"id":"seed-1082918","emp":"1082918","name":"LAURA GOMEZ GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"BANCO"},{"id":"seed-692186","emp":"692186","name":"BERENICE HERMINIA HERNANDEZ LOPEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"BANCO"},{"id":"seed-181870","emp":"181870","name":"AARON GARCIA GONZALEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"BANCO"},{"id":"seed-78217","emp":"78217","name":"RAUL ADRIAN ROA SALINAS","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"BANCO"},{"id":"seed-1089773","emp":"1089773","name":"JULIO CESAR SANTIAGO PEREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"BANCO"},{"id":"seed-1177804","emp":"1177804","name":"DORA IMELDA SALDAÑA MORALES","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"BANCO"},{"id":"seed-1065609","emp":"1065609","name":"DAVID EMILIANO MATA RUBIO","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"COMERCIO"},{"id":"seed-325106","emp":"325106","name":"MARIA DE LOURDES VELAZQUEZ LOPEZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1156264","emp":"1156264","name":"JUAN FELIPE BORJA PALACIOS","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1210961","emp":"1210961","name":"ADRIAN HERNANDEZ SANCHEZ","branch":"2111 - EKT COMONFORT","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1208458","emp":"1208458","name":"JESUS YAHELD RICO RESENDIZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"COMERCIO"},{"id":"seed-858596","emp":"858596","name":"MANUEL RAMIREZ LUNA","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1127877","emp":"1127877","name":"YOLANDA LIZBETH SANCHEZ MORIN","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1207055","emp":"1207055","name":"JUAN DANIEL MOYA ALVAREZ","branch":"2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1126644","emp":"1126644","name":"JESUS ALBERTO CONEJO DELGADO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1167173","emp":"1167173","name":"JORGE LUIS PIZANO CASTILLO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1186294","emp":"1186294","name":"CAROLINA ZARATE AGOSTADERO","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1117293","emp":"1117293","name":"ADOLFO CERROBLANCO SANCHEZ","branch":"6787 - MEGA JUVENTINO ROSAS","status":"Activo","puesto":"COMERCIO"},{"id":"seed-920880","emp":"920880","name":"JUAN MANUEL LICEA ESTRADA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1231279","emp":"1231279","name":"URIEL DUARTE ARREDONDO","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-673794","emp":"673794","name":"MARINO GARCIA AGUILAR","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1199116","emp":"1199116","name":"JOSE GUADALUPE MEDINA ARIZA","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-302001","emp":"302001","name":"RICARDO GUIA PEREZ","branch":"1054 - MEGA SAN MIGUEL DE ALLENDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-334816","emp":"334816","name":"MARISELA FIGUEROA CONTRERAS","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1074999","emp":"1074999","name":"MARIA JOSE SERRANO NAVA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1225473","emp":"1225473","name":"JESUS CERON HERNANDEZ","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-88026","emp":"88026","name":"LAURA LETICIA ALCALA ARANDA","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1227935","emp":"1227935","name":"VICTOR ROBERTO LEON MONTIEL","branch":"2082 - EKT QUERETARO SATELITE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-299294","emp":"299294","name":"MARIA ELIZABETH AGUILERA BARRAZA","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-964848","emp":"964848","name":"MARIA DEL CARMEN ALVIREZ HERNANDEZ","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-38603","emp":"38603","name":"JOSE MANUEL GONZALEZ SOTO","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-92273","emp":"92273","name":"JAVIER BRIGIDO ROJAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1184781","emp":"1184781","name":"LAURA GISELA BERTADILLO BARCENAS","branch":"3105 - MEGA SAN JOSE DE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-326875","emp":"326875","name":"JORGE PACHECO TORRES","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1119409","emp":"1119409","name":"JUANA MONTSERRAT SERRANO DAVILA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1157630","emp":"1157630","name":"CARLOS DANIEL RESENDIZ RUBIO","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1190668","emp":"1190668","name":"JOSE EDUARDO ACOSTA GARCIA","branch":"4155 - EKT GTO SAN JOSE ITURBIDE","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1048917","emp":"1048917","name":"AKARI SALAZAR ISLAS","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"COMERCIO"},{"id":"seed-719590","emp":"719590","name":"MANUELA AGUILAR JIMENEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"COMERCIO"},{"id":"seed-975125","emp":"975125","name":"PABLO ALVARADO MARTINEZ","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1031524","emp":"1031524","name":"MARTIN FUENTES ORTEGA","branch":"4183 - EKT SANTIAGO QUERETARO SANTA R","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1044500","emp":"1044500","name":"SAHILA ROCIO ROJO SALINAS","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1047138","emp":"1047138","name":"LUIS ANGEL GOMEZ MANZANO","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"COMERCIO"},{"id":"seed-1123286","emp":"1123286","name":"ZAYRA ZAVALA RAMIREZ","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"COMERCIO"},{"id":"seed-712368","emp":"712368","name":"IRMA MARTINEZ OCHOA","branch":"9510 - MEGA AV PENAFLOR QRO","status":"Activo","puesto":"COMERCIO"}];
+function genAdvisorId(){return "adv-"+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+// Versión del catálogo base (seedAdvisors). Si lo que hay en localStorage se
+// guardó bajo una versión distinta (o no hay ninguna guardada), se ignora por
+// completo y se reinicia desde seedAdvisors: evita que datos viejos (otro
+// catálogo, otro esquema de "puesto") se impongan sobre el catálogo actual.
+// Sube este valor solo cuando cambies seedAdvisors de fondo otra vez.
+const SEED_VERSION="v2-101-asesores";
+let advisors=[], editing=null;
+// Modo Supabase: el catálogo de asesores vive en la tabla asesores, no en
+// seedAdvisors/localStorage. Arranca vacío y se llena en bootstrapSupabase()
+// (más abajo) antes de mostrar cualquier pantalla. seedAdvisors solo se usa
+// como semilla del modo local de siempre (rama de abajo), intacta.
+if(!usingSupabase()){
+ let seedVersionStored=localStorage.getItem("crm_advisors_seed_version");
+ let storedAdvisors=seedVersionStored===SEED_VERSION?JSON.parse(localStorage.getItem("crm_advisors")||"[]"):[];
+ let seedByEmp=new Map(seedAdvisors.map(a=>[a.emp,a]));
+ let byId=new Map(seedAdvisors.map(a=>[a.id,{...a}]));
+ let usedSeedIds=new Set();
+ storedAdvisors.forEach(x=>{
+  let id=x.id;
+  if(!id){
+   let seed=seedByEmp.get(x.emp);
+   id=(seed&&!usedSeedIds.has(seed.id))?seed.id:genAdvisorId();
+  }
+  usedSeedIds.add(id);
+  let merged={...byId.get(id),...x,id};
+  if(!merged.puesto){let seed=seedByEmp.get(merged.emp);if(seed)merged.puesto=seed.puesto}
+  byId.set(id,merged);
+ });
+ advisors=Array.from(byId.values());
+ if(seedVersionStored!==SEED_VERSION){
+  localStorage.setItem("crm_advisors",JSON.stringify(advisors));
+  localStorage.setItem("crm_advisors_seed_version",SEED_VERSION);
+ }
+ localStorage.setItem("crm_advisors",JSON.stringify(advisors));
+}
 const view=document.getElementById("view"), topTitle=document.getElementById("topTitle");
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function nav(page){document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page)); if(page==="asesores") renderAdvisors(); if(page==="avance") renderAdvance(); if(page==="resumen") renderExecutiveSummary();}
+function nav(page){document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page)); if(page==="avance") renderAdvance(); if(page==="resumen") renderExecutiveSummary(); if(page==="administracion") renderAdministracion();}
 
 const commerceBranchNums=new Set(["1054","2082","2083","2111","3105","4155","4183","6787","9510"]);
 let advance={branch:null,advisor:null,type:null};
-let commerceCaptures=JSON.parse(localStorage.getItem("crm_commerce_captures")||"[]");
-let bankCaptures=JSON.parse(localStorage.getItem("crm_bank_captures")||"[]");
-
-const DEMO_KEY="crm_demo_kpi_seed_v1";
-function seedDemoKpiData(){
- if(localStorage.getItem(DEMO_KEY)==="1") return;
- const demoDays=["2026-09-14","2026-09-15","2026-09-16","2026-09-17","2026-09-18"];
- const commerceBranches=new Set(["1054","2082","2083","2111","3105","4155","4183","6787","9510"]);
- const active=advisors.filter(a=>a.status==="Activo");
- const pick=(emp,day,salt,min,max)=>{let n=0;String(emp+day+salt).split("").forEach((ch,i)=>n=(n+ch.charCodeAt(0)*(i+3))%9973);return min+(n%(max-min+1))};
- const moneyList=(count,emp,day,salt,min,max)=>Array.from({length:count},(_,i)=>Number((pick(emp,day,salt+i,min,max)+(i%2?0.5:0)).toFixed(2)));
- demoDays.forEach(day=>{
-   active.forEach((a,idx)=>{
-     const bn=branchNum(a.branch);
-     if(commerceBranches.has(bn)){
-       let req=[pick(a.emp,day,"rm",1,6),pick(a.emp,day,"rh",1,5),pick(a.emp,day,"rc",0,4)];
-       let srv=req.map((x,i)=>Math.min(x,pick(a.emp,day,"s"+i,0,x)));
-       let nc=[pick(a.emp,day,"n0",0,2),pick(a.emp,day,"n1",0,2),pick(a.emp,day,"n2",0,1)];
-       let ic=[pick(a.emp,day,"i0",0,1),pick(a.emp,day,"i1",0,1),pick(a.emp,day,"i2",0,1)];
-       let nw=nc.map((n,i)=>moneyList(n,a.emp,day,20+i*4,1800,12500));
-       let ina=ic.map((n,i)=>moneyList(n,a.emp,day,40+i*4,1200,9000));
-       let vda=[moneyList(pick(a.emp,day,"v0",0,2),a.emp,day,60,1000,8000),moneyList(pick(a.emp,day,"v1",0,2),a.emp,day,70,900,7000),moneyList(pick(a.emp,day,"v2",0,1),a.emp,day,80,800,6000)];
-       let sum=x=>x.flat().reduce((s,n)=>s+n,0);
-       let totals={requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)};
-       commerceCaptures.push({folio:`DEMO-COM-${day.replaceAll("-","")}-${a.emp}`,created_at:day+"T17:30:00",day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:{req,srv,nw,ina,vda,captureDate:day,totals},totals,status:"confirmed",demo:true});
-     }
-     let aff=pick(a.emp,day,"aff",0,3),port=pick(a.emp,day,"port",0,2),funds=pick(a.emp,day,"fund",0,1)?pick(a.emp,day,"fundm",2500,35000):0;
-     let gc=pick(a.emp,day,"gc",0,2),sc=pick(a.emp,day,"sc",0,2),icount=pick(a.emp,day,"ic",0,2);
-     let gd=pick(a.emp,day,"td",0,4),ta=pick(a.emp,day,"ta",0,gd);
-     bankCaptures.push({folio:`DEMO-BAN-${day.replaceAll("-","")}-${a.emp}`,created_at:day+"T16:45:00",day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:{aff,port,funds,guardCount:gc,guardAmounts:moneyList(gc,a.emp,day,100,1000,12000),somosCount:sc,somosAmounts:moneyList(sc,a.emp,day,110,800,9000),invCount:icount,invAmounts:moneyList(icount,a.emp,day,120,3000,30000),tazDelivered:gd,tazActivated:ta,captureDate:day},status:"confirmed",demo:true});
-   });
- });
- localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
- localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
- localStorage.setItem(DEMO_KEY,"1");
+// Igual que advisors arriba: en modo Supabase estos arrancan vacíos y se
+// llenan en bootstrapSupabase(); en modo local, exactamente como antes.
+let commerceCaptures=usingSupabase()?[]:JSON.parse(localStorage.getItem("crm_commerce_captures")||"[]");
+let bankCaptures=usingSupabase()?[]:JSON.parse(localStorage.getItem("crm_bank_captures")||"[]");
+async function bootstrapSupabase(){
+ let overlay=document.getElementById("bootOverlay");
+ try{
+  const[{data:asesoresData,error:e1},{data:bankData,error:e2},{data:comData,error:e3},{data:sessionData}]=await Promise.all([
+   SB.rpc("asesores_publico"),
+   SB.rpc("capturas_resumen",{p_tipo:"Banco"}),
+   SB.rpc("capturas_resumen",{p_tipo:"Comercio"}),
+   SB.auth.getSession()
+  ]);
+  if(e1)throw e1;if(e2)throw e2;if(e3)throw e3;
+  advisors=asesoresData||[];
+  bankCaptures=(bankData||[]).map(mapCapturaRow);
+  commerceCaptures=(comData||[]).map(mapCapturaRow);
+  adminSession=sessionData?.session||null;
+ }catch(err){
+  if(overlay)overlay.innerHTML=`<div style="max-width:520px;text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:10px">⛔</div><div>No se pudo conectar con Supabase.</div><div style="font-weight:500;font-size:13px;margin-top:10px;color:#697267">${esc(supabaseErrorText(err))}</div><div style="font-weight:500;font-size:13px;margin-top:10px;color:#697267">Revisa supabase/LEEME.md o los valores en config.js, y recarga la página.</div></div>`;
+  return;
+ }
+ if(overlay)overlay.remove();
+ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));
+ nav("avance");
 }
-seedDemoKpiData();
+
+function isoYear(d=new Date()){
+ const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+ const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);
+ return x.getUTCFullYear();
+}
+function weekKeyOf(d=new Date()){return `${isoYear(d)}-${String(isoWeek(d)).padStart(2,"0")}`}
+function weekMondayOf(d=new Date()){let day=d.getDay()||7;return new Date(d.getFullYear(),d.getMonth(),d.getDate()-(day-1))}
+function weekRangeOf(wk){
+ let [y,w]=wk.split("-").map(Number);
+ let jan4=new Date(y,0,4),mondayWeek1=weekMondayOf(jan4);
+ let monday=new Date(mondayWeek1);monday.setDate(monday.getDate()+(w-1)*7);
+ let sunday=new Date(monday);sunday.setDate(sunday.getDate()+6);
+ return {monday,sunday};
+}
+function weekDaysOf(wk){let {monday}=weekRangeOf(wk);return Array.from({length:7},(_,i)=>{let d=new Date(monday);d.setDate(d.getDate()+i);return d})}
+function isCurrentWeek(wk){return wk===weekKeyOf(new Date())}
+function lastNWeekKeys(n){let keys=[],d=new Date();for(let i=0;i<n;i++){keys.unshift(weekKeyOf(d));d.setDate(d.getDate()-7)}return keys}
+const MESES_ABBR=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function weekLabel(wk){
+ let {monday,sunday}=weekRangeOf(wk),w=Number(wk.split("-")[1]);
+ let range=monday.getMonth()===sunday.getMonth()?`${monday.getDate()}-${sunday.getDate()} ${MESES_ABBR[monday.getMonth()]}`:`${monday.getDate()} ${MESES_ABBR[monday.getMonth()]}-${sunday.getDate()} ${MESES_ABBR[sunday.getMonth()]}`;
+ return `Sem ${w} · ${range}`;
+}
+
+function evalTwoThreshold(v,mudoBelow,idealAt){if(v<mudoBelow)return "MUDO";if(v<idealAt)return "PARCIAL";return "IDEAL"}
+function evalTaz(d,a,idealMin){if(d<=0||a<=0)return "MUDO";if(d>=idealMin&&a>=idealMin)return "IDEAL";return "PARCIAL"}
+// ---- Meta individual dinámica por semana (Afiliaciones/Portabilidades/Efectivo) ----
+// Ya no se congela: cada vez que se evalúa una semana se recalcula con
+// cuota_semanal_de_la_sucursal / asesores de ese puesto ACTIVOS en esa
+// sucursal EN ESA semana. Reconstruye actividad histórica a partir de
+// created_at/deactivated_at/reactivated_at (exacto para un único cambio de
+// estatus registrado; sin historial completo de altas/bajas repetidas).
+function isAdvisorActiveInWeek(a,wk){
+ if(!a.puesto)return false;
+ let {sunday}=weekRangeOf(wk),refEnd=sunday.getTime()+86399999;
+ if(a.created_at&&refEnd<new Date(a.created_at).getTime())return false;
+ let deact=a.deactivated_at?new Date(a.deactivated_at).getTime():null;
+ let react=a.reactivated_at?new Date(a.reactivated_at).getTime():null;
+ let lastTransition=Math.max(deact??-Infinity,react??-Infinity);
+ if(lastTransition===-Infinity||refEnd>=lastTransition)return a.status==="Activo";
+ return deact===lastTransition;
+}
+function getMetaIndividualSemana(advisor,wk){
+ if(advisor.puesto!=="BANCO")return null;
+ let bn=branchNum(advisor.branch),cuota=META_SUCURSAL[bn];
+ if(!cuota||!isAdvisorActiveInWeek(advisor,wk))return null;
+ let n=advisors.filter(a=>a.puesto==="BANCO"&&branchNum(a.branch)===bn&&isAdvisorActiveInWeek(a,wk)).length||1;
+ return {aff:cuota.afiliaciones_cuota_semanal/n,port:cuota.portabilidades_cuota_semanal/n,cash:cuota.efectivo_cuota_semanal_pesos/n};
+}
+function regionalBankTotals(wk,advisorList){
+ let totalAff=0,totalPort=0,totalCash=0;
+ advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),wk);totalAff+=s.aff;totalPort+=s.port;totalCash+=sumArr(s.cashAmounts)});
+ return {totalAff,totalPort,totalCash,metaAff:META_AFILIACIONES_REGION,metaPort:META_PORTABILIDADES_REGION,metaCash:META_EFECTIVO_REGION_PESOS,
+  pctAff:Math.round(totalAff/META_AFILIACIONES_REGION*100),pctPort:Math.round(totalPort/META_PORTABILIDADES_REGION*100),pctCash:META_EFECTIVO_REGION_PESOS?Math.round(totalCash/META_EFECTIVO_REGION_PESOS*100):0};
+}
+function sucursalBankTotals(wk,advisorList,bn){
+ let totalAff=0,totalPort=0,totalCash=0;
+ advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),wk);totalAff+=s.aff;totalPort+=s.port;totalCash+=sumArr(s.cashAmounts)});
+ let cuota=META_SUCURSAL[bn];
+ if(!cuota)return {totalAff,totalPort,totalCash,metaAff:null,metaPort:null,metaCash:null,pctAff:null,pctPort:null,pctCash:null};
+ return {totalAff,totalPort,totalCash,metaAff:cuota.afiliaciones_cuota_semanal,metaPort:cuota.portabilidades_cuota_semanal,metaCash:cuota.efectivo_cuota_semanal_pesos,
+  pctAff:cuota.afiliaciones_cuota_semanal?Math.round(totalAff/cuota.afiliaciones_cuota_semanal*100):0,
+  pctPort:cuota.portabilidades_cuota_semanal?Math.round(totalPort/cuota.portabilidades_cuota_semanal*100):0,
+  pctCash:cuota.efectivo_cuota_semanal_pesos?Math.round(totalCash/cuota.efectivo_cuota_semanal_pesos*100):0};
+}
+function controlResult(ctrl,sums,ctx){
+ if(ctrl.special==="taz"){
+  let d=sums.tazDelivered||0,a=sums.tazActivated||0,state=evalTaz(d,a,ctrl.idealMin);
+  let tasa=d>0?a/d:null;
+  let faltante=state==="IDEAL"?"":state==="MUDO"?(d<=0?"Falta al menos 1 TAZ entregada":"Falta al menos 1 TAZ activada"):`Faltan para llegar a ${ctrl.idealMin} entregadas y ${ctrl.idealMin} activadas`;
+  let progressPct=Math.max(0,Math.min(100,Math.round(Math.min(d,a)/ctrl.idealMin*100)));
+  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:`${d} entreg. / ${a} activ.`,minLabel:`≥${ctrl.idealMin}/≥${ctrl.idealMin}`,faltante,progressPct,tazDelivered:d,tazActivated:a,tasaActivacion:tasa};
+ }
+ if(ctrl.special==="regional"){
+  let sum=ctrl.getSum(sums)||0,isMoney=ctrl.valueKind==="money";
+  let meta=ctx&&ctx[ctrl.regionalKey]!=null?ctx[ctrl.regionalKey]:null;
+  if(meta==null){
+   return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state:"SIN_META",actualLabel:isMoney?money(sum):String(sum),minLabel:"—",faltante:"Sin meta asignada este trimestre",progressPct:0,metaIndividual:null};
+  }
+  let state=evalTwoThreshold(sum,1,meta);
+  let metaR=isMoney?Math.round(meta):Math.round(meta*10)/10,diff=Math.max(0,Math.ceil(meta-sum));
+  let faltante=state==="IDEAL"?"":isMoney?`Faltan ${money(meta-sum)} para tu meta de ${money(metaR)}`:`Falta${diff===1?"":"n"} ${diff} ${diff===1?ctrl.singular:ctrl.label.toLowerCase()} para tu meta de ${metaR}`;
+  let progressPct=Math.max(0,Math.min(100,Math.round(sum/Math.max(0.0001,meta)*100)));
+  return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:isMoney?money(sum):String(sum),minLabel:isMoney?money(metaR):String(metaR),faltante,progressPct,metaIndividual:metaR};
+ }
+ let raw=ctrl.getAmounts?ctrl.getAmounts(sums).length:(ctrl.getSum(sums)||0);
+ let state=evalTwoThreshold(raw,ctrl.mudoBelow,ctrl.idealAt);
+ let isMoney=ctrl.valueKind==="money";
+ let display=isMoney?money(raw):String(raw);
+ let idealDisplay=isMoney?money(ctrl.idealAt):String(ctrl.idealAt);
+ let diff=Math.max(0,ctrl.idealAt-raw);
+ let unitPlural=ctrl.unitPlural||ctrl.label.toLowerCase();
+ let faltante;
+ if(state==="IDEAL")faltante="";
+ else if(isMoney)faltante=state==="MUDO"?`Falta monto en ${ctrl.label}`:`Faltan ${money(ctrl.idealAt-raw)} para Ideal`;
+ else faltante=`Falta${diff===1?"":"n"} ${diff} ${diff===1?(ctrl.unit||unitPlural):unitPlural} para Ideal (${ctrl.idealAt})`;
+ let progressPct=Math.max(0,Math.min(100,Math.round(raw/Math.max(1,ctrl.idealAt)*100)));
+ let extra={};
+ if(ctrl.getAmounts&&ctrl.montoComision)extra.belowComision=ctrl.getAmounts(sums).filter(x=>x<ctrl.montoComision).length;
+ if(ctrl.rubroCriticoFlag)extra.rubroCriticoFlag=true;
+ return {key:ctrl.key,label:ctrl.label,icon:ctrl.icon,state,actualLabel:display,minLabel:idealDisplay,faltante,progressPct,...extra};
+}
+function sumBankWeek(emp,bn,wk){
+ let s={aff:0,port:0,funds:0,guardAmounts:[],somosAmounts:[],invAmounts:[],cashAmounts:[],tazDelivered:0,tazActivated:0};
+ bankCaptures.filter(c=>c.emp===emp&&c.branch===bn&&weekKeyOf(dateFromKey(c.day))===wk).forEach(c=>{
+  let d=c.data||{};
+  s.aff+=Number(d.aff)||0;s.port+=Number(d.port)||0;s.funds+=Number(d.funds)||0;
+  s.guardAmounts.push(...(d.guardAmounts||[]));s.somosAmounts.push(...(d.somosAmounts||[]));s.invAmounts.push(...(d.invAmounts||[]));
+  s.cashAmounts.push(...(d.cashAmounts||[]));
+  s.tazDelivered+=Number(d.tazDelivered)||0;s.tazActivated+=Number(d.tazActivated)||0;
+ });
+ return s;
+}
+function sumCommerceWeek(emp,bn,wk){
+ let s={req:[0,0,0],srv:[0,0,0],nw:[[],[],[]],ina:[[],[],[]],vda:[[],[],[]]};
+ commerceCaptures.filter(c=>c.emp===emp&&c.branch===bn&&c.status!=="correction_rejected"&&weekKeyOf(dateFromKey(c.day))===wk).forEach(c=>{
+  let d=c.data||{};
+  [0,1,2].forEach(i=>{
+   s.req[i]+=Number((d.req||[0,0,0])[i])||0;s.srv[i]+=Number((d.srv||[0,0,0])[i])||0;
+   s.nw[i].push(...((d.nw||[[],[],[]])[i]||[]));s.ina[i].push(...((d.ina||[[],[],[]])[i]||[]));s.vda[i].push(...((d.vda||[[],[],[]])[i]||[]));
+  });
+ });
+ return s;
+}
+function evaluarAsesorSemana(advisor,formType,wk){
+ let bn=branchNum(advisor.branch);
+ let sums=formType==="Banco"?sumBankWeek(advisor.emp,bn,wk):sumCommerceWeek(advisor.emp,bn,wk);
+ let ctx=null;
+ if(formType==="Banco"){
+  let meta=getMetaIndividualSemana(advisor,wk);
+  ctx=meta?{aff:meta.aff,port:meta.port,cash:meta.cash}:{aff:null,port:null,cash:null};
+ }
+ let controles=(formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO).map(c=>controlResult(c,sums,ctx));
+ let evaluados=controles.filter(c=>c.state!=="SIN_META");
+ let mudos=evaluados.filter(c=>c.state==="MUDO").length,parciales=evaluados.filter(c=>c.state==="PARCIAL").length,ideales=evaluados.filter(c=>c.state==="IDEAL").length,total=evaluados.length;
+ let enCurso=isCurrentWeek(wk);
+ let estatus=enCurso?"EN_AVANCE":(mudos>0?"ROJO":(parciales>0?"AMARILLO":"VERDE"));
+ let tazCtrl=controles.find(c=>c.key==="taz");
+ return {advisor,formType,week:wk,controles,mudos,parciales,ideales,total,enCurso,estatus,mudoGeneral:mudos>0,
+  cumplimientoPct:total?Math.round(ideales/total*100):0,coberturaPct:total?Math.round((total-mudos)/total*100):0,
+  tasaActivacionTaz:tazCtrl?tazCtrl.tasaActivacion:null,
+  requestsTotal:formType==="Comercio"?[0,1,2].reduce((s,i)=>s+(sums.req[i]||0),0):undefined};
+}
+function weekDaysElapsed(wk){
+ if(!isCurrentWeek(wk))return METAS.DIAS_OPERACION;
+ let {monday}=weekRangeOf(wk),hoy=dateFromKey(dayKey(new Date()));
+ return Math.max(1,Math.min(METAS.DIAS_OPERACION,Math.floor((hoy-monday)/86400000)+1));
+}
+function constanciaAsesorSemana(advisor,formType,wk){
+ let bn=branchNum(advisor.branch);
+ let caps=formType==="Banco"
+  ?bankCaptures.filter(c=>c.emp===advisor.emp&&c.branch===bn&&weekKeyOf(dateFromKey(c.day))===wk)
+  :commerceCaptures.filter(c=>c.emp===advisor.emp&&c.branch===bn&&c.status!=="correction_rejected"&&weekKeyOf(dateFromKey(c.day))===wk);
+ let diasConCaptura=new Set(caps.map(c=>c.day));
+ let diasBase=weekDaysElapsed(wk),diasSinCaptura=Math.max(0,diasBase-diasConCaptura.size);
+ let dayFlags=weekDaysOf(wk).map(d=>({date:dayKey(d),dow:d.getDay(),captured:diasConCaptura.has(dayKey(d))}));
+ return {diasConCaptura:diasConCaptura.size,diasBase,diasSinCaptura,focoRojo:diasSinCaptura>=METAS.DIAS_SIN_CAPTURA_ALERTA,
+  pct:diasBase?Math.round(diasConCaptura.size/diasBase*100):0,dayFlags};
+}
+function evaluableAdvisors(formType){
+ let puestos=formType==="Banco"?PUESTOS_BANCO:PUESTOS_COMERCIO;
+ return advisors.filter(a=>a.status==="Activo"&&a.puesto&&puestos.includes(a.puesto)&&(formType!=="Comercio"||commerceBranchNums.has(branchNum(a.branch))));
+}
+function sinPuestoAdvisors(formType){
+ return advisors.filter(a=>a.status==="Activo"&&!a.puesto&&(formType!=="Comercio"||commerceBranchNums.has(branchNum(a.branch))));
+}
+function ejecPrecompute(formType,weekKeysList,advisorList){
+ let m={};
+ advisorList.forEach(a=>{m[a.id]={};weekKeysList.forEach(wk=>{m[a.id][wk]=evaluarAsesorSemana(a,formType,wk)})});
+ return m;
+}
+function persistenciaControlFromMatrix(matrix,advisor,formType,key,fromWeek,weeks6){
+ let idx=weeks6.indexOf(fromWeek),start=idx;
+ if(weeks6[start]===weekKeyOf(new Date()))start--;
+ let streak=0;
+ for(let i=start;i>=0;i--){
+  let e=matrix[advisor.id]&&matrix[advisor.id][weeks6[i]];
+  let c=e&&e.controles.find(x=>x.key===key);
+  if(c&&c.state==="MUDO")streak++;else break;
+ }
+ return streak;
+}
+function rubroCritico(evals,formType){
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ let stats=ctrls.map(c=>{
+  let states=evals.map(e=>e.controles.find(x=>x.key===c.key).state);
+  let mudos=states.filter(s=>s==="MUDO").length,idealN=states.filter(s=>s==="IDEAL").length;
+  return {key:c.key,label:c.label,mudos,pctIdeal:states.length?idealN/states.length*100:0};
+ });
+ stats.sort((a,b)=>b.mudos-a.mudos||a.pctIdeal-b.pctIdeal);
+ return stats[0]&&stats[0].mudos>0?stats[0]:null;
+}
+
+// Borrado único de capturas de prueba (demo y reales de prueba) al desplegar
+// este cambio, para arrancar limpio antes de migrar a Supabase. No toca el
+// catálogo de asesores.
+bankCaptures=[];
+commerceCaptures=[];
+try{
+ localStorage.setItem("crm_bank_captures","[]");
+ localStorage.setItem("crm_commerce_captures","[]");
+}catch(e){console.error("No se pudo guardar el borrado de capturas de prueba:",e)}
+
 
 
 function branchNum(branch){return String(branch).split(" - ")[0]}
@@ -171,32 +581,46 @@ function todayLabel(){
 }
 function renderAdvance(){
  topTitle.textContent="Registro de avance"; advance={branch:null,advisor:null,type:null};
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">CAPTURA DIARIA</span><h1>Registro de avance</h1><p>Selecciona la sucursal para comenzar.</p></div></div>
- <div class="stepbar"><span class="step on">1 Sucursal</span><span class="step">2 Asesor</span><span class="step">3 Formulario</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
- <div class="card"><h2 style="margin-top:0">Seleccionar sucursal</h2><div class="choicegrid">${branches.map(b=>`<button class="choice" onclick="selectAdvanceBranch('${esc(b)}')"><b>${esc(b)}</b><small>${commerceBranchNums.has(branchNum(b))?"Banco + Comercio":"Solo Banco"}</small></button>`).join("")}</div></div>`;
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">CAPTURA DIARIA</span><h1>Registro de avance</h1><p>Selecciona el formulario para comenzar.</p></div></div>
+ <div class="stepbar"><span class="step on">1 Formulario</span><span class="step">2 Sucursal</span><span class="step">3 Asesor</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
+ <div class="card"><h2 style="margin-top:0">Seleccionar formulario</h2><div class="formtypes"><button class="formtype" onclick="selectAdvanceType('Banco')">🏦<br>Banco</button><button class="formtype" onclick="selectAdvanceType('Comercio')">🛍️<br>Comercio</button></div></div>`;
+}
+function selectAdvanceType(type){
+ advance.type=type;
+ let list=type==="Comercio"?branches.filter(b=>commerceBranchNums.has(branchNum(b))):branches;
+ view.innerHTML=`<div class="pagehead"><div><h1>Seleccionar sucursal</h1><p>${esc(type)}</p></div><button class="btn secondary" onclick="renderAdvance()">← Cambiar formulario</button></div>
+ <div class="stepbar"><span class="step on">✓ Formulario</span><span class="step on">2 Sucursal</span><span class="step">3 Asesor</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
+ <div class="card"><h2 style="margin-top:0">Seleccionar sucursal</h2><div class="choicegrid">${list.map(b=>`<button class="choice" onclick="selectAdvanceBranch('${esc(b)}')"><b>${esc(b)}</b></button>`).join("")}</div></div>`;
 }
 function selectAdvanceBranch(branch){
  advance.branch=branch;
- let list=advisors.filter(a=>a.branch===branch&&a.status!=="Baja");
- view.innerHTML=`<div class="pagehead"><div><h1>Seleccionar asesor</h1><p>${esc(branch)}</p></div><button class="btn secondary" onclick="renderAdvance()">← Cambiar sucursal</button></div>
- <div class="stepbar"><span class="step on">✓ Sucursal</span><span class="step on">2 Asesor</span><span class="step">3 Formulario</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
- <div class="card"><div class="advisorgrid">${list.map(a=>`<button class="advisorcard ${a.status!=="Activo"?"blocked":""}" onclick="selectAdvanceAdvisor('${esc(a.emp)}')"><b>${esc(a.name)}</b><small>${esc(a.emp)} · ${a.status==="Activo"?"🟢 Activo":a.status==="Vacaciones"?"🏖️ Vacaciones":"Incapacidad"}</small></button>`).join("")}</div></div>`;
+ let puestos=advance.type==="Comercio"?PUESTOS_COMERCIO:PUESTOS_BANCO;
+ let list=advisors.filter(a=>a.branch===branch&&a.status!=="Baja"&&(!a.puesto||puestos.includes(a.puesto)));
+ view.innerHTML=`<div class="pagehead"><div><h1>Seleccionar asesor</h1><p>${esc(advance.type)} · ${esc(branch)}</p></div><button class="btn secondary" onclick="selectAdvanceType('${esc(advance.type)}')">← Cambiar sucursal</button></div>
+ <div class="stepbar"><span class="step on">✓ Formulario</span><span class="step on">✓ Sucursal</span><span class="step on">3 Asesor</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
+ <div class="card"><div class="advisorgrid">${list.map(a=>`<button class="advisorcard ${a.status!=="Activo"?"blocked":""}" onclick="selectAdvanceAdvisor('${esc(a.id)}')"><b>${esc(a.name)}</b><small>${esc(a.emp)} · ${a.status==="Activo"?"🟢 Activo":a.status==="Vacaciones"?"🏖️ Vacaciones":"Incapacidad"}</small></button>`).join("")}</div></div>`;
 }
-function selectAdvanceAdvisor(emp){
- let a=advisors.find(x=>x.emp===emp); if(!a)return;
+function selectAdvanceAdvisor(id){
+ let a=advisors.find(x=>x.id===id); if(!a)return;
  if(a.status==="Vacaciones"){alert(`${a.name} se encuentra de vacaciones. La captura está bloqueada temporalmente.`);return}
  if(a.status==="Incapacidad"){alert(`${a.name} no está disponible para captura en este momento.`);return}
  advance.advisor=a;
- let commerce=commerceBranchNums.has(branchNum(advance.branch));
- view.innerHTML=`<div class="pagehead"><div><h1>Elegir formulario</h1><p>${esc(advance.branch)}</p></div><button class="btn secondary" onclick="selectAdvanceBranch('${esc(advance.branch)}')">← Cambiar asesor</button></div>
- <div class="notice"><b>Estás registrando avance para ${esc(a.name)} — Sucursal ${branchNum(advance.branch)}</b></div>
- <div class="stepbar"><span class="step on">✓ Sucursal</span><span class="step on">✓ Asesor</span><span class="step on">3 Formulario</span><span class="step">4 Captura</span><span class="step">5 Confirmación</span></div>
- <div class="card"><div class="formtypes"><button class="formtype" onclick="openBank()">🏦<br>Banco</button>${commerce?`<button class="formtype" onclick="openCommerce()">🛍️<br>Comercio</button>`:""}</div>${!commerce?`<p style="text-align:center;color:var(--muted);margin-top:18px">Esta sucursal utiliza el formulario Banco.</p>`:""}</div>`;
+ if(advance.type==="Comercio") openCommerce(); else openBank();
 }
+function sanitizeMoneyAmount(raw){
+ let s=String(raw==null?"":raw).replace(/[$\s]/g,"");
+ let cut=s.search(/[.eE-]/);
+ if(cut!==-1) s=s.slice(0,cut);
+ s=s.replace(/[^\d]/g,"");
+ return {text:s,value:s===""?NaN:Math.trunc(Number(s))};
+}
+function cleanMoneyValue(raw){let r=sanitizeMoneyAmount(raw);return Number.isFinite(r.value)?Math.max(0,r.value):0}
+function sanitizeMoneyFieldLive(el){el.value=sanitizeMoneyAmount(el.value).text}
+function sanitizeMoneyListLive(el){el.value=el.value.split(",").map(seg=>{let lead=seg.match(/^\s*/)[0];return lead+sanitizeMoneyAmount(seg).text}).join(",")}
 function parseAmounts(v){
- return String(v||"").split(",").map(x=>x.trim()).filter(Boolean).map(x=>Number(x.replace(/[$\s]/g,""))).filter(x=>Number.isFinite(x)&&x>=0);
+ return String(v||"").split(",").map(x=>x.trim()).filter(Boolean).map(x=>sanitizeMoneyAmount(x).value).filter(x=>Number.isFinite(x)&&x>=0);
 }
-function money(n){return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:2}).format(Number(n)||0)}
+function money(n){return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0,maximumFractionDigits:0}).format(Number(n)||0)}
 function dayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function selectedCaptureDate(){
  let el=document.getElementById("captureDate"); return el&&el.value?el.value:dayKey();
@@ -212,16 +636,16 @@ function currentAccum(){
 }
 function openCommerce(){
  advance.type="Comercio"; advance.captureDate=advance.captureDate||dayKey(); let ac=currentAccum();
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">🛍️ COMERCIO</span><h1>Registro de avance — Comercio</h1></div><button class="btn secondary" onclick="selectAdvanceAdvisor('${esc(advance.advisor.emp)}')">← Cambiar formulario</button></div>
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">🛍️ COMERCIO</span><h1>Registro de avance — Comercio</h1></div><button class="btn secondary" onclick="selectAdvanceBranch('${esc(advance.branch)}')">← Cambiar asesor</button></div>
  <div class="notice"><b>Estás registrando avance para ${esc(advance.advisor.name)} — Sucursal ${branchNum(advance.branch)}</b></div>
  <div class="infohead"><div class="infoitem"><small>Sucursal</small><b>${branchNum(advance.branch)}</b></div><div class="infoitem"><small>Asesor</small><b>${esc(advance.advisor.name)}</b></div><div class="infoitem"><small>Fecha</small><input type="date" id="captureDate" value="${advance.captureDate}" onchange="changeCaptureDate()" style="margin-top:5px;padding:6px;width:100%"></div><div class="infoitem"><small>Semana calendario</small><b id="weekLabel">Semana ${isoWeek(dateFromKey(advance.captureDate))}</b></div><div class="infoitem"><small>Actividad</small><b>🟢 Activo</b></div></div>
  <div class="card"><h2 style="margin-top:0">📊 Acumulado de hoy</h2><div class="kpis"><div class="kpi"><small>Solicitudes</small><b>${ac.requests}</b></div><div class="kpi"><small>Clientes surtidos</small><b>${ac.served}</b></div><div class="kpi"><small>Clientes nuevos</small><b>${money(ac.newAmt)}</b></div><div class="kpi"><small>Clientes inactivos</small><b>${money(ac.inactiveAmt)}</b></div><div class="kpi"><small>VDA</small><b>${money(ac.vda)}</b></div></div>
  <h2>➕ Agregar avance</h2>
  ${countSection("1. Solicitudes levantadas","req")}
  ${countSection("2. Clientes nuevos surtidos","srv")}
- ${amountSection("3. Montos individuales — Clientes nuevos","new","¿Cómo capturar? Escribe cada monto separado por una coma. Puedes utilizar decimales. Ejemplo: 2000, 3500.50, 4750")}
- ${amountSection("4. Monto surtido — Clientes inactivos","ina","Escribe cada monto separado por coma. Ejemplo: 1500, 2800.50, 6000")}
- <div class="capturesec"><h3>💳 5. Ventas por VDA</h3><div class="moneyhint"><b>Escribe cada monto separado por coma.</b><br>Ejemplo: 2000, 3500.50, 4750</div><div class="three">${["Nuevas","Recompra","Contado"].map((n,i)=>`<div class="field"><label>${n}</label><input id="vda${i}" value="0" placeholder="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value.trim()==='')this.value='0';updateAmountCalc('vda',${i})"><div class="calc" id="vdacalc${i}">0 montos · Total $0.00</div></div>`).join("")}</div></div>
+ ${amountSection("3. Montos individuales — Clientes nuevos","new","¿Cómo capturar? Escribe cada monto separado por una coma. Solo se aceptan números enteros (sin decimales). Ejemplo: 2000, 3500, 4750")}
+ ${amountSection("4. Monto surtido — Clientes inactivos","ina","Escribe cada monto separado por coma. Solo números enteros (sin decimales). Ejemplo: 1500, 2800, 6000")}
+ <div class="capturesec"><h3>💳 5. Ventas por VDA</h3><div class="moneyhint"><b>Escribe cada monto separado por coma.</b><br>Solo números enteros (sin decimales). Ejemplo: 2000, 3500, 4750</div><div class="three">${["Nuevas","Recompra","Contado"].map((n,i)=>`<div class="field"><label>${n}</label><input id="vda${i}" value="0" placeholder="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value.trim()==='')this.value='0';updateAmountCalc('vda',${i})"><div class="calc" id="vdacalc${i}">0 montos · Total $0</div></div>`).join("")}</div></div>
  <div class="actions"><button class="btn primary" onclick="reviewCommerce()">Revisar avance →</button></div></div>`;
  ["req","srv"].forEach(p=>[0,1,2].forEach(i=>document.getElementById(p+i).addEventListener("input",()=>updateCountTotal(p))));
  ["new","ina","vda"].forEach(p=>[0,1,2].forEach(i=>document.getElementById(p+i).addEventListener("input",()=>updateAmountCalc(p,i))));
@@ -230,10 +654,10 @@ function countSection(title,p){
  return `<div class="capturesec"><h3>${p==="req"?"🛍️":"👥"} ${title}</h3><div class="three">${["📱 Movilidad","🏠 Hogar","🌐 Conectividad"].map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" max="100" step="1" id="${p}${i}" value="0" onfocus="if(this.value===\'0\')this.value=\'\'" onblur="if(this.value===\'\')this.value=\'0\';updateCountTotal(\'${p}\')"></div>`).join("")}</div><div class="totalrow">Total de esta captura: <span id="${p}total">0</span></div></div>`;
 }
 function amountSection(title,p,hint){
- return `<div class="capturesec"><h3>${p==="new"?"💰":"♻️"} ${title}</h3><div class="moneyhint"><b>${hint.split(" Ejemplo:")[0]}</b>${hint.includes("Ejemplo:")?"<br>Ejemplo:"+hint.split("Ejemplo:")[1]:""}</div><div class="three">${["Movilidad","Hogar","Conectividad"].map((n,i)=>`<div class="field"><label>${n}</label><input id="${p}${i}" value="0" placeholder="0" onfocus="if(this.value===\'0\')this.value=\'\'" onblur="if(this.value.trim()===\'\')this.value=\'0\';updateAmountCalc(\'${p}\',${i})"><div class="calc" id="${p}calc${i}">0 montos · Total $0.00</div></div>`).join("")}</div></div>`;
+ return `<div class="capturesec"><h3>${p==="new"?"💰":"♻️"} ${title}</h3><div class="moneyhint"><b>${hint.split(" Ejemplo:")[0]}</b>${hint.includes("Ejemplo:")?"<br>Ejemplo:"+hint.split("Ejemplo:")[1]:""}</div><div class="three">${["Movilidad","Hogar","Conectividad"].map((n,i)=>`<div class="field"><label>${n}</label><input id="${p}${i}" value="0" placeholder="0" onfocus="if(this.value===\'0\')this.value=\'\'" onblur="if(this.value.trim()===\'\')this.value=\'0\';updateAmountCalc(\'${p}\',${i})"><div class="calc" id="${p}calc${i}">0 montos · Total $0</div></div>`).join("")}</div></div>`;
 }
 function updateCountTotal(p){let t=[0,1,2].reduce((s,i)=>s+(Number(document.getElementById(p+i).value)||0),0);document.getElementById(p+"total").textContent=t}
-function updateAmountCalc(p,i){let a=parseAmounts(document.getElementById(p+i).value);document.getElementById(p+"calc"+i).textContent=`${a.length} monto${a.length===1?"":"s"} · Total ${money(a.reduce((s,n)=>s+n,0))}`}
+function updateAmountCalc(p,i){let el=document.getElementById(p+i);sanitizeMoneyListLive(el);let a=parseAmounts(el.value);document.getElementById(p+"calc"+i).textContent=`${a.length} monto${a.length===1?"":"s"} · Total ${money(a.reduce((s,n)=>s+n,0))}`}
 function getCommerceDraft(){
  const counts=p=>[0,1,2].map(i=>Math.max(0,Math.min(100,Math.trunc(Number(document.getElementById(p+i).value)||0))));
  const amounts=p=>[0,1,2].map(i=>parseAmounts(document.getElementById(p+i).value));
@@ -252,11 +676,49 @@ function reviewCommerce(){
  <h3 style="margin-top:22px">Ventas por VDA</h3><div style="overflow:auto"><table><thead><tr><th>Tipo</th><th>N.º de montos</th><th>Total</th></tr></thead><tbody>${vrows}<tr><td><b>TOTAL VDA</b></td><td></td><td><b>${money(t.vda)}</b></td></tr></tbody></table></div>
  <div class="actions"><button class="btn secondary" onclick="openCommerceWithDate('${d.captureDate}')">Cancelar</button><button class="btn primary" onclick="saveCommerce()">Confirmar y guardar</button></div></div>`;
 }
-function saveCommerce(){
+// Muestra un error de guardado CLARO y VISIBLE que no desaparece solo: un banner
+// fijo al inicio de la pantalla actual (no se pierde el formulario) más un alert()
+// que obliga al usuario a confirmar que lo vio antes de seguir.
+function showStorageSaveError(htmlMessage,plainMessage){
+ let existing=document.getElementById("saveErrorBanner");
+ if(existing)existing.remove();
+ let banner=document.createElement("div");
+ banner.id="saveErrorBanner";
+ banner.className="notice notice-error";
+ banner.innerHTML="⛔ "+htmlMessage;
+ if(view.firstChild)view.insertBefore(banner,view.firstChild);else view.appendChild(banner);
+ alert(plainMessage);
+}
+async function saveCommerce(){
+ if(savingInFlight)return;
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   let captureDay=advance.draft.captureDate;
+   const{data,error}=await SB.rpc("crear_captura",{p_tipo:"Comercio",p_emp:advance.advisor.emp,p_advisor:advance.advisor.name,p_branch:branchNum(advance.branch),p_day:captureDay,p_data:advance.draft});
+   if(error)throw error;
+   commerceCaptures.push(mapCapturaRow(data));
+   view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance registrado!</h1><p>Tu información se agregó correctamente al acumulado de hoy.</p><span class="folio">Folio: ${esc(data.folio)}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openCommerce()">Agregar otro avance</button></div></div>`;
+  }catch(err){
+   showSupabaseSaveError("guardar tu captura",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
  let now=new Date(),seq=commerceCaptures.length+1,folio=`COM-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`;
  let captureDay=advance.draft.captureDate, captureDateObj=dateFromKey(captureDay);
  commerceCaptures.push({folio,created_at:now.toISOString(),day:captureDay,week:isoWeek(captureDateObj),emp:advance.advisor.emp,advisor:advance.advisor.name,branch:branchNum(advance.branch),data:advance.draft,totals:advance.draft.totals,status:"confirmed"});
- localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+ }catch(e){
+  commerceCaptures.pop();
+  showStorageSaveError(
+   "<b>No se pudo guardar tu captura.</b> El dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando. Tu información <b>NO se guardó</b>, por favor no cierres esta pantalla.",
+   "No se pudo guardar tu captura.\n\nEl dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando.\n\nTu información NO se guardó. No cierres esta pantalla; vuelve a intentar guardar."
+  );
+  return;
+ }
  view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance registrado!</h1><p>Tu información se agregó correctamente al acumulado de hoy.</p><span class="folio">Folio: ${folio}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openCommerce()">Agregar otro avance</button></div></div>`;
 }
 function requestCorrection(folio){startCorrectionForFolio(folio)}
@@ -272,10 +734,10 @@ function bankAccum(){
  list.forEach(c=>{let d=c.data;s.aff+=d.aff;s.port+=d.port;s.funds+=d.funds;s.guardCount+=d.guardCount;s.guardAmt+=d.guardAmounts.reduce((a,b)=>a+b,0);s.somosCount+=d.somosCount;s.somosAmt+=d.somosAmounts.reduce((a,b)=>a+b,0);s.invCount+=d.invCount;s.invAmt+=d.invAmounts.reduce((a,b)=>a+b,0);s.tazDelivered+=d.tazDelivered;s.tazActivated+=d.tazActivated});return s;
 }
 function zeroFocus(el){if(el.value==="0"||el.value==="0.00")el.value=""}
-function zeroBlur(el,decimal=false){if(el.value.trim()==="")el.value=decimal?"0.00":"0"}
+function zeroBlur(el){if(el.value.trim()==="")el.value="0"}
 function openBank(){
  advance.type="Banco";advance.captureDate=advance.captureDate||dayKey();let ac=bankAccum();
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">🏦 BANCO</span><h1>Registro de avance — Banco</h1></div><button class="btn secondary" onclick="selectAdvanceAdvisor('${esc(advance.advisor.emp)}')">← Cambiar formulario</button></div>
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">🏦 BANCO</span><h1>Registro de avance — Banco</h1></div><button class="btn secondary" onclick="selectAdvanceBranch('${esc(advance.branch)}')">← Cambiar asesor</button></div>
  <div class="notice"><b>Estás registrando avance para ${esc(advance.advisor.name)} — Sucursal ${branchNum(advance.branch)}</b></div>
  <div class="infohead"><div class="infoitem"><small>Sucursal</small><b>${branchNum(advance.branch)}</b></div><div class="infoitem"><small>Asesor</small><b>${esc(advance.advisor.name)}</b></div><div class="infoitem"><small>Fecha</small><input type="date" id="captureDate" value="${advance.captureDate}" onchange="changeBankCaptureDate()" style="margin-top:5px;padding:6px;width:100%"></div><div class="infoitem"><small>Semana calendario</small><b>Semana ${isoWeek(dateFromKey(advance.captureDate))}</b></div><div class="infoitem"><small>Actividad</small><b>🟢 Activo</b></div></div>
  <div class="card"><h2 style="margin-top:0">📊 Acumulado de la fecha seleccionada</h2><div class="kpis"><div class="kpi"><small>Afiliaciones</small><b>${ac.aff}</b></div><div class="kpi"><small>Portabilidades</small><b>${ac.port}</b></div><div class="kpi"><small>Fondos de Inversión</small><b>${money(ac.funds)}</b></div><div class="kpi"><small>Guardadito Remeseros</small><b>${ac.guardCount} · ${money(ac.guardAmt)}</b></div><div class="kpi"><small>Somos</small><b>${ac.somosCount} · ${money(ac.somosAmt)}</b></div><div class="kpi"><small>Inversiones</small><b>${ac.invCount} · ${money(ac.invAmt)}</b></div><div class="kpi"><small>TAZ</small><b>${ac.tazDelivered} entregadas · ${ac.tazActivated} activadas</b></div></div>
@@ -283,29 +745,36 @@ function openBank(){
  <div class="capturesec"><h3>📈 Captación y vinculación</h3><div class="three">
  <div class="field"><label>Número de afiliaciones</label><input type="number" min="0" step="1" id="bkAff" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this)"></div>
  <div class="field"><label>Número de portabilidades</label><input type="number" min="0" step="1" id="bkPort" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this)"></div>
- <div class="field"><label>Monto de Fondos de Inversión</label><input type="number" min="0" step="0.01" id="bkFunds" value="0.00" onfocus="zeroFocus(this)" onblur="zeroBlur(this,true)"><small>Un solo monto total. Se permiten decimales.</small></div></div></div>
+ <div class="field"><label>Monto de Fondos de Inversión</label><input type="text" inputmode="numeric" id="bkFunds" value="0" onfocus="zeroFocus(this)" oninput="sanitizeMoneyFieldLive(this)" onblur="zeroBlur(this)"><small>Un solo monto total. Solo números enteros (sin decimales).</small></div></div></div>
  ${bankPairCard("💰","Guardadito Remeseros","guard","Guardadito")}
  ${bankPairCard("👥","Somos","somos","Somos")}
  ${bankPairCard("💵","Inversiones","inv","Inversión")}
+ <div class="capturesec"><h3>💵 Colocación de Efectivo</h3><div class="three"><div class="field"><label>Montos de Colocación de Efectivo</label><input id="bkCashAmounts" value="" placeholder="Ejemplo: 1500, 300, 0" oninput="sanitizeMoneyListLive(this);updateCashCalc()"><small>Escribe cada monto separado por coma. Solo números enteros (sin decimales ni negativos). Déjalo vacío si no capturaste.</small></div><div class="calc" id="bkCashCalc">0 montos · Total $0</div></div></div>
  <div class="capturesec"><h3>💳 TAZ</h3><div class="three"><div class="field"><label>Número de TAZ entregadas</label><input type="number" min="0" step="1" id="bkTazDelivered" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);validateTaz()"></div><div class="field"><label>Número de TAZ activadas</label><input type="number" min="0" step="1" id="bkTazActivated" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);validateTaz()"></div><div class="calc" id="tazMsg">0 entregadas · 0 activadas</div></div><div id="tazError" style="color:#b3261e;font-weight:800;margin-top:8px"></div></div>
  <div class="actions"><button class="btn primary" onclick="reviewBank()">Revisar avance →</button></div></div>`;
  ["guard","somos","inv"].forEach(p=>{document.getElementById("bk_"+p+"_count").addEventListener("input",()=>updateBankPair(p));document.getElementById("bk_"+p+"_amounts").addEventListener("input",()=>updateBankPair(p))});
  document.getElementById("bkTazDelivered").addEventListener("input",validateTaz);document.getElementById("bkTazActivated").addEventListener("input",validateTaz);
 }
 function bankPairCard(icon,title,p,singular){
- return `<div class="capturesec"><h3>${icon} ${title}</h3><div class="three"><div class="field"><label>Número de ${title}</label><input type="number" min="0" step="1" id="bk_${p}_count" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"></div><div class="field"><label>Montos de ${title}</label><input id="bk_${p}_amounts" value="0" disabled placeholder="Ejemplo: 10000, 5000, 0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"><small>Escribe un monto por cada ${singular} y separa los montos con comas. Se permiten decimales y montos en $0.</small></div><div class="calc" id="bk_${p}_calc">✓ 0 de 0 montos · Total $0.00</div></div><div id="bk_${p}_error" style="color:#b3261e;font-weight:800;margin-top:8px"></div></div>`;
+ return `<div class="capturesec"><h3>${icon} ${title}</h3><div class="three"><div class="field"><label>Número de ${title}</label><input type="number" min="0" step="1" id="bk_${p}_count" value="0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"></div><div class="field"><label>Montos de ${title}</label><input id="bk_${p}_amounts" value="0" disabled placeholder="Ejemplo: 10000, 5000, 0" onfocus="zeroFocus(this)" onblur="zeroBlur(this);updateBankPair('${p}')"><small>Escribe un monto por cada ${singular} y separa los montos con comas. Solo números enteros (sin decimales); se permiten montos en $0.</small></div><div class="calc" id="bk_${p}_calc">✓ 0 de 0 montos · Total $0</div></div><div id="bk_${p}_error" style="color:#b3261e;font-weight:800;margin-top:8px"></div></div>`;
 }
 function updateBankPair(p){
- let count=Math.max(0,Math.trunc(Number(document.getElementById("bk_"+p+"_count").value)||0)),input=document.getElementById("bk_"+p+"_amounts"),calc=document.getElementById("bk_"+p+"_calc"),err=document.getElementById("bk_"+p+"_error");
- if(count===0){input.disabled=true;input.value="0";calc.textContent="✓ 0 de 0 montos · Total $0.00";err.textContent="";return}
+ let input=document.getElementById("bk_"+p+"_amounts");
+ sanitizeMoneyListLive(input);
+ let count=Math.max(0,Math.trunc(Number(document.getElementById("bk_"+p+"_count").value)||0)),calc=document.getElementById("bk_"+p+"_calc"),err=document.getElementById("bk_"+p+"_error");
+ if(count===0){input.disabled=true;input.value="0";calc.textContent="✓ 0 de 0 montos · Total $0";err.textContent="";return}
  input.disabled=false;if(input.value==="0")input.value="";
  let vals=parseAmountsKeepZero(input.value),total=vals.reduce((a,b)=>a+b,0);
  calc.textContent=`${vals.length===count?"✓":"⚠️"} ${vals.length} de ${count} montos capturados · Total ${money(total)}`;
  err.textContent=vals.length<count?`⚠️ Falta${count-vals.length===1?"":"n"} ${count-vals.length} monto${count-vals.length===1?"":"s"}. Registraste ${count}; debes ingresar ${count} montos.`:vals.length>count?`⚠️ Sobran ${vals.length-count} monto${vals.length-count===1?"":"s"}. Registraste ${count}; debes ingresar exactamente ${count} montos.`:"";
 }
+function updateCashCalc(){
+ let vals=parseAmounts(document.getElementById("bkCashAmounts").value),total=vals.reduce((a,b)=>a+b,0);
+ document.getElementById("bkCashCalc").textContent=`${vals.length} monto${vals.length===1?"":"s"} · Total ${money(total)}`;
+}
 function parseAmountsKeepZero(v){
  let raw=String(v??"").trim();if(!raw||raw==="0")return raw==="0"?[0]:[];
- return raw.split(",").map(x=>x.trim()).filter(x=>x!=="").map(x=>Number(x.replace(/[$\s]/g,""))).filter(x=>Number.isFinite(x)&&x>=0);
+ return raw.split(",").map(x=>x.trim()).filter(x=>x!=="").map(x=>sanitizeMoneyAmount(x).value).filter(x=>Number.isFinite(x)&&x>=0);
 }
 function validateTaz(){
  let d=Math.max(0,Math.trunc(Number(document.getElementById("bkTazDelivered").value)||0)),a=Math.max(0,Math.trunc(Number(document.getElementById("bkTazActivated").value)||0));
@@ -314,8 +783,8 @@ function validateTaz(){
  return a<=d;
 }
 function getBankDraft(){
- let intval=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0)),moneyval=id=>Math.max(0,Number(document.getElementById(id).value)||0);
- let d={aff:intval("bkAff"),port:intval("bkPort"),funds:moneyval("bkFunds"),guardCount:intval("bk_guard_count"),guardAmounts:parseAmountsKeepZero(document.getElementById("bk_guard_amounts").value),somosCount:intval("bk_somos_count"),somosAmounts:parseAmountsKeepZero(document.getElementById("bk_somos_amounts").value),invCount:intval("bk_inv_count"),invAmounts:parseAmountsKeepZero(document.getElementById("bk_inv_amounts").value),tazDelivered:intval("bkTazDelivered"),tazActivated:intval("bkTazActivated"),captureDate:selectedCaptureDate()};
+ let intval=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0)),moneyval=id=>cleanMoneyValue(document.getElementById(id).value);
+ let d={aff:intval("bkAff"),port:intval("bkPort"),funds:moneyval("bkFunds"),guardCount:intval("bk_guard_count"),guardAmounts:parseAmountsKeepZero(document.getElementById("bk_guard_amounts").value),somosCount:intval("bk_somos_count"),somosAmounts:parseAmountsKeepZero(document.getElementById("bk_somos_amounts").value),invCount:intval("bk_inv_count"),invAmounts:parseAmountsKeepZero(document.getElementById("bk_inv_amounts").value),cashAmounts:parseAmounts(document.getElementById("bkCashAmounts").value),tazDelivered:intval("bkTazDelivered"),tazActivated:intval("bkTazActivated"),captureDate:selectedCaptureDate()};
  if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];return d;
 }
 function reviewBank(){
@@ -333,24 +802,89 @@ function reviewBank(){
  <tr><td>Guardadito Remeseros</td><td>${d.guardCount}</td><td>${money(sum(d.guardAmounts))}<br><small>${esc(d.guardAmounts.join(", "))}</small></td></tr>
  <tr><td>Somos</td><td>${d.somosCount}</td><td>${money(sum(d.somosAmounts))}<br><small>${esc(d.somosAmounts.join(", "))}</small></td></tr>
  <tr><td>Inversiones</td><td>${d.invCount}</td><td>${money(sum(d.invAmounts))}<br><small>${esc(d.invAmounts.join(", "))}</small></td></tr>
+ <tr><td>Colocación de Efectivo</td><td>${d.cashAmounts.length}</td><td>${money(sum(d.cashAmounts))}<br><small>${esc(d.cashAmounts.join(", "))}</small></td></tr>
  <tr><td>TAZ</td><td>${d.tazDelivered} entregadas · ${d.tazActivated} activadas</td><td>—</td></tr></tbody></table></div>
  <div class="actions"><button class="btn secondary" onclick="openBankWithDate('${d.captureDate}')">Cancelar</button><button class="btn primary" onclick="saveBank()">Confirmar y guardar</button></div></div>`;
 }
-function saveBank(){
- let now=new Date(),seq=bankCaptures.length+1,folio=`BAN-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`,d=advance.draft;
+async function saveBank(){
+ if(savingInFlight)return;
+ let d=advance.draft;
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   const{data,error}=await SB.rpc("crear_captura",{p_tipo:"Banco",p_emp:advance.advisor.emp,p_advisor:advance.advisor.name,p_branch:branchNum(advance.branch),p_day:d.captureDate,p_data:d});
+   if(error)throw error;
+   bankCaptures.push(mapCapturaRow(data));
+   view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance de Banco registrado!</h1><p>La captura se agregó al acumulado de la fecha seleccionada.</p><span class="folio">Folio: ${esc(data.folio)}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openBank()">Agregar otro avance</button></div></div>`;
+  }catch(err){
+   showSupabaseSaveError("guardar tu captura",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
+ let now=new Date(),seq=bankCaptures.length+1,folio=`BAN-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`;
  bankCaptures.push({folio,created_at:now.toISOString(),day:d.captureDate,week:isoWeek(dateFromKey(d.captureDate)),emp:advance.advisor.emp,advisor:advance.advisor.name,branch:branchNum(advance.branch),data:d,status:"confirmed"});
- localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ try{
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ }catch(e){
+  bankCaptures.pop();
+  showStorageSaveError(
+   "<b>No se pudo guardar tu captura.</b> El dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando. Tu información <b>NO se guardó</b>, por favor no cierres esta pantalla.",
+   "No se pudo guardar tu captura.\n\nEl dispositivo se quedó sin espacio de almacenamiento. Avisa a tu administrador antes de seguir capturando.\n\nTu información NO se guardó. No cierres esta pantalla; vuelve a intentar guardar."
+  );
+  return;
+ }
  view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance de Banco registrado!</h1><p>La captura se agregó al acumulado de la fecha seleccionada.</p><span class="folio">Folio: ${folio}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openBank()">Agregar otro avance</button></div></div>`;
 }
 
 
-let adminSession=false;
-function openAdminLogin(){
- if(adminSession){renderRecords();return}
- view.innerHTML=`<div class="pagehead"><div><h1>Administración</h1><p>Acceso exclusivo para consultar, exportar y modificar registros de Banco y Comercio.</p></div><button class="btn secondary" onclick="renderAdvance()">← Regresar</button></div><div class="card loginbox"><h2>Acceso de administrador</h2><div class="field"><label>Usuario</label><input id="adminUser"></div><div class="field"><label>Contraseña</label><input id="adminPass" type="password" onkeydown="if(event.key==='Enter')adminLogin()"></div><div id="loginError" style="color:#b3261e;font-weight:700;min-height:20px"></div><button class="btn primary" style="width:100%" onclick="adminLogin()">Ingresar</button><p class="adminnote">Protección temporal del prototipo.</p></div>`;
+// ============================================================
+// En modo local (sin config.js) Administración sigue sin login, igual
+// que siempre. En modo Supabase, exige haber iniciado sesión como
+// administrador (ver renderAdminLogin/adminLogin más abajo); las
+// escrituras además quedan protegidas server-side por is_admin().
+// ============================================================
+let adminTab="asesores";
+function renderAdministracion(){
+ topTitle.textContent="Administración";
+ if(usingSupabase()&&!adminSession){renderAdminLogin();return}
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>🛠️ Administración</h1><p>Gestión de asesores y de los registros de Banco y Comercio.</p></div>${usingSupabase()?`<div style="display:flex;align-items:center;gap:10px"><span class="dashnote">Sesión: ${esc(adminSession.user.email)}</span><button class="btn secondary" onclick="adminLogout()">Cerrar sesión</button></div>`:""}</div>
+ <div class="admintabs">
+  <button class="admintab${adminTab==="asesores"?" active":""}" onclick="switchAdminTab('asesores')">👥 Asesores</button>
+  <button class="admintab${adminTab==="registros"?" active":""}" onclick="switchAdminTab('registros')">📋 Registros</button>
+ </div>
+ <div id="adminTabBody"></div>`;
+ if(adminTab==="asesores")renderAdminAsesoresTab();else renderAdminRegistrosTab();
 }
-function adminLogin(){let u=document.getElementById("adminUser").value.trim(),p=document.getElementById("adminPass").value;if(u==="pfajardo"&&p==="ale2003"){adminSession=true;renderRecords()}else document.getElementById("loginError").textContent="Usuario o contraseña incorrectos."}
-function logoutAdmin(){adminSession=false;renderAdvance()}
+function switchAdminTab(tab){adminTab=tab;renderAdministracion()}
+function renderAdminLogin(){
+ topTitle.textContent="Administración";
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>🛠️ Administración</h1><p>Inicia sesión como administrador para gestionar asesores y registros.</p></div></div>
+ <div class="card" style="max-width:420px"><h2 style="margin-top:0">Iniciar sesión</h2>
+ <div class="field"><label>Correo</label><input type="email" id="adminEmail" placeholder="admin@ejemplo.com"></div>
+ <div class="field" style="margin-top:10px"><label>Contraseña</label><input type="password" id="adminPassword" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+ <div id="adminLoginError" style="color:#b3261e;font-weight:800;margin-top:8px"></div>
+ <div class="actions"><button class="btn primary" onclick="adminLogin()">Entrar</button></div></div>`;
+}
+async function adminLogin(){
+ let email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value,err=document.getElementById("adminLoginError");
+ err.textContent="";
+ if(!email||!password){err.textContent="Captura correo y contraseña.";return}
+ try{
+  const{data,error}=await SB.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  adminSession=data.session;
+  renderAdministracion();
+ }catch(e){
+  err.textContent="No se pudo iniciar sesión: correo o contraseña incorrectos.";
+ }
+}
+async function adminLogout(){
+ try{await SB.auth.signOut()}catch(e){}
+ adminSession=null;
+ renderAdministracion();
+}
 function getEffectiveCapture(c){return {data:c.data,totals:c.totals}}
 
 function commerceRows(){
@@ -359,7 +893,7 @@ function commerceRows(){
 }
 function bankRows(){
  let sum=a=>(a||[]).reduce((s,n)=>s+(Number(n)||0),0);
- return bankCaptures.map(c=>{let d=c.data||{};return {tipo:"Banco",folio:c.folio,fecha:c.day,semana:c.week,sucursal:c.branch,empleado:c.emp,asesor:c.advisor,resumen:`Afiliaciones ${d.aff||0} · Portabilidades ${d.port||0} · Fondos ${money(d.funds||0)} · Guardadito ${d.guardCount||0}/${money(sum(d.guardAmounts))} · Somos ${d.somosCount||0}/${money(sum(d.somosAmounts))} · Inversiones ${d.invCount||0}/${money(sum(d.invAmounts))} · TAZ ${d.tazDelivered||0}/${d.tazActivated||0}`,registrado:c.created_at?new Date(c.created_at).toLocaleString("es-MX"):""};});
+ return bankCaptures.map(c=>{let d=c.data||{};return {tipo:"Banco",folio:c.folio,fecha:c.day,semana:c.week,sucursal:c.branch,empleado:c.emp,asesor:c.advisor,resumen:`Afiliaciones ${d.aff||0} · Portabilidades ${d.port||0} · Fondos ${money(d.funds||0)} · Guardadito ${d.guardCount||0}/${money(sum(d.guardAmounts))} · Somos ${d.somosCount||0}/${money(sum(d.somosAmounts))} · Inversiones ${d.invCount||0}/${money(sum(d.invAmounts))} · Efectivo ${(d.cashAmounts||[]).length}/${money(sum(d.cashAmounts))} · TAZ ${d.tazDelivered||0}/${d.tazActivated||0}`,registrado:c.created_at?new Date(c.created_at).toLocaleString("es-MX"):""};});
 }
 function filteredRows(){
  let rows=[...commerceRows(),...bankRows()].sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))),f=document.getElementById("rfDate"),b=document.getElementById("rfBranch"),e=document.getElementById("rfEmp"),w=document.getElementById("rfWeek"),t=document.getElementById("rfType");
@@ -367,49 +901,131 @@ function filteredRows(){
  if(e&&e.value.trim()){let q=e.value.trim().toLowerCase();rows=rows.filter(r=>String(r.empleado).includes(q)||String(r.asesor).toLowerCase().includes(q))}
  if(w&&w.value)rows=rows.filter(r=>String(r.semana)===w.value);return rows;
 }
-function renderRecords(){
- if(!adminSession){openAdminLogin();return}let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));topTitle.textContent="Administración";
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>📋 Registros Banco + Comercio</h1><p>Consulta, exporta y modifica directamente los registros existentes.</p></div><button class="btn secondary" onclick="logoutAdmin()">Cerrar sesión</button></div>
+const ADMIN_PAGE_SIZE=50;
+let adminRecordsPage=1;
+function renderAdminRegistrosTab(){
+ let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));
+ document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><h2 style="margin:0 0 4px">📋 Registros Banco + Comercio</h2><p>Consulta, exporta y modifica directamente los registros existentes.</p></div></div>
  <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados</div><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div>
- <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable()"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable()"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable()"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable()"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable()"></div></div>
- <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div></div>`;refreshRecordTable();
+ <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable(true)"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable(true)"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable(true)"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable(true)"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable(true)"></div></div>
+ <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
+ <div class="pager" id="recordsPager"></div></div>`;refreshRecordTable(true);
 }
-function refreshRecordTable(){let rows=filteredRows();document.getElementById("recordCount").textContent=rows.length;document.getElementById("recordsBody").innerHTML=rows.length?rows.map(r=>`<tr><td><button class="linkbtn" onclick="${r.tipo==="Banco"?"editBankRecord":"editCommerceRecord"}('${r.folio}')">Editar</button></td><td><b>${r.tipo}</b></td><td>${r.folio}</td><td>${r.fecha}</td><td>${r.semana}</td><td>${r.sucursal}</td><td>${r.empleado}</td><td>${esc(r.asesor)}</td><td>${r.resumen}</td><td>${r.registrado}</td></tr>`).join(""):`<tr><td colspan="10" style="text-align:center;padding:28px">No hay registros con estos filtros.</td></tr>`}
+function refreshRecordTable(resetPage){
+ if(resetPage)adminRecordsPage=1;
+ let rows=filteredRows();
+ document.getElementById("recordCount").textContent=rows.length;
+ let totalPages=Math.max(1,Math.ceil(rows.length/ADMIN_PAGE_SIZE));
+ if(adminRecordsPage>totalPages)adminRecordsPage=totalPages;
+ let start=(adminRecordsPage-1)*ADMIN_PAGE_SIZE,pageRows=rows.slice(start,start+ADMIN_PAGE_SIZE);
+ document.getElementById("recordsBody").innerHTML=pageRows.length?pageRows.map(r=>`<tr><td><button class="linkbtn" onclick="${r.tipo==="Banco"?"editBankRecord":"editCommerceRecord"}('${r.folio}')">Editar</button></td><td><b>${r.tipo}</b></td><td>${r.folio}</td><td>${r.fecha}</td><td>${r.semana}</td><td>${r.sucursal}</td><td>${r.empleado}</td><td>${esc(r.asesor)}</td><td>${r.resumen}</td><td>${r.registrado}</td></tr>`).join(""):`<tr><td colspan="10" style="text-align:center;padding:28px">No hay registros con estos filtros.</td></tr>`;
+ let pager=document.getElementById("recordsPager");
+ if(pager)pager.innerHTML=rows.length?`<span>Mostrando ${start+1}–${Math.min(start+ADMIN_PAGE_SIZE,rows.length)} de ${rows.length}</span><span><button class="btn secondary" ${adminRecordsPage<=1?"disabled":""} onclick="changeRecordsPage(-1)">‹ Anterior</button> <span>Página ${adminRecordsPage} de ${totalPages}</span> <button class="btn secondary" ${adminRecordsPage>=totalPages?"disabled":""} onclick="changeRecordsPage(1)">Siguiente ›</button></span>`:"";
+}
+function changeRecordsPage(delta){adminRecordsPage+=delta;refreshRecordTable(false)}
+// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function editCommerceRecord(folio){
  let c=commerceCaptures.find(x=>x.folio===folio);if(!c)return;let d=c.data,names=["Movilidad","Hogar","Conectividad"],vnames=["Nuevas","Recompra","Contado"],list=(g,i)=>Array.isArray(d[g][i])?d[g][i].join(", "):"0";
- view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Comercio</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card"><div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="erDate" value="${c.day}"></div></div>
- <h3>Solicitudes levantadas</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_req_${i}" value="${d.req[i]}"></div>`).join("")}</div><h3>Clientes nuevos surtidos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_srv_${i}" value="${d.srv[i]}"></div>`).join("")}</div><h3>Clientes nuevos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_nw_${i}" value="${esc(list("nw",i))}"></div>`).join("")}</div><h3>Clientes inactivos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_ina_${i}" value="${esc(list("ina",i))}"></div>`).join("")}</div><h3>VDA</h3><div class="three">${vnames.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_vda_${i}" value="${esc(list("vda",i))}"></div>`).join("")}</div><div class="actions"><button class="btn primary" onclick="saveCommerceRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
+ view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Comercio</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderAdministracion()">← Cancelar</button></div><div class="card"><div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="erDate" value="${c.day}"></div></div>
+ <h3>Solicitudes levantadas</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_req_${i}" value="${d.req[i]}"></div>`).join("")}</div><h3>Clientes nuevos surtidos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_srv_${i}" value="${d.srv[i]}"></div>`).join("")}</div><h3>Clientes nuevos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_nw_${i}" value="${esc(list("nw",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>Clientes inactivos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_ina_${i}" value="${esc(list("ina",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>VDA</h3><div class="three">${vnames.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_vda_${i}" value="${esc(list("vda",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><div class="actions"><button class="btn primary" onclick="saveCommerceRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
-function saveCommerceRecordEdit(folio){
+// ADMIN-ONLY: editar un registro. En modo local sigue sin protección propia
+// (igual que siempre); en modo Supabase, actualizar_captura() exige sesión
+// de administrador (is_admin()) del lado del servidor.
+async function saveCommerceRecordEdit(folio){
+ if(savingInFlight)return;
  let c=commerceCaptures.find(x=>x.folio===folio); if(!c) return;
  let counts=g=>[0,1,2].map(i=>Math.max(0,Math.trunc(Number(document.getElementById(`er_${g}_${i}`).value)||0)));
  let amounts=g=>[0,1,2].map(i=>parseAmounts(document.getElementById(`er_${g}_${i}`).value));
  let req=counts("req"),srv=counts("srv"),nw=amounts("nw"),ina=amounts("ina"),vda=amounts("vda");
  let sum=a=>a.flat().reduce((s,n)=>s+n,0),newDay=document.getElementById("erDate").value||c.day;
- c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));renderRecords();
+ let newData={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   const{data,error}=await SB.rpc("actualizar_captura",{p_folio:folio,p_tipo:"Comercio",p_day:newDay,p_data:newData});
+   if(error)throw error;
+   let idx=commerceCaptures.findIndex(x=>x.folio===folio);
+   if(idx>=0)commerceCaptures[idx]=mapCapturaRow(data);
+   renderAdministracion();
+  }catch(err){
+   showSupabaseSaveError("guardar los cambios",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
+ let prevDay=c.day,prevWeek=c.week,prevData=c.data,prevTotals=c.totals,prevModified=c.admin_modified_at;
+ c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data=newData;c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+ }catch(e){
+  c.day=prevDay;c.week=prevWeek;c.data=prevData;c.totals=prevTotals;c.admin_modified_at=prevModified;
+  showStorageSaveError(
+   "<b>No se pudieron guardar los cambios.</b> El dispositivo se quedó sin espacio de almacenamiento. Los cambios <b>NO se guardaron</b>; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo.",
+   "No se pudieron guardar los cambios.\n\nEl dispositivo se quedó sin espacio de almacenamiento.\n\nLos cambios NO se guardaron; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo."
+  );
+  return;
+ }
+ renderAdministracion();
 }
+// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
 function editBankRecord(folio){
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let d=c.data, list=a=>(a||[]).join(", ");
- view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Banco</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderRecords()">← Cancelar</button></div><div class="card">
+ view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Banco</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderAdministracion()">← Cancelar</button></div><div class="card">
  <div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="ebrDate" value="${c.day}"></div></div>
- <h3>📈 Captación y vinculación</h3><div class="three"><div class="field"><label>Afiliaciones</label><input type="number" min="0" id="ebrAff" value="${d.aff}"></div><div class="field"><label>Portabilidades</label><input type="number" min="0" id="ebrPort" value="${d.port}"></div><div class="field"><label>Fondos de Inversión</label><input type="number" min="0" step="0.01" id="ebrFunds" value="${d.funds}"></div></div>
+ <h3>📈 Captación y vinculación</h3><div class="three"><div class="field"><label>Afiliaciones</label><input type="number" min="0" id="ebrAff" value="${d.aff}"></div><div class="field"><label>Portabilidades</label><input type="number" min="0" id="ebrPort" value="${d.port}"></div><div class="field"><label>Fondos de Inversión</label><input type="text" inputmode="numeric" id="ebrFunds" value="${Math.trunc(Number(d.funds)||0)}" oninput="sanitizeMoneyFieldLive(this)"></div></div>
  ${adminBankPair("Guardadito Remeseros","guard",d.guardCount,list(d.guardAmounts))}${adminBankPair("Somos","somos",d.somosCount,list(d.somosAmounts))}${adminBankPair("Inversiones","inv",d.invCount,list(d.invAmounts))}
+ <h3>Colocación de Efectivo</h3><div class="three"><div class="field"><label>Montos (separados por coma)</label><input id="ebr_cash_amounts" value="${esc(list(d.cashAmounts))}" oninput="sanitizeMoneyListLive(this)"><small>Deja el campo vacío si no hubo colocación.</small></div></div>
  <h3>💳 TAZ</h3><div class="three"><div class="field"><label>Entregadas</label><input type="number" min="0" id="ebrTazD" value="${d.tazDelivered}"></div><div class="field"><label>Activadas</label><input type="number" min="0" id="ebrTazA" value="${d.tazActivated}"></div></div><div class="actions"><button class="btn primary" onclick="saveBankRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
-function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}"><small>Debe coincidir exactamente con el número.</small></div></div>`}
-function saveBankRecordEdit(folio){
+function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}" oninput="sanitizeMoneyListLive(this)"><small>Debe coincidir exactamente con el número. Solo números enteros (sin decimales).</small></div></div>`}
+// ADMIN-ONLY: editar un registro. En modo local sigue sin protección propia
+// (igual que siempre); en modo Supabase, actualizar_captura() exige sesión
+// de administrador (is_admin()) del lado del servidor.
+async function saveBankRecordEdit(folio){
+ if(savingInFlight)return;
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let intv=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0));
  let amts=id=>parseAmountsKeepZero(document.getElementById(id).value);
- let d={aff:intv("ebrAff"),port:intv("ebrPort"),funds:Math.max(0,Number(document.getElementById("ebrFunds").value)||0),guardCount:intv("ebr_guard_count"),guardAmounts:amts("ebr_guard_amounts"),somosCount:intv("ebr_somos_count"),somosAmounts:amts("ebr_somos_amounts"),invCount:intv("ebr_inv_count"),invAmounts:amts("ebr_inv_amounts"),tazDelivered:intv("ebrTazD"),tazActivated:intv("ebrTazA")};
+ let d={aff:intv("ebrAff"),port:intv("ebrPort"),funds:cleanMoneyValue(document.getElementById("ebrFunds").value),guardCount:intv("ebr_guard_count"),guardAmounts:amts("ebr_guard_amounts"),somosCount:intv("ebr_somos_count"),somosAmounts:amts("ebr_somos_amounts"),invCount:intv("ebr_inv_count"),invAmounts:amts("ebr_inv_amounts"),cashAmounts:parseAmounts(document.getElementById("ebr_cash_amounts").value),tazDelivered:intv("ebrTazD"),tazActivated:intv("ebrTazA")};
  if(d.guardCount===0)d.guardAmounts=[];if(d.somosCount===0)d.somosAmounts=[];if(d.invCount===0)d.invAmounts=[];
  if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount){alert("Guardadito, Somos e Inversiones deben tener exactamente un monto por cada operación.");return}
  if(d.tazActivated>d.tazDelivered){alert("Las TAZ activadas no pueden ser mayores que las entregadas.");return}
- let day=document.getElementById("ebrDate").value||c.day;d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));renderRecords();
+ let day=document.getElementById("ebrDate").value||c.day;
+ d.captureDate=day;
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   const{data,error}=await SB.rpc("actualizar_captura",{p_folio:folio,p_tipo:"Banco",p_day:day,p_data:d});
+   if(error)throw error;
+   let idx=bankCaptures.findIndex(x=>x.folio===folio);
+   if(idx>=0)bankCaptures[idx]=mapCapturaRow(data);
+   renderAdministracion();
+  }catch(err){
+   showSupabaseSaveError("guardar los cambios",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
+ let prevDay=c.day,prevWeek=c.week,prevData=c.data,prevModified=c.admin_modified_at;
+ c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();
+ try{
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ }catch(e){
+  c.day=prevDay;c.week=prevWeek;c.data=prevData;c.admin_modified_at=prevModified;
+  showStorageSaveError(
+   "<b>No se pudieron guardar los cambios.</b> El dispositivo se quedó sin espacio de almacenamiento. Los cambios <b>NO se guardaron</b>; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo.",
+   "No se pudieron guardar los cambios.\n\nEl dispositivo se quedó sin espacio de almacenamiento.\n\nLos cambios NO se guardaron; el registro quedó como estaba antes de editar. Libera espacio o inténtalo de nuevo."
+  );
+  return;
+ }
+ renderAdministracion();
 }
+// ADMIN-ONLY: exportar todos los registros — proteger cuando se agregue el login.
 function exportRecordsExcel(){
- if(!adminSession)return;
  let rows=filteredRows();
  if(!rows.length){alert("No hay registros para exportar.");return}
  let headers=["Formulario","Folio","Fecha","Semana","Sucursal","N.º empleado","Asesor","Resumen","Registrado"];
@@ -439,125 +1055,471 @@ function exportRecordsExcel(){
  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1500);
 }
 
-function safePct(n,d){return d>0?(n/d*100):0}
-function sumArr(a){return (Array.isArray(a)?a:[]).reduce((s,n)=>s+(Number(n)||0),0)}
-function dashboardRows(){
- let rows=[];
- commerceCaptures.forEach(c=>{let d=c.data||{},req=d.req||[0,0,0],srv=d.srv||[0,0,0],nw=d.nw||[[],[],[]],ina=d.ina||[[],[],[]],vda=d.vda||[[],[],[]];
- rows.push({type:"Comercio",day:c.day,week:c.week,branch:String(c.branch),emp:String(c.emp),advisor:c.advisor,
- req:req.reduce((a,b)=>a+(Number(b)||0),0),srv:srv.reduce((a,b)=>a+(Number(b)||0),0),
- newCount:nw.reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0),newAmt:nw.reduce((s,a)=>s+sumArr(a),0),
- inaCount:ina.reduce((s,a)=>s+(Array.isArray(a)?a.length:0),0),inaAmt:ina.reduce((s,a)=>s+sumArr(a),0),
- vdaNew:sumArr(vda[0]),vdaRep:sumArr(vda[1]),vdaCash:sumArr(vda[2])});});
- bankCaptures.forEach(c=>{let d=c.data||{};rows.push({type:"Banco",day:c.day,week:c.week,branch:String(c.branch),emp:String(c.emp),advisor:c.advisor,
- aff:Number(d.aff)||0,port:Number(d.port)||0,funds:Number(d.funds)||0,guardCount:Number(d.guardCount)||0,guardAmt:sumArr(d.guardAmounts),
- somosCount:Number(d.somosCount)||0,somosAmt:sumArr(d.somosAmounts),invCount:Number(d.invCount)||0,invAmt:sumArr(d.invAmounts),
- tazD:Number(d.tazDelivered)||0,tazA:Number(d.tazActivated)||0});});return rows;
+let ejec={form:"Banco",week:null,branch:"",advisorId:""};
+function kpiCard(label,value,extra){return `<div class="kpicard"><small>${esc(label)}</small><b>${value}${extra?` ${extra}`:""}</b></div>`}
+function varBadge(v){
+ if(v===null||v===undefined)return "";
+ if(v===0)return `<span class="var-flat">±0 pp</span>`;
+ return v>0?`<span class="var-up">▲${v} pp</span>`:`<span class="var-down">▼${Math.abs(v)} pp</span>`;
 }
-function dashFiltered(){
- let rows=dashboardRows(),date=document.getElementById("dfDate")?.value,week=document.getElementById("dfWeek")?.value,branch=document.getElementById("dfBranch")?.value,emp=document.getElementById("dfAdvisor")?.value,type=document.getElementById("dfType")?.value;
- if(date)rows=rows.filter(r=>r.day===date);if(week)rows=rows.filter(r=>String(r.week)===week);if(branch)rows=rows.filter(r=>r.branch===branch);if(emp)rows=rows.filter(r=>r.emp===emp);if(type)rows=rows.filter(r=>r.type===type);return rows;
+function stackedBar(v,a,r,ea){
+ let total=v+a+r+ea||1;
+ return `<div class="stackbar">${v?`<div class="stackseg seg-verde" style="width:${v/total*100}%">🟢 ${v}</div>`:""}${a?`<div class="stackseg seg-amarillo" style="width:${a/total*100}%">🟡 ${a}</div>`:""}${r?`<div class="stackseg seg-rojo" style="width:${r/total*100}%">🔴 ${r}</div>`:""}${ea?`<div class="stackseg seg-avance" style="width:${ea/total*100}%">⏳ ${ea}</div>`:""}</div>
+ <div class="legendrow"><span class="legenddot" style="background:#28765b"></span>🟢 Ideal completo (${v})<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#e3b341"></span>🟡 Parcial (${a})<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#c94747"></span>🔴 Con mudos (${r})${ea?`<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#9aa39c"></span>⏳ En avance (${ea})`:""}</div>`;
 }
-function dashAgg(rows){
- let s={req:0,srv:0,newCount:0,newAmt:0,inaCount:0,inaAmt:0,vdaNew:0,vdaRep:0,vdaCash:0,aff:0,port:0,funds:0,guardCount:0,guardAmt:0,somosCount:0,somosAmt:0,invCount:0,invAmt:0,tazD:0,tazA:0};
- rows.forEach(r=>Object.keys(s).forEach(k=>s[k]+=Number(r[k])||0));return s;
+function rubroBarRow(r){
+ return `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:4px"><span>${r.icon} ${esc(r.label)}</span><span>${r.mudoCount} asesor${r.mudoCount===1?"":"es"} en mudo (${Math.round(r.pctMudo)}%) · ${r.idealCount} en ideal (${Math.round(r.pctIdeal)}%)</span></div>
+ <div class="bartrack" style="background:#fbeaea"><div class="barfill" style="width:${Math.round(r.pctMudo)}%;background:#c94747"></div></div>
+ <div class="bartrack" style="margin-top:4px"><div class="barfill" style="width:${Math.round(r.pctIdeal)}%"></div></div></div>`;
+}
+// ---- Ritmo del trimestre (burn-up): reutiliza sumBankWeek/META_SUCURSAL/
+// TRIMESTRE_ACTUAL ya existentes, solo acumulando varias semanas en vez de una. ----
+function trimestreWeekKeys(){
+ let start=weekRangeOf(`${TRIMESTRE_ACTUAL.anio}-${String(TRIMESTRE_ACTUAL.semanaIsoInicio).padStart(2,"0")}`).monday;
+ return Array.from({length:TRIMESTRE_ACTUAL.numSemanas},(_,i)=>{let d=new Date(start);d.setDate(d.getDate()+i*7);return weekKeyOf(d)});
+}
+function trimestreElapsedWeeks(wk){
+ let all=trimestreWeekKeys(),idx=all.indexOf(wk);
+ return idx>=0?all.slice(0,idx+1):[];
+}
+function burnupSvg(points,unit){
+ let w=300,h=150,padL=44,padR=8,padT=12,padB=24,innerW=w-padL-padR,innerH=h-padT-padB,n=points.length;
+ let maxVal=Math.max(1,...points.map(p=>Math.max(p.real,p.esperado)))*1.08;
+ let x=i=>padL+(n<=1?innerW/2:innerW*i/(n-1)),y=v=>padT+innerH-(v/maxVal*innerH);
+ let fmt=v=>unit==="money"?money(v):Math.round(v).toLocaleString("es-MX");
+ let gridLines=[0,0.5,1].map(f=>{let v=maxVal*f;return `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="#e0e4dc" stroke-width="1"/><text x="${padL-4}" y="${(y(v)+3).toFixed(1)}" font-size="8" fill="#697267" text-anchor="end">${fmt(v)}</text>`}).join("");
+ let bands=[];
+ for(let i=0;i<n-1;i++){
+  let p0=points[i],p1=points[i+1];
+  if(p0.real<p0.esperado||p1.real<p1.esperado){
+   bands.push(`<polygon points="${x(i).toFixed(1)},${y(p0.real).toFixed(1)} ${x(i+1).toFixed(1)},${y(p1.real).toFixed(1)} ${x(i+1).toFixed(1)},${y(p1.esperado).toFixed(1)} ${x(i).toFixed(1)},${y(p0.esperado).toFixed(1)}" fill="#c51d2b" fill-opacity="0.12"/>`);
+  }
+ }
+ let pathEsp=points.map((p,i)=>`${i===0?"M":"L"}${x(i).toFixed(1)},${y(p.esperado).toFixed(1)}`).join(" ");
+ let pathReal=points.map((p,i)=>`${i===0?"M":"L"}${x(i).toFixed(1)},${y(p.real).toFixed(1)}`).join(" ");
+ let last=points[n-1],onTrack=last.real>=last.esperado,realColor=onTrack?"#08783f":"#c51d2b";
+ let labels=points.map((p,i)=>`<text x="${x(i).toFixed(1)}" y="${h-6}" font-size="8" fill="#697267" text-anchor="middle">S${p.week.split("-")[1]}</text>`).join("");
+ let dots=points.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.real).toFixed(1)}" r="2.6" fill="${realColor}"/>`).join("");
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Avance real acumulado contra ritmo esperado del trimestre">${gridLines}${bands.join("")}<path d="${pathEsp}" fill="none" stroke="#9aa39c" stroke-width="1.8" stroke-dasharray="4,3"/><path d="${pathReal}" fill="none" stroke="${realColor}" stroke-width="2.4"/>${dots}${labels}</svg>`;
+}
+function ritmoTrimestreCard(wk,advisorList,meta13){
+ let elapsed=trimestreElapsedWeeks(wk);
+ if(!elapsed.length){
+  return `<div class="chartcard"><h3>📈 Ritmo del trimestre</h3><p class="dashnote">El trimestre (${TRIMESTRE_ACTUAL.anio}, a partir de la semana ${TRIMESTRE_ACTUAL.semanaIsoInicio}) todavía no inicia para la semana seleccionada.</p></div>`;
+ }
+ let semanal={aff:meta13.aff/TRIMESTRE_ACTUAL.numSemanas,port:meta13.port/TRIMESTRE_ACTUAL.numSemanas,cash:meta13.cash/TRIMESTRE_ACTUAL.numSemanas};
+ let accAff=0,accPort=0,accCash=0,pointsAff=[],pointsPort=[],pointsCash=[];
+ elapsed.forEach((w,i)=>{
+  let wAff=0,wPort=0,wCash=0;
+  advisorList.forEach(a=>{let s=sumBankWeek(a.emp,branchNum(a.branch),w);wAff+=s.aff;wPort+=s.port;wCash+=sumArr(s.cashAmounts)});
+  accAff+=wAff;accPort+=wPort;accCash+=wCash;
+  let n=i+1;
+  pointsAff.push({week:w,real:accAff,esperado:semanal.aff*n});
+  pointsPort.push({week:w,real:accPort,esperado:semanal.port*n});
+  pointsCash.push({week:w,real:accCash,esperado:semanal.cash*n});
+ });
+ let enCurso=isCurrentWeek(wk);
+ let resumen=(pts,unit)=>{
+  let last=pts[pts.length-1],diff=last.real-last.esperado,fmt=v=>unit==="money"?money(v):Math.round(v).toLocaleString("es-MX");
+  return `<div class="dashnote" style="margin-top:6px">Real: <b>${fmt(last.real)}</b> · Esperado: <b>${fmt(last.esperado)}</b> · <b style="color:${diff>=0?"var(--green)":"var(--red)"}">${diff>=0?"+":""}${fmt(diff)}</b> vs ritmo · Semana ${elapsed.length} de ${TRIMESTRE_ACTUAL.numSemanas}</div>`;
+ };
+ return `<div class="chartcard"><h3>📈 Ritmo del trimestre</h3><div class="chartsub">Avance real acumulado vs. ritmo esperado, desde la semana ${TRIMESTRE_ACTUAL.semanaIsoInicio} del trimestre.${enCurso?" La semana en curso muestra un avance provisional (aún no cierra).":""}</div>
+ <div class="three">
+  <div><b style="font-size:13px">🧾 Afiliaciones</b>${burnupSvg(pointsAff,"num")}${resumen(pointsAff,"num")}</div>
+  <div><b style="font-size:13px">🔄 Portabilidades</b>${burnupSvg(pointsPort,"num")}${resumen(pointsPort,"num")}</div>
+  <div><b style="font-size:13px">💵 Colocación de Efectivo</b>${burnupSvg(pointsCash,"money")}${resumen(pointsCash,"money")}</div>
+ </div>
+ <div class="legendrow"><span class="legenddot" style="background:#08783f"></span>Real (verde = a tiempo o adelantado)<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#c51d2b"></span>Real (rojo = atrasado)<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#9aa39c"></span>Esperado (línea punteada)</div>
+ </div>`;
+}
+function trendSvg(trend){
+ let w=640,h=170,padL=34,padR=10,padT=16,padB=26,innerW=w-padL-padR,innerH=h-padT-padB,n=trend.length;
+ let x=i=>padL+(n<=1?innerW/2:innerW*i/(n-1)),y=v=>padT+innerH-(v/100*innerH);
+ let pathFor=key=>trend.map((t,i)=>`${i===0?"M":"L"}${x(i).toFixed(1)},${y(t[key]).toFixed(1)}`).join(" ");
+ let gridLines=[0,25,50,75,100].map(v=>`<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="#e0e4dc" stroke-width="1"/><text x="${padL-6}" y="${(y(v)+3).toFixed(1)}" font-size="10" fill="#697267" text-anchor="end">${v}%</text>`).join("");
+ let labels=trend.map((t,i)=>`<text x="${x(i).toFixed(1)}" y="${h-6}" font-size="10" fill="#697267" text-anchor="middle">S${t.week.split("-")[1]}</text>`).join("");
+ let dotsC=trend.map((t,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(t.pctSinMudos).toFixed(1)}" r="3.2" fill="#08783f"/><text x="${x(i).toFixed(1)}" y="${(y(t.pctSinMudos)-7).toFixed(1)}" font-size="10" fill="#08783f" text-anchor="middle">${t.pctSinMudos}%</text>`).join("");
+ let dotsP=trend.map((t,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(t.cp).toFixed(1)}" r="3.2" fill="#315c9d"/><text x="${x(i).toFixed(1)}" y="${(y(t.cp)+14).toFixed(1)}" font-size="10" fill="#315c9d" text-anchor="middle">${t.cp}%</text>`).join("");
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Tendencia de asesores sin mudos y cumplimiento">${gridLines}${labels}<path d="${pathFor('pctSinMudos')}" fill="none" stroke="#08783f" stroke-width="2.4"/><path d="${pathFor('cp')}" fill="none" stroke="#315c9d" stroke-width="2.4" stroke-dasharray="5,3"/>${dotsC}${dotsP}</svg>
+ <div class="legendrow"><span class="legenddot" style="background:#08783f"></span>% Sin mudos<span style="width:14px;display:inline-block"></span><span class="legenddot" style="background:#315c9d"></span>Cumplimiento promedio</div>`;
+}
+function estatusBadge(estatus){
+ const map={VERDE:["🟢","Ideal completo","est-verde"],AMARILLO:["🟡","Parcial","est-amarillo"],ROJO:["🔴","Con mudos","est-rojo"],EN_AVANCE:["⏳","En avance","est-avance"]};
+ let [icon,label,cls]=map[estatus]||["","",""];
+ return `<span class="statuspill ${cls}">${icon} ${label}</span>`;
+}
+function cellClass(state,enCurso){if(state==="IDEAL")return "cell-ok";if(state==="SIN_META")return "cell-pending";if(state==="MUDO")return enCurso?"cell-pending":"cell-bad";return "cell-warn"}
+function cellIcon(state,enCurso){if(state==="IDEAL")return "✅";if(state==="SIN_META")return "➖";if(state==="MUDO")return enCurso?"⏳":"🔴";return "🟡"}
+function ejecSinPuestoNotice(list){
+ return `<div class="notice">⚠️ <b>${list.length} asesor${list.length===1?"":"es"} sin puesto asignado</b> no se incluye${list.length===1?"":"n"} en esta evaluación: ${list.map(a=>esc(a.name)).join(", ")}. Asígnale${list.length===1?"":"s"} un puesto en Administración › Asesores.</div>`;
+}
+function ejecCopyText(btn,text){
+ navigator.clipboard.writeText(text).then(()=>{let old=btn.textContent;btn.textContent="✓ Copiado";setTimeout(()=>{btn.textContent=old},1500)}).catch(()=>alert("No se pudo copiar. Copia manualmente:\n\n"+text));
+}
+function ejecIndicacionTexto(advisor,ev,matrix,formType,wk,weeks6){
+ if(ev.estatus==="VERDE")return `${advisor.name}: sin pendientes esta semana.`;
+ let problems=ev.controles.filter(c=>c.state!=="IDEAL"&&c.state!=="SIN_META");
+ let mainProblem=problems[0];
+ let persist=mainProblem?persistenciaControlFromMatrix(matrix,advisor,formType,mainProblem.key,wk,weeks6):0;
+ let partsTxt=problems.map(c=>`${c.label} (${c.actualLabel}/${c.minLabel})`).join(" y ");
+ let persistTxt=persist>=2?` Lleva ${persist} semanas sin ${(mainProblem.singular||mainProblem.label).toLowerCase()}.`:"";
+ let accion=mainProblem?(ACCIONES_SUGERIDAS[mainProblem.key]||"Dar seguimiento con el asesor."):"";
+ let prefix=ev.estatus==="EN_AVANCE"?"Pendiente":"Falta";
+ return `${advisor.name}: ${prefix.toLowerCase()} ${partsTxt}.${persistTxt} Acción: ${accion}`;
+}
+function ejecCopyAll(branch,wk){
+ let formType=ejec.form,weeks6=lastNWeekKeys(6);
+ let advisorList=evaluableAdvisors(formType).filter(a=>a.branch===branch);
+ let matrix=ejecPrecompute(formType,weeks6,advisorList);
+ let lines=[`*Sucursal ${branchNum(branch)} · ${weekLabel(wk)} · ${formType}*`,""];
+ advisorList.forEach(a=>{
+  let e=matrix[a.id][wk];if(e.estatus==="VERDE")return;
+  lines.push(`• ${ejecIndicacionTexto(a,e,matrix,formType,wk,weeks6)}`);
+ });
+ if(lines.length<=2)lines.push("Todos los asesores están en Ideal completo. Sin pendientes.");
+ let text=lines.join("\n");
+ navigator.clipboard.writeText(text).then(()=>alert("Mensaje copiado. Puedes pegarlo en WhatsApp.")).catch(()=>alert("No se pudo copiar. Copia manualmente:\n\n"+text));
+}
+function ejecFilterBar(){
+ let weeks=lastNWeekKeys(6).slice().reverse();
+ let branchesForForm=ejec.form==="Comercio"?branches.filter(b=>commerceBranchNums.has(branchNum(b))):branches;
+ let advisorsForBranch=ejec.branch?evaluableAdvisors(ejec.form).filter(a=>a.branch===ejec.branch):[];
+ return `<div class="card"><div class="dashboardfilters" style="grid-template-columns:1.3fr 1fr 1.4fr 1.4fr auto">
+ <div class="field"><label>Semana</label><select id="ejWeek" onchange="ejecChangeWeek(this.value)">${weeks.map(w=>`<option value="${w}" ${w===ejec.week?"selected":""}>${weekLabel(w)}${isCurrentWeek(w)?" · en curso":""}</option>`).join("")}</select></div>
+ <div class="field"><label>Formulario</label><select id="ejForm" onchange="ejecChangeForm(this.value)"><option ${ejec.form==="Banco"?"selected":""}>Banco</option><option ${ejec.form==="Comercio"?"selected":""}>Comercio</option></select></div>
+ <div class="field"><label>Sucursal</label><select id="ejBranch" onchange="ejecChangeBranch(this.value)"><option value="">Todas (Región)</option>${branchesForForm.map(b=>`<option value="${esc(b)}" ${b===ejec.branch?"selected":""}>${esc(b)}</option>`).join("")}</select></div>
+ <div class="field"><label>Asesor</label><select id="ejAdvisor" onchange="ejecChangeAdvisor(this.value)" ${!ejec.branch?"disabled":""}><option value="">Todos</option>${advisorsForBranch.map(a=>`<option value="${a.id}" ${a.id===ejec.advisorId?"selected":""}>${esc(a.name)}</option>`).join("")}</select></div>
+ <div class="field" style="align-self:end"><button class="btn secondary" onclick="window.print()">🖨️ Imprimir / PDF</button></div>
+ </div>${ejecBreadcrumb()}</div>`;
+}
+function ejecBreadcrumb(){
+ let parts=[`<a href="#" onclick="ejecGoRegion();return false">Región</a>`];
+ if(ejec.branch){let bParts=ejec.branch.split(" - ");parts.push(`<a href="#" onclick="ejecGoBranch('${esc(ejec.branch)}');return false">${esc(bParts[0])} ${esc(bParts[1]||"")}</a>`)}
+ if(ejec.advisorId){let a=advisors.find(x=>x.id===ejec.advisorId);parts.push(`<span>${esc(a?a.name:"Asesor")}</span>`)}
+ return `<div class="breadcrumb">${parts.join(' <span class="crumb-sep">›</span> ')}</div>`;
+}
+function ejecGoRegion(){ejec.branch="";ejec.advisorId="";renderEjecView()}
+function ejecGoBranch(b){ejec.branch=b;ejec.advisorId="";renderEjecView()}
+function ejecGoAdvisor(b,id){ejec.branch=b;ejec.advisorId=id;renderEjecView()}
+function ejecChangeWeek(w){ejec.week=w;renderEjecView()}
+function ejecChangeForm(f){ejec.form=f;ejec.branch="";ejec.advisorId="";renderEjecView()}
+function ejecChangeBranch(b){ejec.branch=b;ejec.advisorId="";renderEjecView()}
+function ejecChangeAdvisor(id){ejec.advisorId=id;renderEjecView()}
+function ejecPrintHeader(){
+ let a=ejec.advisorId?advisors.find(x=>x.id===ejec.advisorId):null;
+ return `<div class="printhead"><h2>CRM Región San Miguel de Allende — Resumen ejecutivo</h2><p>Generado: ${esc(todayLabel())} · Semana: ${esc(weekLabel(ejec.week))}${isCurrentWeek(ejec.week)?" (en curso)":""} · Formulario: ${esc(ejec.form)}${ejec.branch?` · Sucursal: ${esc(ejec.branch)}`:" · Vista: Región"}${a?` · Asesor: ${esc(a.name)}`:""}</p></div>`;
 }
 function renderExecutiveSummary(){
- topTitle.textContent="Resumen ejecutivo";let all=dashboardRows(),branches=[...new Set(all.map(r=>r.branch))].sort((a,b)=>Number(a)-Number(b));
- let active=advisors.filter(a=>a.status==="Activo"),advisorOpts=active.slice().sort((a,b)=>a.name.localeCompare(b.name));
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">RESULTADOS REALES</span><h1>📊 Resumen ejecutivo</h1><p>Resultados calculados directamente de las capturas de Banco y Comercio. <b>Esta versión contiene datos DEMO genéricos</b> para visualizar los KPIs.</p></div></div>
- <div class="card"><div class="dashboardfilters">
- <div class="field"><label>Formulario</label><select id="dfType" onchange="refreshDashboard()"><option value="">Banco + Comercio</option><option>Banco</option><option>Comercio</option></select></div>
- <div class="field"><label>Fecha</label><input type="date" id="dfDate" onchange="refreshDashboard()"></div>
- <div class="field"><label>Semana</label><input type="number" min="1" max="53" id="dfWeek" placeholder="Todas" oninput="refreshDashboard()"></div>
- <div class="field"><label>Sucursal</label><select id="dfBranch" onchange="refreshDashboard()"><option value="">Todas</option>${branches.map(b=>`<option>${b}</option>`).join("")}</select></div>
- <div class="field"><label>Asesor</label><select id="dfAdvisor" onchange="refreshDashboard()"><option value="">Todos</option>${advisorOpts.map(a=>`<option value="${a.emp}">${esc(a.name)} · ${a.emp}</option>`).join("")}</select></div>
- </div><div id="dashboardBody"></div></div>`;refreshDashboard();
+ topTitle.textContent="Resumen ejecutivo";
+ ejec={form:(ejec&&ejec.form)||"Banco",week:weekKeyOf(new Date()),branch:"",advisorId:""};
+ renderEjecView();
 }
-
-function visualBranchChart(rows,kind){
- let groups={};rows.filter(r=>r.type===kind).forEach(r=>{if(!groups[r.branch])groups[r.branch]=[];groups[r.branch].push(r)});
- let vals=Object.entries(groups).map(([branch,rr])=>{let s=dashAgg(rr);return {branch,value:kind==="Comercio"?safePct(s.srv,s.req):safePct(s.tazA,s.tazD)}}).sort((a,b)=>b.value-a.value);
- if(!vals.length)return '<p class="dashnote">Sin datos para graficar.</p>';
- return vals.map(x=>`<div class="barrow"><b>${x.branch}</b><div class="bartrack"><div class="barfill" style="width:${Math.min(100,x.value)}%"></div></div><span>${x.value.toFixed(1)}%</span></div>`).join("");
+function renderEjecView(){
+ let body=ejec.advisorId?renderEjecAdvisorView():ejec.branch?renderEjecBranchView():renderEjecRegionView();
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">PRODUCTIVIDAD SEMANAL</span><h1>📊 Resumen ejecutivo</h1><p>Asesores libres de "mudos" (rubros en cero) y en Ideal — ${esc(ejec.form)} · ${esc(weekLabel(ejec.week))}${isCurrentWeek(ejec.week)?" (semana en curso)":""}.</p></div></div>
+ ${ejecPrintHeader()}
+ ${ejecFilterBar()}
+ <div id="ejecBody">${body}</div>`;
 }
-function visualDailyTrend(rows){
- let groups={};rows.forEach(r=>{if(!groups[r.day])groups[r.day]=[];groups[r.day].push(r)});
- let vals=Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).map(([day,rr])=>{let s=dashAgg(rr);return {day,value:s.newAmt+s.inaAmt+s.vdaNew+s.vdaRep+s.vdaCash+s.funds+s.guardAmt+s.somosAmt+s.invAmt}});
- let max=Math.max(1,...vals.map(x=>x.value));
- if(!vals.length)return '<p class="dashnote">Sin datos para graficar.</p>';
- return `<div class="trendbars">${vals.map(x=>`<div class="trendcol" title="${money(x.value)}"><div class="trendbar" style="height:${Math.max(3,x.value/max*150)}px"></div><small>${x.day.slice(5)}</small></div>`).join("")}</div><div class="dashnote" style="margin-top:8px">Monto combinado capturado por día (Banco + Comercio) para visualizar tendencia.</div>`;
+function renderEjecRegionView(){
+ let formType=ejec.form,wk=ejec.week,weeks6=lastNWeekKeys(6);
+ let advisorList=evaluableAdvisors(formType),sinPuesto=sinPuestoAdvisors(formType);
+ if(!advisorList.length){
+  return `<div class="card placeholder"><div><div class="icon">📭</div><h2>Sin asesores para evaluar</h2><p>No hay asesores Activos con puesto de ${esc(formType)} ${formType==="Comercio"?"en sucursales con Comercio ":""}dados de alta.</p></div></div>${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}`;
+ }
+ let matrix=ejecPrecompute(formType,weeks6,advisorList);
+ let evals=advisorList.map(a=>matrix[a.id][wk]);
+ let constancias=advisorList.map(a=>constanciaAsesorSemana(a,formType,wk));
+ let prevWk=weeks6[weeks6.indexOf(wk)-1];
+ let prevEvals=prevWk?advisorList.map(a=>matrix[a.id][prevWk]):null;
+ let evaluados=evals.length;
+ let sinMudos=evals.filter(e=>!e.mudoGeneral),conMudos=evals.filter(e=>e.mudoGeneral);
+ let idealCompleto=evals.filter(e=>e.mudos===0&&e.parciales===0);
+ let focoRojo=constancias.filter(c=>c.focoRojo);
+ let activacionBaja=formType==="Banco"?evals.filter(e=>e.tasaActivacionTaz!=null&&e.tasaActivacionTaz<TASA_ACTIVACION_MIN):[];
+ let pctSinMudos=evaluados?Math.round(sinMudos.length/evaluados*100):0;
+ let prevPctSinMudos=null;
+ if(prevEvals&&prevEvals.length)prevPctSinMudos=Math.round(prevEvals.filter(e=>!e.mudoGeneral).length/prevEvals.length*100);
+ let varSinMudos=prevPctSinMudos===null?null:pctSinMudos-prevPctSinMudos;
+ let porRubro=(formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO).map(c=>{
+  let states=evals.map(e=>e.controles.find(x=>x.key===c.key).state),n=states.length;
+  let mudoCount=states.filter(s=>s==="MUDO").length,idealCount=states.filter(s=>s==="IDEAL").length;
+  return {label:c.label,icon:c.icon,mudoCount,idealCount,pctMudo:n?mudoCount/n*100:0,pctIdeal:n?idealCount/n*100:0};
+ }).sort((a,b)=>b.mudoCount-a.mudoCount);
+ let regional=formType==="Banco"?regionalBankTotals(wk,advisorList):null;
+ let byBranch={};
+ advisorList.forEach(a=>{let bn=branchNum(a.branch);(byBranch[bn]=byBranch[bn]||{branch:a.branch,advisors:[]}).advisors.push(a)});
+ let ranking=Object.values(byBranch).map(g=>{
+  let es=g.advisors.map(a=>matrix[a.id][wk]);
+  let v=es.filter(e=>e.estatus==="VERDE").length,am=es.filter(e=>e.estatus==="AMARILLO").length,r=es.filter(e=>e.estatus==="ROJO").length,ea=es.filter(e=>e.estatus==="EN_AVANCE").length;
+  let mudosN=es.filter(e=>e.mudoGeneral).length,libresN=es.length-mudosN;
+  let pctLibres=es.length?Math.round(libresN/es.length*100):0,cp=es.length?Math.round(es.reduce((s,e)=>s+e.cumplimientoPct,0)/es.length):0;
+  let pes=prevEvals?g.advisors.map(a=>matrix[a.id][prevWk]):null;
+  let prevPctLibres=pes&&pes.length?Math.round(pes.filter(e=>!e.mudoGeneral).length/pes.length*100):null;
+  return {branch:g.branch,bn:branchNum(g.branch),n:es.length,v,am,r,ea,mudosN,libresN,pctLibres,cp,varLibres:prevPctLibres===null?null:pctLibres-prevPctLibres,rubro:rubroCritico(es,formType)};
+ }).sort((a,b)=>b.pctLibres-a.pctLibres);
+ let trend=weeks6.map(w=>{
+  let es=advisorList.map(a=>matrix[a.id][w]);
+  let sinMudosN=es.filter(e=>!e.mudoGeneral).length;
+  return {week:w,pctSinMudos:es.length?Math.round(sinMudosN/es.length*100):0,cp:es.length?Math.round(es.reduce((s,e)=>s+e.cumplimientoPct,0)/es.length):0};
+ });
+ let riesgo=[];
+ advisorList.forEach(a=>{
+  let e=matrix[a.id][wk];
+  e.controles.forEach(c=>{
+   let p=persistenciaControlFromMatrix(matrix,a,formType,c.key,wk,weeks6);
+   if(p>=2)riesgo.push({advisor:a,control:c.label,semanas:p,branch:branchNum(a.branch)});
+  });
+ });
+ riesgo.sort((a,b)=>b.semanas-a.semanas);
+ let regionalCards=regional?`${kpiCard("Afiliaciones región",`${regional.totalAff} de ${regional.metaAff}`,`(${regional.pctAff}%)`)}${kpiCard("Portabilidades región",`${regional.totalPort} de ${regional.metaPort}`,`(${regional.pctPort}%)`)}${kpiCard("Efectivo región",`${money(regional.totalCash)} de ${money(regional.metaCash)}`,`(${regional.pctCash}%)`)}`:"";
+ let activacionCard=formType==="Banco"?kpiCard("Activación baja en TAZ",activacionBaja.length):"";
+ let rubroDesglose=porRubro.filter(r=>r.mudoCount>0).map(r=>`${esc(r.label)}: ${r.mudoCount} asesor${r.mudoCount===1?"":"es"} en mudo`).join(" · ");
+ return `
+ <div class="kpigrid">
+  ${kpiCard("Asesores sin mudos",sinMudos.length,`(${pctSinMudos}%) ${varBadge(varSinMudos)}`)}
+  ${kpiCard("Asesores con al menos 1 mudo",conMudos.length)}
+  ${kpiCard("Asesores en Ideal completo",idealCompleto.length,`(${evaluados?Math.round(idealCompleto.length/evaluados*100):0}%)`)}
+  ${kpiCard("Foco rojo de constancia",focoRojo.length)}
+  ${activacionCard}
+  ${regionalCards}
+ </div>
+ ${conMudos.length?`<div class="notice">⚠️ <b>Mudos por rubro:</b> ${rubroDesglose}</div>`:""}
+ ${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}
+ <div class="chartcard"><h3>Semáforo de asesores</h3><div class="chartsub">${evaluados} asesores evaluados en ${esc(weekLabel(wk))}.</div>${stackedBar(evals.filter(e=>e.estatus==="VERDE").length,evals.filter(e=>e.estatus==="AMARILLO").length,evals.filter(e=>e.estatus==="ROJO").length,evals.filter(e=>e.estatus==="EN_AVANCE").length)}</div>
+ <div class="chartcard"><h3>Ranking de sucursales</h3><div class="chartsub">Clic en una sucursal para ver su detalle. Ordenado de mayor a menor % libre de mudos.</div>
+ <div class="tablewrap"><table><thead><tr><th>Sucursal</th><th>Evaluados</th><th>🟢/🟡/🔴</th><th># Mudos</th><th># Libres de mudos</th><th>% Libres</th><th>Cumplimiento</th><th>Variación</th><th>Rubro crítico</th></tr></thead><tbody>
+ ${ranking.map(r=>`<tr class="rowlink" onclick="ejecGoBranch('${esc(r.branch)}')"><td><b>${r.bn}</b></td><td>${r.n}</td><td>🟢${r.v} 🟡${r.am} 🔴${r.r}${r.ea?` ⏳${r.ea}`:""}</td><td>${r.mudosN}</td><td>${r.libresN}</td><td>${r.pctLibres}%</td><td>${r.cp}%</td><td>${varBadge(r.varLibres)}</td><td>${r.rubro?esc(r.rubro.label):"—"}</td></tr>`).join("")||`<tr><td colspan="9" style="text-align:center;padding:20px">Sin datos.</td></tr>`}
+ </tbody></table></div></div>
+ <div class="chartcard"><h3>Rubros con más asesores en mudo</h3><div class="chartsub">Ordenado de más a menos asesores en mudo.</div>${porRubro.map(rubroBarRow).join("")}</div>
+ <div class="chartcard"><h3>Tendencia de las últimas 6 semanas</h3><div class="chartsub">% de asesores sin mudos y cumplimiento promedio.</div>${trendSvg(trend)}</div>
+ ${formType==="Banco"?ritmoTrimestreCard(wk,advisorList,{aff:META_AFILIACIONES_REGION_13SEM,port:META_PORTABILIDADES_REGION*TRIMESTRE_ACTUAL.numSemanas,cash:META_EFECTIVO_REGION_13SEM}):""}
+ <div class="chartcard"><h3>⚠️ Asesores en riesgo</h3><div class="chartsub">Persistencia de 2 semanas cerradas o más con el mismo control en mudo.</div>
+ ${riesgo.length?`<div class="tablewrap"><table><thead><tr><th>Asesor</th><th>Sucursal</th><th>Control</th><th>Semanas</th></tr></thead><tbody>${riesgo.map(r=>`<tr class="rowlink" onclick="ejecGoAdvisor('${esc(r.advisor.branch)}','${esc(r.advisor.id)}')"><td>${esc(r.advisor.name)}</td><td>${r.branch}</td><td>${esc(r.control)}</td><td><b>${r.semanas}</b></td></tr>`).join("")}</tbody></table></div>`:`<p class="dashnote">Sin asesores en riesgo.</p>`}
+ </div>`;
 }
-function pieCard(title,sub,items){
- let clean=items.map((x,i)=>({name:x[0],value:Number(x[1])||0,color:["#28765b","#e3b341","#c94747","#447a9c"][i%4]}));
- let total=clean.reduce((s,x)=>s+x.value,0);if(total<=0)return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><p class="dashnote">Sin datos para graficar.</p></div>`;
- let deg=0,stops=[];clean.forEach(x=>{let a=deg,b=deg+(x.value/total*360);stops.push(`${x.color} ${a}deg ${b}deg`);deg=b});
- return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><div class="piebox"><div class="donut" style="background:conic-gradient(${stops.join(",")})"></div><div>${clean.map(x=>`<div class="legendrow"><span class="legenddot" style="background:${x.color}"></span><span>${x.name}: <b>${money(x.value)}</b> · ${(x.value/total*100).toFixed(1)}%</span></div>`).join("")}</div></div></div>`;
+function renderEjecBranchView(){
+ let formType=ejec.form,wk=ejec.week,weeks6=lastNWeekKeys(6),branch=ejec.branch;
+ let allAdvisors=evaluableAdvisors(formType).filter(a=>a.branch===branch);
+ let sinPuesto=sinPuestoAdvisors(formType).filter(a=>a.branch===branch);
+ if(!allAdvisors.length){
+  return `<div class="card placeholder"><div><div class="icon">📭</div><h2>Sin asesores para evaluar en esta sucursal</h2></div></div>${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}`;
+ }
+ let matrix=ejecPrecompute(formType,weeks6,allAdvisors);
+ let evals=allAdvisors.map(a=>matrix[a.id][wk]);
+ let constancias=allAdvisors.map(a=>constanciaAsesorSemana(a,formType,wk));
+ let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
+ let rubro=rubroCritico(evals,formType);
+ let evaluados=evals.length;
+ let sinMudos=evals.filter(e=>!e.mudoGeneral),conMudos=evals.filter(e=>e.mudoGeneral);
+ let idealCompleto=evals.filter(e=>e.mudos===0&&e.parciales===0);
+ let focoRojo=constancias.filter(c=>c.focoRojo);
+ let activacionBaja=formType==="Banco"?evals.filter(e=>e.tasaActivacionTaz!=null&&e.tasaActivacionTaz<TASA_ACTIVACION_MIN):[];
+ let pctSinMudos=evaluados?Math.round(sinMudos.length/evaluados*100):0;
+ let heat=allAdvisors.map((a,i)=>({advisor:a,eval:matrix[a.id][wk],constancia:constancias[i]})).sort((x,y)=>x.eval.cumplimientoPct-y.eval.cumplimientoPct);
+ let heatHead=`<th class="stickycol">Asesor</th>${ctrls.map(c=>`<th>${c.icon} ${esc(c.label)}</th>`).join("")}<th>Cumplimiento</th><th>Estatus</th><th>Constancia</th>`;
+ let heatRows=heat.map(h=>{
+  let cells=ctrls.map(c=>{let cr=h.eval.controles.find(x=>x.key===c.key);return `<td class="${cellClass(cr.state,h.eval.enCurso)}" title="${esc(cr.faltante||'Ideal')}">${cellIcon(cr.state,h.eval.enCurso)} ${esc(cr.actualLabel)}/${esc(cr.minLabel)}</td>`}).join("");
+  return `<tr><td class="stickycol rowlink" onclick="ejecGoAdvisor('${esc(h.advisor.branch)}','${esc(h.advisor.id)}')"><b>${esc(h.advisor.name)}</b><br><small>${esc(h.advisor.emp)}</small></td>${cells}<td><b>${h.eval.cumplimientoPct}%</b></td><td>${estatusBadge(h.eval.estatus)}</td><td>${h.constancia.pct}%${h.constancia.focoRojo?" 🔴":""}</td></tr>`;
+ }).join("");
+ let pendientes=heat.filter(h=>h.eval.estatus!=="VERDE");
+ let activacionCard=formType==="Banco"?kpiCard("Activación baja en TAZ",activacionBaja.length):"";
+ let sucursalName=branch.split(" - ")[1]||branch;
+ let sucursalTotals=formType==="Banco"?sucursalBankTotals(wk,allAdvisors,branchNum(branch)):null;
+ let sucursalCards=sucursalTotals?(sucursalTotals.metaAff==null
+  ?`${kpiCard(`Afiliaciones ${sucursalName}`,"Meta no definida")}${kpiCard(`Portabilidades ${sucursalName}`,"Meta no definida")}${kpiCard(`Efectivo ${sucursalName}`,"Meta no definida")}`
+  :`${kpiCard(`Afiliaciones ${sucursalName}`,`${sucursalTotals.totalAff} de ${sucursalTotals.metaAff}`,`(${sucursalTotals.pctAff}%)`)}${kpiCard(`Portabilidades ${sucursalName}`,`${sucursalTotals.totalPort} de ${sucursalTotals.metaPort}`,`(${sucursalTotals.pctPort}%)`)}${kpiCard(`Efectivo ${sucursalName}`,`${money(sucursalTotals.totalCash)} de ${money(sucursalTotals.metaCash)}`,`(${sucursalTotals.pctCash}%)`)}`
+ ):"";
+ return `
+ <div class="kpigrid">
+  ${kpiCard("Asesores sin mudos",sinMudos.length,`(${pctSinMudos}%)`)}
+  ${kpiCard("Asesores con al menos 1 mudo",conMudos.length)}
+  ${kpiCard("Asesores en Ideal completo",idealCompleto.length)}
+  ${kpiCard("Foco rojo de constancia",focoRojo.length)}
+  ${activacionCard}
+  ${sucursalCards}
+ </div>
+ ${rubro?`<div class="notice">🔎 <b>Rubro crítico de la sucursal:</b> ${esc(rubro.label)} — ${rubro.mudos} de ${evaluados} asesores en mudo.</div>`:""}
+ ${sinPuesto.length?ejecSinPuestoNotice(sinPuesto):""}
+ <div class="chartcard"><h3>Semáforo</h3>${stackedBar(evals.filter(e=>e.estatus==="VERDE").length,evals.filter(e=>e.estatus==="AMARILLO").length,evals.filter(e=>e.estatus==="ROJO").length,evals.filter(e=>e.estatus==="EN_AVANCE").length)}</div>
+ ${formType==="Banco"?(META_SUCURSAL[branchNum(branch)]?ritmoTrimestreCard(wk,allAdvisors,{aff:META_SUCURSAL[branchNum(branch)].afiliaciones_cuota_13sem,port:META_SUCURSAL[branchNum(branch)].portabilidades_cuota_13sem,cash:META_SUCURSAL[branchNum(branch)].efectivo_cuota_13sem_pesos}):`<div class="chartcard"><h3>📈 Ritmo del trimestre</h3><p class="dashnote">Esta sucursal no tiene cuota de trimestre definida en META_SUCURSAL.</p></div>`):""}
+ <div class="chartcard"><h3>Matriz de cumplimiento por asesor</h3><div class="chartsub">Avance real / meta por control. Clic en un asesor para ver su ficha.</div>
+ <div class="tablewrap heatwrap"><table><thead><tr>${heatHead}</tr></thead><tbody>${heatRows}</tbody></table></div></div>
+ <div class="chartcard"><h3>📋 Indicaciones para el gerente</h3><div class="chartsub">Sucursal ${branchNum(branch)} · ${esc(weekLabel(wk))}</div>
+ ${pendientes.length?`${pendientes.map(h=>{let t=ejecIndicacionTexto(h.advisor,h.eval,matrix,formType,wk,weeks6);return `<div class="indicrow"><div>${esc(t)}</div><button class="btn secondary" onclick='ejecCopyText(this,${JSON.stringify(t)})'>Copiar</button></div>`}).join("")}<div class="actions"><button class="btn primary" onclick="ejecCopyAll('${esc(branch)}','${wk}')">Copiar todo</button></div>`:`<p class="dashnote">Todos los asesores están en Ideal completo. Sin indicaciones pendientes.</p>`}
+ </div>`;
 }
-function countPieCard(title,sub,items){
- let clean=items.map((x,i)=>({name:x[0],value:Number(x[1])||0,color:["#28765b","#e3b341","#c94747","#447a9c"][i%4]})),total=clean.reduce((s,x)=>s+x.value,0);
- if(total<=0)return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><p class="dashnote">Sin datos para graficar.</p></div>`;
- let deg=0,stops=[];clean.forEach(x=>{let a=deg,b=deg+x.value/total*360;stops.push(`${x.color} ${a}deg ${b}deg`);deg=b});
- return `<div class="chartcard"><h3>${title}</h3><div class="chartsub">${sub}</div><div class="piebox"><div class="donut" style="background:conic-gradient(${stops.join(",")})"></div><div>${clean.map(x=>`<div class="legendrow"><span class="legenddot" style="background:${x.color}"></span><span>${x.name}: <b>${x.value}</b> · ${(x.value/total*100).toFixed(1)}%</span></div>`).join("")}</div></div></div>`;
-}
-function refreshDashboard(){
- let rows=dashFiltered(),s=dashAgg(rows),selected=document.getElementById("dfType")?.value||"",showC=selected===""||selected==="Comercio",showB=selected===""||selected==="Banco",vda=s.vdaNew+s.vdaRep+s.vdaCash;
- let cardsC=[
- ["Solicitudes",s.req],["Clientes surtidos",s.srv],["Conversión solicitud → surtido",safePct(s.srv,s.req).toFixed(1)+"%"],
- ["Monto Clientes Nuevos",money(s.newAmt)],["Ticket promedio Nuevos",money(s.newCount?s.newAmt/s.newCount:0)],
- ["Monto Clientes Inactivos",money(s.inaAmt)],["Ticket promedio Inactivos",money(s.inaCount?s.inaAmt/s.inaCount:0)],
- ["VDA total",money(vda)],["VDA Nuevas",money(s.vdaNew)],["VDA Recompra",money(s.vdaRep)],["VDA Contado",money(s.vdaCash)]
- ];
- let cardsB=[
- ["Afiliaciones",s.aff],["Portabilidades",s.port],["Fondos de Inversión",money(s.funds)],
- ["Guardadito Remeseros",s.guardCount+" · "+money(s.guardAmt)],["Ticket prom. Guardadito",money(s.guardCount?s.guardAmt/s.guardCount:0)],
- ["Somos",s.somosCount+" · "+money(s.somosAmt)],["Ticket prom. Somos",money(s.somosCount?s.somosAmt/s.somosCount:0)],
- ["Inversiones",s.invCount+" · "+money(s.invAmt)],["Ticket prom. Inversiones",money(s.invCount?s.invAmt/s.invCount:0)],
- ["TAZ entregadas",s.tazD],["TAZ activadas",s.tazA],["Conversión TAZ",safePct(s.tazA,s.tazD).toFixed(1)+"%"]
- ];
- let group={};rows.forEach(r=>{let k=r.emp+"|"+r.branch;if(!group[k])group[k]={advisor:r.advisor,emp:r.emp,branch:r.branch,rows:[]};group[k].rows.push(r)});
- let detail=Object.values(group).map(g=>{let x=dashAgg(g.rows),vv=x.vdaNew+x.vdaRep+x.vdaCash;
-   let commerceCells=showC?`<td>${x.req}</td><td>${x.srv}</td><td>${safePct(x.srv,x.req).toFixed(1)}%</td><td>${money(x.newAmt)}</td><td>${money(x.inaAmt)}</td><td>${money(vv)}</td>`:"";
-   let bankCells=showB?`<td>${x.aff}</td><td>${x.port}</td><td>${money(x.guardAmt)}</td><td>${money(x.somosAmt)}</td><td>${money(x.invAmt)}</td><td>${safePct(x.tazA,x.tazD).toFixed(1)}%</td>`:"";
-   return `<tr><td>${esc(g.advisor)}</td><td>${g.branch}</td>${commerceCells}${bankCells}</tr>`}).join("");
- let heads=`<th>Asesor</th><th>Sucursal</th>${showC?'<th>Solicitudes</th><th>Surtidos</th><th>Conversión</th><th>Nuevos $</th><th>Inactivos $</th><th>VDA $</th>':""}${showB?'<th>Afiliaciones</th><th>Portabilidades</th><th>Guardadito $</th><th>Somos $</th><th>Inversiones $</th><th>TAZ %</th>':""}`;
- let cSection=showC?`<h2 class="sectiontitle">🛍️ Comercio</h2><div class="kpigrid">${cardsC.map(c=>`<div class="kpicard"><small>${c[0]}</small><b>${c[1]}</b></div>`).join("")}</div>
- <div class="visualgrid">
-  <div class="chartcard"><h3>Conversión Comercio por sucursal</h3><div class="chartsub">Clientes surtidos ÷ solicitudes levantadas.</div>${visualBranchChart(rows,"Comercio")}</div>
-  ${pieCard("Mix VDA","Distribución del monto VDA por tipo.",[["Nuevas",s.vdaNew],["Recompra",s.vdaRep],["Contado",s.vdaCash]])}
-  ${pieCard("Origen del monto Comercio","Participación de Clientes Nuevos, Inactivos y VDA.",[["Clientes Nuevos",s.newAmt],["Clientes Inactivos",s.inaAmt],["VDA",vda]])}
- </div>`:"";
- let bSection=showB?`<h2 class="sectiontitle">🏦 Banco</h2><div class="kpigrid">${cardsB.map(c=>`<div class="kpicard"><small>${c[0]}</small><b>${c[1]}</b></div>`).join("")}</div>
- <div class="visualgrid">
-  <div class="chartcard"><h3>Conversión TAZ por sucursal</h3><div class="chartsub">TAZ activadas ÷ TAZ entregadas.</div>${visualBranchChart(rows,"Banco")}</div>
-  ${pieCard("Mix de captación Banco","Distribución de montos entre Fondos, Guardadito, Somos e Inversiones.",[["Fondos",s.funds],["Guardadito",s.guardAmt],["Somos",s.somosAmt],["Inversiones",s.invAmt]])}
-  ${countPieCard("Vinculación","Participación de Afiliaciones y Portabilidades.",[["Afiliaciones",s.aff],["Portabilidades",s.port]])}
-  ${countPieCard("Estado TAZ","Activadas frente a entregadas pendientes de activación.",[["Activadas",s.tazA],["Pendientes",Math.max(0,s.tazD-s.tazA)]])}
- </div>`:"";
- document.getElementById("dashboardBody").innerHTML=`<div class="dashnote">${rows.length} capturas incluidas en los filtros actuales.</div>
- ${cSection}${bSection}
- <h2 class="sectiontitle">Tendencia diaria</h2><div class="visualgrid"><div class="chartcard" style="grid-column:1/-1"><h3>Tendencia diaria de montos</h3><div class="chartsub">${selected?selected:"Banco + Comercio"} · evolución de los montos registrados.</div>${visualDailyTrend(rows)}</div></div>
- <h2 class="sectiontitle">Detalle por asesor</h2><div class="tablewrap"><table><thead><tr>${heads}</tr></thead><tbody>${detail||`<tr><td colspan="${2+(showC?6:0)+(showB?6:0)}" style="text-align:center;padding:25px">No hay capturas con estos filtros.</td></tr>`}</tbody></table></div>
- <p class="dashnote">Vista basada en resultados capturados. Las metas y porcentajes de cumplimiento se incorporarán cuando definamos el catálogo de metas.</p>`;
+function renderEjecAdvisorView(){
+ let formType=ejec.form,wk=ejec.week,weeks6=lastNWeekKeys(6);
+ let a=advisors.find(x=>x.id===ejec.advisorId);
+ if(!a)return `<div class="card placeholder"><div><div class="icon">🙈</div><h2>Asesor no encontrado</h2></div></div>`;
+ let matrix=ejecPrecompute(formType,weeks6,[a]);
+ let ev=matrix[a.id][wk],cons=constanciaAsesorSemana(a,formType,wk);
+ let progressRows=ev.controles.map(c=>{
+  let pct=c.progressPct;
+  let color=c.state==="IDEAL"?"#2c765d":c.state==="PARCIAL"?"#e3b341":c.state==="SIN_META"?"#b7bdb6":(ev.enCurso?"#b7bdb6":"#c94747");
+  let extraBits=[];
+  if(c.belowComision!=null)extraBits.push(`${c.belowComision} cuenta${c.belowComision===1?"":"s"} debajo de ${money(c.montoComision||0)} (no paga comisión)`);
+  if(c.key==="taz"&&c.tasaActivacion!=null)extraBits.push(`Tasa de activación: ${Math.round(c.tasaActivacion*100)}%${c.tasaActivacion<TASA_ACTIVACION_MIN?" ⚠️ baja":""}`);
+  return `<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:4px"><span>${c.icon} ${esc(c.label)}</span><span>${cellIcon(c.state,ev.enCurso)} ${esc(c.actualLabel)} / ${esc(c.minLabel)}</span></div>
+  <div class="bartrack"><div class="barfill" style="width:${pct}%;background:${color}"></div></div>
+  ${c.faltante?`<div class="dashnote" style="margin-top:3px">${esc(c.faltante)}</div>`:""}
+  ${extraBits.length?`<div class="dashnote" style="margin-top:2px">${extraBits.map(t=>esc(t)).join(" · ")}</div>`:""}</div>`;
+ }).join("");
+ let mudoList=ev.controles.filter(c=>c.state==="MUDO");
+ let historyRows=weeks6.map(w=>{let e=matrix[a.id][w];return `<tr><td>${esc(weekLabel(w))}${isCurrentWeek(w)?" · en curso":""}</td><td>${estatusBadge(e.estatus)}</td><td>${e.cumplimientoPct}%</td></tr>`}).join("");
+ let dayNames=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+ let dayCells=cons.dayFlags.map((d,i)=>`<div class="daycell ${d.captured?"day-yes":"day-no"}">${dayNames[i]}<br>${d.captured?"✅":"—"}</div>`).join("");
+ let indicacion=ejecIndicacionTexto(a,ev,matrix,formType,wk,weeks6);
+ let tazTasaTxt=formType==="Banco"?(ev.tasaActivacionTaz!=null?`${Math.round(ev.tasaActivacionTaz*100)}%${ev.tasaActivacionTaz<TASA_ACTIVACION_MIN?" ⚠️":""}`:"—"):null;
+ return `
+ <div class="chartcard"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+  <div><h2 style="margin:0 0 4px">${esc(a.name)}</h2><div class="dashnote">N.º empleado ${esc(a.emp)} · ${esc(a.branch)} · ${esc(a.puesto||"Sin puesto asignado")}</div></div>${estatusBadge(ev.estatus)}</div>
+  <div class="kpigrid" style="margin-top:16px">${kpiCard("Cumplimiento",ev.cumplimientoPct+"%")}${kpiCard("Constancia",`${cons.diasConCaptura}/7`,cons.focoRojo?"🔴 Foco rojo":"")}${tazTasaTxt!==null?kpiCard("Activación TAZ",tazTasaTxt):""}${kpiCard("Rubros en mudo",mudoList.length)}</div>
+  ${mudoList.length?`<div class="notice" style="margin-top:14px">🔴 <b>En mudo:</b> ${mudoList.map(c=>esc(c.label)).join(", ")}.</div>`:`<div class="notice" style="margin-top:14px">🟢 Sin mudos esta semana.</div>`}
+ </div>
+ <div class="chartcard"><h3>Avance por control — ${esc(weekLabel(wk))}</h3>${progressRows}</div>
+ <div class="chartcard"><h3>Constancia por día</h3><div class="chartsub">Días con al menos una captura, lunes a domingo.${cons.focoRojo?' <b style="color:var(--red)">🔴 Foco rojo de constancia.</b>':""}</div><div class="daygrid">${dayCells}</div></div>
+ <div class="chartcard"><h3>Historial — últimas 6 semanas</h3><div class="tablewrap"><table><thead><tr><th>Semana</th><th>Estatus</th><th>Cumplimiento</th></tr></thead><tbody>${historyRows}</tbody></table></div></div>
+ <div class="chartcard"><h3>📋 Indicación sugerida</h3><div class="indicrow"><div>${esc(indicacion)}</div><button class="btn secondary" onclick='ejecCopyText(this,${JSON.stringify(indicacion)})'>Copiar</button></div></div>`;
 }
 function placeholder(title,sub,icon,msg){topTitle.textContent=title;view.innerHTML=`<div class="pagehead"><div><h1>${title}</h1><p>${sub}</p></div></div><div class="card placeholder"><div><div class="icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div></div>`}
-function renderAdvisors(){topTitle.textContent="Alta de asesores";view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h1>Alta de asesores</h1><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
-function drawRows(){let q=(document.getElementById("q")?.value||"").toLowerCase(),fb=document.getElementById("fb")?.value||"",fs=document.getElementById("fs")?.value||"";let a=advisors.filter(x=>x.status!=="Baja"&&(x.name.toLowerCase().includes(q)||x.emp.includes(q))&&(!fb||x.branch===fb)&&(!fs||x.status===fs));document.getElementById("rows").innerHTML=a.length?`<table><thead><tr><th>N.º empleado</th><th>Nombre</th><th>Sucursal</th><th>Actividad</th><th></th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.emp)}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.branch)}</td><td><span class="badge ${x.status.toLowerCase()}">${x.status}</span></td><td><button class="linkbtn" onclick="openModal('${esc(x.emp)}')">Editar</button></td></tr>`).join("")}</tbody></table>`:`<div style="padding:36px;text-align:center;color:#6f7b91">No hay asesores para mostrar. Usa <b>+ Nuevo asesor</b> para comenzar.</div>`}
-function deactivateAdvisor(emp){
- const a=advisors.find(x=>x.emp===emp); if(!a)return;
+function renderAdminAsesoresTab(){document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h2 style="margin:6px 0 4px">Asesores</h2><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>${csvImportSection()}`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
+// Importación masiva de asesores desde CSV (solo modo Supabase, con sesión
+// de administrador activa). No aplica en modo local: seedAdvisors ya cubre
+// ese caso. Usa el mismo formato de columnas que asesores_final_101.csv
+// (emp, name, branch, puesto). Los ya existentes (mismo emp) se actualizan
+// en name/branch/puesto sin tocar su estatus ni sus fechas de baja/alta.
+function csvImportSection(){
+ if(!usingSupabase()||!adminSession)return "";
+ return `<div class="card"><h3 style="margin-top:0">📥 Importar asesores desde CSV</h3><p class="dashnote">Sube un archivo CSV con columnas <b>emp, name, branch, puesto</b> (mismas columnas que asesores_final_101.csv). Los asesores con un número de empleado ya existente se actualizan; los nuevos se agregan. No se modifica el estatus (Activo/Baja) de asesores ya existentes.</p><input type="file" id="csvImportFile" accept=".csv"><div class="actions"><button class="btn primary" onclick="importAdvisorsCsv()">Importar</button></div><div id="csvImportResult" style="margin-top:10px;font-weight:700"></div></div>`;
+}
+async function importAdvisorsCsv(){
+ let fileInput=document.getElementById("csvImportFile"),resultEl=document.getElementById("csvImportResult");
+ let file=fileInput.files[0];
+ if(!file){resultEl.textContent="Selecciona un archivo CSV primero.";return}
+ resultEl.textContent="Leyendo archivo…";
+ try{
+  let text=await file.text();
+  let rows=parseAdvisorsCsv(text);
+  if(!rows.length){resultEl.textContent="No se encontraron filas válidas en el archivo.";return}
+  resultEl.textContent=`Importando ${rows.length} asesores…`;
+  const{error}=await SB.from("asesores").upsert(rows,{onConflict:"emp"});
+  if(error)throw error;
+  const{data:refreshed,error:e2}=await SB.rpc("asesores_publico");
+  if(e2)throw e2;
+  advisors=refreshed||[];
+  document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;
+  drawRows();
+  resultEl.textContent=`✅ Importación completa: ${rows.length} asesores procesados.`;
+ }catch(err){
+  resultEl.textContent="⛔ Error al importar: "+supabaseErrorText(err);
+ }
+}
+function parseAdvisorsCsv(text){
+ let lines=text.split(/\r\n|\n|\r/).filter(l=>l.trim()!=="");
+ if(!lines.length)return [];
+ let headerCells=splitCsvLine(lines[0]).map(h=>h.trim().toLowerCase().replace(/^﻿/,""));
+ let idx=name=>headerCells.indexOf(name);
+ let iEmp=idx("emp"),iName=idx("name")>=0?idx("name"):idx("nombre"),iBranch=idx("branch")>=0?idx("branch"):idx("sucursal"),iPuesto=idx("puesto");
+ if(iEmp<0||iName<0||iBranch<0||iPuesto<0)throw new Error("El CSV debe tener columnas emp, name, branch y puesto.");
+ let now=new Date().toISOString();
+ return lines.slice(1).map(splitCsvLine).filter(c=>c[iEmp]&&c[iEmp].trim()).map(c=>({emp:c[iEmp].trim(),name:c[iName].trim(),branch:c[iBranch].trim(),puesto:(c[iPuesto]||"").trim().toUpperCase()||null,created_at:now,updated_at:now}));
+}
+function splitCsvLine(line){
+ let cells=[],cur="",inQ=false;
+ for(let i=0;i<line.length;i++){
+  let ch=line[i];
+  if(inQ){ if(ch==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else inQ=false; } else cur+=ch; }
+  else{ if(ch==='"')inQ=true; else if(ch===','){cells.push(cur);cur="";} else cur+=ch; }
+ }
+ cells.push(cur);
+ return cells;
+}
+function drawRows(){let q=(document.getElementById("q")?.value||"").toLowerCase(),fb=document.getElementById("fb")?.value||"",fs=document.getElementById("fs")?.value||"";let a=advisors.filter(x=>x.status!=="Baja"&&(x.name.toLowerCase().includes(q)||x.emp.includes(q))&&(!fb||x.branch===fb)&&(!fs||x.status===fs));document.getElementById("rows").innerHTML=a.length?`<table><thead><tr><th>N.º empleado</th><th>Nombre</th><th>Puesto</th><th>Sucursal</th><th>Actividad</th><th></th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.emp)}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.puesto||"Sin puesto asignado")}</td><td>${esc(x.branch)}</td><td><span class="badge ${x.status.toLowerCase()}">${x.status}</span></td><td><button class="linkbtn" onclick="openModal('${esc(x.id)}')">Editar</button></td></tr>`).join("")}</tbody></table>`:`<div style="padding:36px;text-align:center;color:#6f7b91">No hay asesores para mostrar. Usa <b>+ Nuevo asesor</b> para comenzar.</div>`}
+// ADMIN-ONLY: dar de baja / cambiar estatus. En modo local sigue sin
+// protección propia (igual que siempre); en modo Supabase, la política de
+// RLS de UPDATE en asesores exige is_admin() (sesión de administrador).
+async function deactivateAdvisor(id){
+ const a=advisors.find(x=>x.id===id); if(!a)return;
  if(!confirm(`¿Dar de baja a ${a.name}?\n\nEl asesor dejará de estar disponible para nuevas capturas. Su información e historial se conservarán.`))return;
- a.status="Baja"; a.deactivated_at=new Date().toISOString(); a.deactivated_by="Administrador"; a.updated_at=new Date().toISOString();
+ let fields={status:"Baja",deactivated_at:new Date().toISOString(),deactivated_by:"Administrador",updated_at:new Date().toISOString()};
+ if(usingSupabase()){
+  showSavingIndicator();
+  try{
+   const{data,error}=await SB.from("asesores").update(fields).eq("id",id).select().single();
+   if(error)throw error;
+   Object.assign(a,data);
+  }catch(err){
+   alert("No se pudo dar de baja al asesor: "+supabaseErrorText(err));
+  }finally{
+   hideSavingIndicator();
+  }
+  drawRows();return;
+ }
+ Object.assign(a,fields);
  localStorage.setItem("crm_advisors",JSON.stringify(advisors)); drawRows();
 }
-function reactivateAdvisor(emp){
- const a=advisors.find(x=>x.emp===emp); if(!a)return;
+// ADMIN-ONLY: reactivar / cambiar estatus. Mismo esquema que deactivateAdvisor.
+async function reactivateAdvisor(id){
+ const a=advisors.find(x=>x.id===id); if(!a)return;
  if(!confirm(`¿Reactivar a ${a.name}?\n\nSu actividad volverá a Activo.`))return;
- a.status="Activo"; a.reactivated_at=new Date().toISOString(); a.reactivated_by="Administrador"; a.updated_at=new Date().toISOString();
+ let fields={status:"Activo",reactivated_at:new Date().toISOString(),reactivated_by:"Administrador",updated_at:new Date().toISOString()};
+ if(usingSupabase()){
+  showSavingIndicator();
+  try{
+   const{data,error}=await SB.from("asesores").update(fields).eq("id",id).select().single();
+   if(error)throw error;
+   Object.assign(a,data);
+  }catch(err){
+   alert("No se pudo reactivar al asesor: "+supabaseErrorText(err));
+  }finally{
+   hideSavingIndicator();
+  }
+  drawRows();return;
+ }
+ Object.assign(a,fields);
  localStorage.setItem("crm_advisors",JSON.stringify(advisors)); drawRows();
 }
-function openModal(emp){editing=emp||null;document.getElementById("branch").innerHTML=branches.map(x=>`<option>${x}</option>`).join("");document.getElementById("modalTitle").textContent=editing?"Editar asesor":"Nuevo asesor";let a=advisors.find(x=>x.emp===editing);document.getElementById("emp").value=a?.emp||"";document.getElementById("name").value=a?.name||"";document.getElementById("branch").value=a?.branch||branches[0];document.getElementById("status").value=a?.status||"Activo";document.getElementById("error").textContent="";document.getElementById("modalbg").classList.add("open")}
+function openModal(id){editing=id||null;document.getElementById("branch").innerHTML=branches.map(x=>`<option>${x}</option>`).join("");document.getElementById("puesto").innerHTML=`<option value="">Sin puesto asignado</option>`+PUESTOS_ALL.map(p=>`<option>${esc(p)}</option>`).join("");document.getElementById("modalTitle").textContent=editing?"Editar asesor":"Nuevo asesor";let a=advisors.find(x=>x.id===editing);document.getElementById("emp").value=a?.emp||"";document.getElementById("name").value=a?.name||"";document.getElementById("branch").value=a?.branch||branches[0];document.getElementById("status").value=a?.status||"Activo";document.getElementById("puesto").value=a?.puesto||"";document.getElementById("error").textContent="";document.getElementById("modalbg").classList.add("open")}
 function closeModal(){document.getElementById("modalbg").classList.remove("open")}
-function saveAdvisor(){let emp=document.getElementById("emp").value.trim(),name=document.getElementById("name").value.trim(),branch=document.getElementById("branch").value,status=document.getElementById("status").value,err=document.getElementById("error");if(!/^\d+$/.test(emp)||!name){err.textContent="Captura un número de empleado válido y el nombre completo.";return}if(advisors.some(x=>x.emp===emp&&x.emp!==editing)){err.textContent="Ese número de empleado ya está registrado.";return}if(editing){let i=advisors.findIndex(x=>x.emp===editing);advisors[i]={...advisors[i],emp,name,branch,status,updated_at:new Date().toISOString()}}else advisors.push({emp,name,branch,status,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});localStorage.setItem("crm_advisors",JSON.stringify(advisors));closeModal();renderAdvisors()}
-document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));nav("asesores");
+// ADMIN-ONLY: alta / edición / cambio de estatus de asesor. En modo local
+// sigue sin protección propia (igual que siempre); en modo Supabase, las
+// políticas de RLS de insert/update en asesores exigen is_admin().
+async function saveAdvisor(){
+ let emp=document.getElementById("emp").value.trim(),name=document.getElementById("name").value.trim(),branch=document.getElementById("branch").value,status=document.getElementById("status").value,puesto=document.getElementById("puesto").value,err=document.getElementById("error");
+ if(!/^\d+$/.test(emp)||!name){err.textContent="Captura un número de empleado válido y el nombre completo.";return}
+ if(!editing&&!puesto){err.textContent="Selecciona un puesto para el nuevo asesor.";return}
+ if(usingSupabase()){
+  showSavingIndicator();
+  try{
+   if(editing){
+    const{data,error}=await SB.from("asesores").update({emp,name,branch,status,puesto,updated_at:new Date().toISOString()}).eq("id",editing).select().single();
+    if(error)throw error;
+    let i=advisors.findIndex(x=>x.id===editing);
+    if(i>=0)advisors[i]=data;else advisors.push(data);
+   }else{
+    const{data,error}=await SB.from("asesores").insert({emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()}).select().single();
+    if(error)throw error;
+    advisors.push(data);
+   }
+  }catch(e){
+   err.textContent="No se pudo guardar el asesor en Supabase: "+supabaseErrorText(e);
+   hideSavingIndicator();
+   return;
+  }
+  hideSavingIndicator();
+  closeModal();renderAdminAsesoresTab();
+  return;
+ }
+ if(editing){let i=advisors.findIndex(x=>x.id===editing);advisors[i]={...advisors[i],emp,name,branch,status,puesto,updated_at:new Date().toISOString()}}else advisors.push({id:genAdvisorId(),emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+ localStorage.setItem("crm_advisors",JSON.stringify(advisors));closeModal();renderAdminAsesoresTab();
+}
+if(usingSupabase()){
+ bootstrapSupabase();
+}else{
+ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));
+ nav("avance");
+}
 </script>
 </body></html>
