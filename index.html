@@ -603,6 +603,9 @@ function generateDemoData(){
  });
 }
 const DEMO_KEY="crm_demo_kpi_seed_v7";
+// seedDemoKpiData() ya NO se ejecuta sola: solo se dispara a mano desde
+// Administración > Registros ("Cargar datos demo"). Existe la función tal
+// cual, solo se quitó la llamada automática.
 function seedDemoKpiData(){
  if(localStorage.getItem(DEMO_KEY)==="1")return;
  purgeDemoData();
@@ -616,7 +619,35 @@ function seedDemoKpiData(){
   alert("No se pudieron generar los datos de ejemplo (DEMO): el dispositivo se quedó sin espacio de almacenamiento. Esto no afecta tus capturas reales.");
  }
 }
-seedDemoKpiData();
+// ADMIN-ONLY: genera datos DEMO a petición — proteger cuando se agregue el login.
+function loadDemoDataManual(){
+ localStorage.removeItem(DEMO_KEY);
+ seedDemoKpiData();
+ if(document.getElementById("adminTabBody"))renderAdministracion();
+}
+// ADMIN-ONLY: borra datos DEMO a petición — proteger cuando se agregue el login.
+function clearDemoDataManual(){
+ purgeDemoData();
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ }catch(e){
+  console.error("No se pudieron guardar los cambios al borrar datos DEMO:",e);
+  alert("No se pudo actualizar el almacenamiento al borrar los datos DEMO.");
+ }
+ localStorage.removeItem(DEMO_KEY);
+ if(document.getElementById("adminTabBody"))renderAdministracion();
+}
+// Borra ahora mismo cualquier dato DEMO que ya estuviera guardado de antes
+// (cuando la generación automática todavía corría sola). No toca capturas
+// reales (sin demo:true).
+if(commerceCaptures.some(c=>c.demo)||bankCaptures.some(c=>c.demo)){
+ purgeDemoData();
+ try{
+  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
+  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
+ }catch(e){console.error("No se pudieron guardar los cambios al borrar datos DEMO existentes:",e)}
+}
 
 
 
@@ -895,7 +926,7 @@ let adminRecordsPage=1;
 function renderAdminRegistrosTab(){
  let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));
  document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><h2 style="margin:0 0 4px">📋 Registros Banco + Comercio</h2><p>Consulta, exporta y modifica directamente los registros existentes.</p></div></div>
- <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados</div><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div>
+ <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados ${hasDemoData()?'· <span style="color:var(--amber);font-weight:800">📊 incluye datos DEMO</span>':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" onclick="loadDemoDataManual()">📊 Cargar datos demo (solo pruebas)</button><button class="btn secondary" onclick="clearDemoDataManual()">🗑️ Borrar datos demo</button><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div></div>
  <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable(true)"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable(true)"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable(true)"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable(true)"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable(true)"></div></div>
  <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
  <div class="pager" id="recordsPager"></div></div>`;refreshRecordTable(true);
