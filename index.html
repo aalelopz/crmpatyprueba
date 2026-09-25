@@ -475,179 +475,15 @@ function rubroCritico(evals,formType){
  return stats[0]&&stats[0].mudos>0?stats[0]:null;
 }
 
-// ---- Generación de datos DEMO (deterministas por número de empleado) ----
-function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(h*131+s.charCodeAt(i))>>>0;return h}
-function makeRng(seedStr){let state=hashStr(seedStr)||1;return function(){state=(state*1103515245+12345)&0x7fffffff;return state}}
-function splitInt(total,parts,rng){
- if(parts<=0)return[];
- if(parts===1)return[Math.max(0,total)];
- let cuts=[];for(let i=0;i<parts-1;i++)cuts.push(rng()%(total+1));
- cuts.sort((a,b)=>a-b);
- let res=[],prev=0;cuts.forEach(c=>{res.push(c-prev);prev=c});res.push(total-prev);
- return res;
-}
-function distributeList(list,parts,rng){
- let buckets=Array.from({length:Math.max(1,parts)},()=>[]);
- list.forEach(v=>{buckets[rng()%buckets.length].push(v)});
- return buckets;
-}
-function advisorProfile(emp){
- let r=hashStr(emp+"|profile")%100;
- if(r<40)return "cumplidor";if(r<70)return "parcial";if(r<90)return "ceros";return "persistente";
-}
-function stuckControlFor(emp,formType){
- let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
- return ctrls[hashStr(emp+"|stuck|"+formType)%ctrls.length].key;
-}
-function decideControlStates(emp,formType,wk,profile){
- let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO,rng=makeRng(emp+"|"+formType+"|"+wk+"|states"),states={};
- if(profile==="persistente"){let stuck=stuckControlFor(emp,formType);ctrls.forEach(c=>{states[c.key]=c.key===stuck?"MUDO":"IDEAL"});return states}
- if(profile==="cumplidor"){ctrls.forEach(c=>{states[c.key]="IDEAL"});return states}
- if(profile==="parcial"){ctrls.forEach(c=>{states[c.key]="PARCIAL"});return states}
- ctrls.forEach(c=>{states[c.key]="IDEAL"});
- let n=1+(rng()%2),idxs=new Set(),tries=0;
- while(idxs.size<n&&tries<30){idxs.add(rng()%ctrls.length);tries++}
- idxs.forEach(i=>{states[ctrls[i].key]="MUDO"});
- return states;
-}
-function genAmountsForState(ideal,state,rng){
- if(state==="MUDO")return [];
- if(state==="IDEAL"){let n=ideal+(rng()%2);return Array.from({length:n},()=>50+(rng()%2000))}
- let n=Math.max(1,1+(rng()%Math.max(1,ideal-1)));
- return Array.from({length:n},()=>50+(rng()%2000));
-}
-function genNumericForState(mudoBelow,idealAt,state,rng){
- if(state==="MUDO")return 0;
- if(state==="IDEAL")return idealAt+1+(rng()%Math.max(1,Math.round(idealAt*0.3)+1));
- let lo=mudoBelow,hi=Math.max(lo,idealAt-1);
- return lo+(rng()%Math.max(1,hi-lo+1));
-}
-function genTazForState(idealMin,state,rng){
- if(state==="MUDO")return {d:0,a:0};
- if(state==="IDEAL")return {d:idealMin+(rng()%3),a:idealMin+(rng()%3)};
- return {d:idealMin+(rng()%3),a:1+(rng()%Math.max(1,idealMin-1))};
-}
-function genControlValue(ctrl,state,emp,formType,wk,metaCtx){
- let rng=makeRng(emp+"|"+formType+"|"+wk+"|"+ctrl.key+"|val");
- if(ctrl.special==="taz")return genTazForState(ctrl.idealMin,state,rng);
- if(ctrl.special==="regional"){let meta=metaCtx?metaCtx[ctrl.regionalKey]:null;if(meta==null)return 0;return genNumericForState(1,Math.max(1,Math.round(meta)),state,rng)}
- if(ctrl.getAmounts)return genAmountsForState(ctrl.idealAt,state,rng);
- return genNumericForState(ctrl.mudoBelow,ctrl.idealAt,state,rng);
-}
-function buildDemoRecord(a,formType,bn,day,hour,vals,seed){
- let created_at=`${day}T${String(Math.min(21,hour)).padStart(2,"0")}:00:00`;
- let folio=`DEMO-${formType==="Banco"?"BAN":"COM"}-${day.replaceAll("-","")}-${a.emp}-${seed}`;
- if(formType==="Banco"){
-  let cashAmounts=vals.cash?[vals.cash]:[];
-  let d={aff:vals.aff||0,port:vals.port||0,funds:vals.funds||0,guardCount:(vals.guard||[]).length,guardAmounts:vals.guard||[],somosCount:(vals.somos||[]).length,somosAmounts:vals.somos||[],invCount:(vals.inv||[]).length,invAmounts:vals.inv||[],cashAmounts,tazDelivered:vals.taz?vals.taz.d:0,tazActivated:vals.taz?vals.taz.a:0,captureDate:day};
-  return {folio,created_at,day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:d,status:"confirmed",demo:true};
- }
- let req=[vals.req_0||0,vals.req_1||0,vals.req_2||0];
- let srv=[Math.min(vals.srv_0||0,req[0]),Math.min(vals.srv_1||0,req[1]),Math.min(vals.srv_2||0,req[2])];
- let asArr=v=>v>0?[v]:[];
- let nw=[asArr(vals.nw_0),asArr(vals.nw_1),asArr(vals.nw_2)];
- let ina=[asArr(vals.ina_0),asArr(vals.ina_1),asArr(vals.ina_2)];
- let vda=[asArr(vals.vda_0),asArr(vals.vda_1),asArr(vals.vda_2)];
- let sum=x=>x.flat().reduce((s,n)=>s+n,0);
- let totals={requests:req.reduce((s,n)=>s+n,0),served:srv.reduce((s,n)=>s+n,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)};
- return {folio,created_at,day,week:isoWeek(dateFromKey(day)),emp:String(a.emp),advisor:a.name,branch:bn,data:{req,srv,nw,ina,vda,captureDate:day,totals},totals,status:"confirmed",demo:true};
-}
-function buildDemoCaptures(a,formType,wk){
- let bn=branchNum(a.branch),profile=advisorProfile(a.emp);
- let ctrls=formType==="Banco"?CONTROLES_BANCO:CONTROLES_COMERCIO;
- let metaCtx=null;
- if(formType==="Banco"){metaCtx=getMetaIndividualSemana(a,wk)}
- let states=decideControlStates(a.emp,formType,wk,profile);
- let values={};
- ctrls.forEach(c=>{values[c.key]=genControlValue(c,states[c.key],a.emp,formType,wk,metaCtx)});
- if(formType==="Comercio"){[0,1,2].forEach(i=>{values["srv_"+i]=Math.min(values["srv_"+i],values["req_"+i])})}
- let rngDays=makeRng(a.emp+"|"+formType+"|"+wk+"|days");
- let diasDisponibles=weekDaysElapsed(wk);
- let dayCountTarget=profile==="cumplidor"?5+rngDays()%3:profile==="ceros"?3+rngDays()%4:4+rngDays()%3;
- dayCountTarget=Math.max(1,Math.min(diasDisponibles,dayCountTarget));
- let days=weekDaysOf(wk),dayIdxs=[];for(let i=0;i<diasDisponibles;i++)dayIdxs.push(i);
- for(let i=dayIdxs.length-1;i>0;i--){let j=rngDays()%(i+1),t=dayIdxs[i];dayIdxs[i]=dayIdxs[j];dayIdxs[j]=t}
- let capturingIdxs=dayIdxs.slice(0,dayCountTarget).sort((x,y)=>x-y);
- let rngSub=makeRng(a.emp+"|"+formType+"|"+wk+"|subcount");
- let subcapsPerDay=capturingIdxs.map(()=>2+(rngSub()%2));
- let totalSub=subcapsPerDay.reduce((s,n)=>s+n,0);
- if(!totalSub)return [];
- let rngSplit=makeRng(a.emp+"|"+formType+"|"+wk+"|split");
- let perSub=Array.from({length:totalSub},()=>({}));
- ctrls.forEach(c=>{
-  if(c.special==="taz"){
-   let t=values[c.key]||{d:0,a:0};
-   splitInt(t.d,totalSub,rngSplit).forEach((p,i)=>{perSub[i].taz=perSub[i].taz||{d:0,a:0};perSub[i].taz.d=p});
-   splitInt(t.a,totalSub,rngSplit).forEach((p,i)=>{perSub[i].taz=perSub[i].taz||{d:0,a:0};perSub[i].taz.a=p});
-  } else if(c.getAmounts){
-   distributeList(values[c.key]||[],totalSub,rngSplit).forEach((b,i)=>perSub[i][c.key]=b);
-  } else {
-   splitInt(values[c.key]||0,totalSub,rngSplit).forEach((p,i)=>perSub[i][c.key]=p);
-  }
- });
- let recs=[],subIdx=0;
- capturingIdxs.forEach((dayIdx,di)=>{
-  let n=subcapsPerDay[di];
-  for(let k=0;k<n;k++){recs.push(buildDemoRecord(a,formType,bn,dayKey(days[dayIdx]),8+k*3,perSub[subIdx],subIdx));subIdx++}
- });
- return recs;
-}
-function purgeDemoData(){commerceCaptures=commerceCaptures.filter(c=>!c.demo);bankCaptures=bankCaptures.filter(c=>!c.demo)}
-function generateDemoData(){
- let weeks=lastNWeekKeys(6);
- let bankAdvisors=advisors.filter(a=>a.status==="Activo"&&PUESTOS_BANCO.includes(a.puesto));
- let commerceAdvisors=advisors.filter(a=>a.status==="Activo"&&PUESTOS_COMERCIO.includes(a.puesto)&&commerceBranchNums.has(branchNum(a.branch)));
- weeks.forEach(wk=>{
-  bankAdvisors.forEach(a=>{bankCaptures.push(...buildDemoCaptures(a,"Banco",wk))});
-  commerceAdvisors.forEach(a=>{commerceCaptures.push(...buildDemoCaptures(a,"Comercio",wk))});
- });
-}
-const DEMO_KEY="crm_demo_kpi_seed_v7";
-// seedDemoKpiData() ya NO se ejecuta sola: solo se dispara a mano desde
-// Administración > Registros ("Cargar datos demo"). Existe la función tal
-// cual, solo se quitó la llamada automática.
-function seedDemoKpiData(){
- if(localStorage.getItem(DEMO_KEY)==="1")return;
- purgeDemoData();
- generateDemoData();
- try{
-  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
-  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
-  localStorage.setItem(DEMO_KEY,"1");
- }catch(e){
-  console.error("No se pudieron guardar los datos DEMO en localStorage:",e);
-  alert("No se pudieron generar los datos de ejemplo (DEMO): el dispositivo se quedó sin espacio de almacenamiento. Esto no afecta tus capturas reales.");
- }
-}
-// ADMIN-ONLY: genera datos DEMO a petición — proteger cuando se agregue el login.
-function loadDemoDataManual(){
- localStorage.removeItem(DEMO_KEY);
- seedDemoKpiData();
- if(document.getElementById("adminTabBody"))renderAdministracion();
-}
-// ADMIN-ONLY: borra datos DEMO a petición — proteger cuando se agregue el login.
-function clearDemoDataManual(){
- purgeDemoData();
- try{
-  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
-  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
- }catch(e){
-  console.error("No se pudieron guardar los cambios al borrar datos DEMO:",e);
-  alert("No se pudo actualizar el almacenamiento al borrar los datos DEMO.");
- }
- localStorage.removeItem(DEMO_KEY);
- if(document.getElementById("adminTabBody"))renderAdministracion();
-}
-// Borra ahora mismo cualquier dato DEMO que ya estuviera guardado de antes
-// (cuando la generación automática todavía corría sola). No toca capturas
-// reales (sin demo:true).
-if(commerceCaptures.some(c=>c.demo)||bankCaptures.some(c=>c.demo)){
- purgeDemoData();
- try{
-  localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
-  localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
- }catch(e){console.error("No se pudieron guardar los cambios al borrar datos DEMO existentes:",e)}
-}
+// Borrado único de capturas de prueba (demo y reales de prueba) al desplegar
+// este cambio, para arrancar limpio antes de migrar a Supabase. No toca el
+// catálogo de asesores.
+bankCaptures=[];
+commerceCaptures=[];
+try{
+ localStorage.setItem("crm_bank_captures","[]");
+ localStorage.setItem("crm_commerce_captures","[]");
+}catch(e){console.error("No se pudo guardar el borrado de capturas de prueba:",e)}
 
 
 
@@ -926,7 +762,7 @@ let adminRecordsPage=1;
 function renderAdminRegistrosTab(){
  let rows=[...commerceRows(),...bankRows()],branchOpts=[...new Set(rows.map(r=>r.sucursal))].sort((a,b)=>Number(a)-Number(b));
  document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><h2 style="margin:0 0 4px">📋 Registros Banco + Comercio</h2><p>Consulta, exporta y modifica directamente los registros existentes.</p></div></div>
- <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados ${hasDemoData()?'· <span style="color:var(--amber);font-weight:800">📊 incluye datos DEMO</span>':''}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" onclick="loadDemoDataManual()">📊 Cargar datos demo (solo pruebas)</button><button class="btn secondary" onclick="clearDemoDataManual()">🗑️ Borrar datos demo</button><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div></div>
+ <div class="card"><div class="adminbar"><div><b id="recordCount">${rows.length}</b> registros encontrados</div><button class="btn primary" onclick="exportRecordsExcel()">⬇ Exportar archivo Excel</button></div>
  <div class="filtersbar"><div class="field"><label>Formulario</label><select id="rfType" onchange="refreshRecordTable(true)"><option value="">Todos</option><option>Banco</option><option>Comercio</option></select></div><div class="field"><label>Fecha</label><input type="date" id="rfDate" onchange="refreshRecordTable(true)"></div><div class="field"><label>Semana</label><input type="number" min="1" max="53" id="rfWeek" placeholder="Todas" oninput="refreshRecordTable(true)"></div><div class="field"><label>Sucursal</label><select id="rfBranch" onchange="refreshRecordTable(true)"><option value="">Todas</option>${branchOpts.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>Asesor / N.º empleado</label><input id="rfEmp" placeholder="Buscar..." oninput="refreshRecordTable(true)"></div></div>
  <div class="tablewrap"><table><thead><tr><th>Acción</th><th>Formulario</th><th>Folio</th><th>Fecha</th><th>Semana</th><th>Sucursal</th><th>N.º empleado</th><th>Asesor</th><th>Resumen</th><th>Registrado</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
  <div class="pager" id="recordsPager"></div></div>`;refreshRecordTable(true);
@@ -1038,7 +874,6 @@ function exportRecordsExcel(){
 }
 
 let ejec={form:"Banco",week:null,branch:"",advisorId:""};
-function hasDemoData(){return commerceCaptures.some(c=>c.demo)||bankCaptures.some(c=>c.demo)}
 function kpiCard(label,value,extra){return `<div class="kpicard"><small>${esc(label)}</small><b>${value}${extra?` ${extra}`:""}</b></div>`}
 function varBadge(v){
  if(v===null||v===undefined)return "";
@@ -1199,10 +1034,8 @@ function renderExecutiveSummary(){
 }
 function renderEjecView(){
  let body=ejec.advisorId?renderEjecAdvisorView():ejec.branch?renderEjecBranchView():renderEjecRegionView();
- let demoNote=hasDemoData()?`<div class="notice">📊 <b>Datos DEMO</b> — estos resultados incluyen capturas de ejemplo generadas automáticamente para ilustrar el reporte.</div>`:"";
  view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">PRODUCTIVIDAD SEMANAL</span><h1>📊 Resumen ejecutivo</h1><p>Asesores libres de "mudos" (rubros en cero) y en Ideal — ${esc(ejec.form)} · ${esc(weekLabel(ejec.week))}${isCurrentWeek(ejec.week)?" (semana en curso)":""}.</p></div></div>
  ${ejecPrintHeader()}
- ${demoNote}
  ${ejecFilterBar()}
  <div id="ejecBody">${body}</div>`;
 }
