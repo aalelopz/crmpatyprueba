@@ -135,11 +135,62 @@ table{width:100%;border-collapse:collapse}th,td{padding:13px 10px;border-bottom:
  <div id="error" style="color:#b84242;font-size:13px;margin-top:10px"></div>
  <div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveAdvisor()">Guardar</button></div>
 </div></div>
+<div id="bootOverlay" style="position:fixed;inset:0;background:#f5f6f3;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:Inter,ui-sans-serif,system-ui;font-weight:800;color:#173f32;font-size:16px">Cargando datos de Supabase…</div>
+<!-- Cliente de Supabase (opcional). Si esta carga falla (sin internet, CDN
+bloqueado, etc.) window.supabase simplemente no existe y el CRM sigue
+funcionando en modo local, sin ningún error visible para el usuario. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<!-- Configuración de Supabase (opcional). Si config.js no existe en este
+servidor, el navegador simplemente no puede cargarlo y el CRM sigue
+funcionando en modo local. Ver supabase/LEEME.md para activarlo. -->
+<script src="config.js"></script>
 <script>
 const branches=["2111 - EKT COMONFORT","4155 - EKT GTO SAN JOSE ITURBIDE","2083 - EKT GUANAJUATO SAN LUIS DE LA PAZ","2082 - EKT QUERETARO SATELITE","4183 - EKT SANTIAGO QUERETARO SANTA R","9510 - MEGA AV PENAFLOR QRO","6787 - MEGA JUVENTINO ROSAS","3105 - MEGA SAN JOSE DE ITURBIDE","1054 - MEGA SAN MIGUEL DE ALLENDE","708 - DAZ SAN DIEGO DE LA UNION","9846 - DAZ SAN LUIS DE LA PAZ"];
 const PUESTOS_BANCO=["BANCO"];
 const PUESTOS_COMERCIO=["COMERCIO"];
 const PUESTOS_ALL=[...PUESTOS_BANCO,...PUESTOS_COMERCIO];
+// ============================================================
+// Capa de datos: Supabase (si config.js está presente y completo) o
+// almacenamiento 100% local (comportamiento de siempre). Ver
+// supabase/LEEME.md. Nada de lo que sigue en este bloque cambia el
+// comportamiento cuando no hay config.js: usingSupabase() da false y
+// SB queda en null.
+// ============================================================
+const SB=(function(){
+ try{
+  const cfg=window.SUPABASE_CONFIG;
+  if(!cfg||!cfg.url||!cfg.anonKey)return null;
+  if(typeof window.supabase==="undefined"||typeof window.supabase.createClient!=="function")return null;
+  return window.supabase.createClient(cfg.url,cfg.anonKey);
+ }catch(e){console.error("No se pudo iniciar el cliente de Supabase:",e);return null}
+})();
+function usingSupabase(){return SB!==null}
+let adminSession=null;
+let savingInFlight=false;
+if(SB){
+ SB.auth.onAuthStateChange((_event,session)=>{adminSession=session});
+}else{
+ // Modo local: la pantalla de carga es solo para el arranque de Supabase.
+ let ov=document.getElementById("bootOverlay");
+ if(ov)ov.remove();
+}
+function showSavingIndicator(){
+ if(document.getElementById("savingIndicator"))return;
+ let el=document.createElement("div");
+ el.id="savingIndicator";el.textContent="Guardando…";
+ el.style.cssText="position:fixed;top:14px;right:14px;background:#173f32;color:#fff;padding:8px 16px;border-radius:8px;font-weight:800;z-index:99999;box-shadow:0 2px 10px rgba(0,0,0,.25)";
+ document.body.appendChild(el);
+}
+function hideSavingIndicator(){let el=document.getElementById("savingIndicator");if(el)el.remove()}
+function supabaseErrorText(err){return (err&&(err.message||err.error_description||err.hint))||"Error desconocido de conexión."}
+function showSupabaseSaveError(accion,err){
+ let msg=supabaseErrorText(err);
+ showStorageSaveError(
+  `<b>No se pudo ${accion}.</b> Hubo un problema al conectar con Supabase. Detalle: ${esc(msg)}. Tu información <b>NO se guardó</b>, por favor no cierres esta pantalla.`,
+  `No se pudo ${accion}.\n\nHubo un problema al conectar con Supabase.\nDetalle: ${msg}\n\nTu información NO se guardó. No cierres esta pantalla; vuelve a intentar guardar.`
+ );
+}
+function mapCapturaRow(row){if(!row)return row;const{tipo,...rest}=row;return rest}
 // ============================================================
 // METAS — mínimos semanales de productividad por control.
 // Edita únicamente los valores de este bloque para ajustar metas
@@ -251,36 +302,67 @@ function genAdvisorId(){return "adv-"+Date.now().toString(36)+Math.random().toSt
 // catálogo, otro esquema de "puesto") se impongan sobre el catálogo actual.
 // Sube este valor solo cuando cambies seedAdvisors de fondo otra vez.
 const SEED_VERSION="v2-101-asesores";
-let seedVersionStored=localStorage.getItem("crm_advisors_seed_version");
-let storedAdvisors=seedVersionStored===SEED_VERSION?JSON.parse(localStorage.getItem("crm_advisors")||"[]"):[];
-let seedByEmp=new Map(seedAdvisors.map(a=>[a.emp,a]));
-let byId=new Map(seedAdvisors.map(a=>[a.id,{...a}]));
-let usedSeedIds=new Set();
-storedAdvisors.forEach(x=>{
- let id=x.id;
- if(!id){
-  let seed=seedByEmp.get(x.emp);
-  id=(seed&&!usedSeedIds.has(seed.id))?seed.id:genAdvisorId();
+let advisors=[], editing=null;
+// Modo Supabase: el catálogo de asesores vive en la tabla asesores, no en
+// seedAdvisors/localStorage. Arranca vacío y se llena en bootstrapSupabase()
+// (más abajo) antes de mostrar cualquier pantalla. seedAdvisors solo se usa
+// como semilla del modo local de siempre (rama de abajo), intacta.
+if(!usingSupabase()){
+ let seedVersionStored=localStorage.getItem("crm_advisors_seed_version");
+ let storedAdvisors=seedVersionStored===SEED_VERSION?JSON.parse(localStorage.getItem("crm_advisors")||"[]"):[];
+ let seedByEmp=new Map(seedAdvisors.map(a=>[a.emp,a]));
+ let byId=new Map(seedAdvisors.map(a=>[a.id,{...a}]));
+ let usedSeedIds=new Set();
+ storedAdvisors.forEach(x=>{
+  let id=x.id;
+  if(!id){
+   let seed=seedByEmp.get(x.emp);
+   id=(seed&&!usedSeedIds.has(seed.id))?seed.id:genAdvisorId();
+  }
+  usedSeedIds.add(id);
+  let merged={...byId.get(id),...x,id};
+  if(!merged.puesto){let seed=seedByEmp.get(merged.emp);if(seed)merged.puesto=seed.puesto}
+  byId.set(id,merged);
+ });
+ advisors=Array.from(byId.values());
+ if(seedVersionStored!==SEED_VERSION){
+  localStorage.setItem("crm_advisors",JSON.stringify(advisors));
+  localStorage.setItem("crm_advisors_seed_version",SEED_VERSION);
  }
- usedSeedIds.add(id);
- let merged={...byId.get(id),...x,id};
- if(!merged.puesto){let seed=seedByEmp.get(merged.emp);if(seed)merged.puesto=seed.puesto}
- byId.set(id,merged);
-});
-let advisors=Array.from(byId.values()), editing=null;
-if(seedVersionStored!==SEED_VERSION){
  localStorage.setItem("crm_advisors",JSON.stringify(advisors));
- localStorage.setItem("crm_advisors_seed_version",SEED_VERSION);
 }
-localStorage.setItem("crm_advisors",JSON.stringify(advisors));
 const view=document.getElementById("view"), topTitle=document.getElementById("topTitle");
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function nav(page){document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page)); if(page==="avance") renderAdvance(); if(page==="resumen") renderExecutiveSummary(); if(page==="administracion") renderAdministracion();}
 
 const commerceBranchNums=new Set(["1054","2082","2083","2111","3105","4155","4183","6787","9510"]);
 let advance={branch:null,advisor:null,type:null};
-let commerceCaptures=JSON.parse(localStorage.getItem("crm_commerce_captures")||"[]");
-let bankCaptures=JSON.parse(localStorage.getItem("crm_bank_captures")||"[]");
+// Igual que advisors arriba: en modo Supabase estos arrancan vacíos y se
+// llenan en bootstrapSupabase(); en modo local, exactamente como antes.
+let commerceCaptures=usingSupabase()?[]:JSON.parse(localStorage.getItem("crm_commerce_captures")||"[]");
+let bankCaptures=usingSupabase()?[]:JSON.parse(localStorage.getItem("crm_bank_captures")||"[]");
+async function bootstrapSupabase(){
+ let overlay=document.getElementById("bootOverlay");
+ try{
+  const[{data:asesoresData,error:e1},{data:bankData,error:e2},{data:comData,error:e3},{data:sessionData}]=await Promise.all([
+   SB.rpc("asesores_publico"),
+   SB.rpc("capturas_resumen",{p_tipo:"Banco"}),
+   SB.rpc("capturas_resumen",{p_tipo:"Comercio"}),
+   SB.auth.getSession()
+  ]);
+  if(e1)throw e1;if(e2)throw e2;if(e3)throw e3;
+  advisors=asesoresData||[];
+  bankCaptures=(bankData||[]).map(mapCapturaRow);
+  commerceCaptures=(comData||[]).map(mapCapturaRow);
+  adminSession=sessionData?.session||null;
+ }catch(err){
+  if(overlay)overlay.innerHTML=`<div style="max-width:520px;text-align:center;padding:24px"><div style="font-size:32px;margin-bottom:10px">⛔</div><div>No se pudo conectar con Supabase.</div><div style="font-weight:500;font-size:13px;margin-top:10px;color:#697267">${esc(supabaseErrorText(err))}</div><div style="font-weight:500;font-size:13px;margin-top:10px;color:#697267">Revisa supabase/LEEME.md o los valores en config.js, y recarga la página.</div></div>`;
+  return;
+ }
+ if(overlay)overlay.remove();
+ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));
+ nav("avance");
+}
 
 function isoYear(d=new Date()){
  const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
@@ -607,7 +689,23 @@ function showStorageSaveError(htmlMessage,plainMessage){
  if(view.firstChild)view.insertBefore(banner,view.firstChild);else view.appendChild(banner);
  alert(plainMessage);
 }
-function saveCommerce(){
+async function saveCommerce(){
+ if(savingInFlight)return;
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   let captureDay=advance.draft.captureDate;
+   const{data,error}=await SB.rpc("crear_captura",{p_tipo:"Comercio",p_emp:advance.advisor.emp,p_advisor:advance.advisor.name,p_branch:branchNum(advance.branch),p_day:captureDay,p_data:advance.draft});
+   if(error)throw error;
+   commerceCaptures.push(mapCapturaRow(data));
+   view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance registrado!</h1><p>Tu información se agregó correctamente al acumulado de hoy.</p><span class="folio">Folio: ${esc(data.folio)}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openCommerce()">Agregar otro avance</button></div></div>`;
+  }catch(err){
+   showSupabaseSaveError("guardar tu captura",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
  let now=new Date(),seq=commerceCaptures.length+1,folio=`COM-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`;
  let captureDay=advance.draft.captureDate, captureDateObj=dateFromKey(captureDay);
  commerceCaptures.push({folio,created_at:now.toISOString(),day:captureDay,week:isoWeek(captureDateObj),emp:advance.advisor.emp,advisor:advance.advisor.name,branch:branchNum(advance.branch),data:advance.draft,totals:advance.draft.totals,status:"confirmed"});
@@ -708,8 +806,24 @@ function reviewBank(){
  <tr><td>TAZ</td><td>${d.tazDelivered} entregadas · ${d.tazActivated} activadas</td><td>—</td></tr></tbody></table></div>
  <div class="actions"><button class="btn secondary" onclick="openBankWithDate('${d.captureDate}')">Cancelar</button><button class="btn primary" onclick="saveBank()">Confirmar y guardar</button></div></div>`;
 }
-function saveBank(){
- let now=new Date(),seq=bankCaptures.length+1,folio=`BAN-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`,d=advance.draft;
+async function saveBank(){
+ if(savingInFlight)return;
+ let d=advance.draft;
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   const{data,error}=await SB.rpc("crear_captura",{p_tipo:"Banco",p_emp:advance.advisor.emp,p_advisor:advance.advisor.name,p_branch:branchNum(advance.branch),p_day:d.captureDate,p_data:d});
+   if(error)throw error;
+   bankCaptures.push(mapCapturaRow(data));
+   view.innerHTML=`<div class="card success"><div class="big">✅</div><h1>¡Avance de Banco registrado!</h1><p>La captura se agregó al acumulado de la fecha seleccionada.</p><span class="folio">Folio: ${esc(data.folio)}</span><div class="actions" style="justify-content:center"><button class="btn primary" onclick="openBank()">Agregar otro avance</button></div></div>`;
+  }catch(err){
+   showSupabaseSaveError("guardar tu captura",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
+ let now=new Date(),seq=bankCaptures.length+1,folio=`BAN-${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getFullYear()).slice(-2)}-${String(seq).padStart(4,"0")}`;
  bankCaptures.push({folio,created_at:now.toISOString(),day:d.captureDate,week:isoWeek(dateFromKey(d.captureDate)),emp:advance.advisor.emp,advisor:advance.advisor.name,branch:branchNum(advance.branch),data:d,status:"confirmed"});
  try{
   localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
@@ -726,13 +840,16 @@ function saveBank(){
 
 
 // ============================================================
-// TEMPORAL: sin protección. Pendiente agregar login de administrador
-// (ver Fase Supabase) antes de publicar.
+// En modo local (sin config.js) Administración sigue sin login, igual
+// que siempre. En modo Supabase, exige haber iniciado sesión como
+// administrador (ver renderAdminLogin/adminLogin más abajo); las
+// escrituras además quedan protegidas server-side por is_admin().
 // ============================================================
 let adminTab="asesores";
 function renderAdministracion(){
  topTitle.textContent="Administración";
- view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>🛠️ Administración</h1><p>Gestión de asesores y de los registros de Banco y Comercio.</p></div></div>
+ if(usingSupabase()&&!adminSession){renderAdminLogin();return}
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>🛠️ Administración</h1><p>Gestión de asesores y de los registros de Banco y Comercio.</p></div>${usingSupabase()?`<div style="display:flex;align-items:center;gap:10px"><span class="dashnote">Sesión: ${esc(adminSession.user.email)}</span><button class="btn secondary" onclick="adminLogout()">Cerrar sesión</button></div>`:""}</div>
  <div class="admintabs">
   <button class="admintab${adminTab==="asesores"?" active":""}" onclick="switchAdminTab('asesores')">👥 Asesores</button>
   <button class="admintab${adminTab==="registros"?" active":""}" onclick="switchAdminTab('registros')">📋 Registros</button>
@@ -741,6 +858,33 @@ function renderAdministracion(){
  if(adminTab==="asesores")renderAdminAsesoresTab();else renderAdminRegistrosTab();
 }
 function switchAdminTab(tab){adminTab=tab;renderAdministracion()}
+function renderAdminLogin(){
+ topTitle.textContent="Administración";
+ view.innerHTML=`<div class="pagehead"><div><span class="sectionmark">ADMINISTRACIÓN</span><h1>🛠️ Administración</h1><p>Inicia sesión como administrador para gestionar asesores y registros.</p></div></div>
+ <div class="card" style="max-width:420px"><h2 style="margin-top:0">Iniciar sesión</h2>
+ <div class="field"><label>Correo</label><input type="email" id="adminEmail" placeholder="admin@ejemplo.com"></div>
+ <div class="field" style="margin-top:10px"><label>Contraseña</label><input type="password" id="adminPassword" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+ <div id="adminLoginError" style="color:#b3261e;font-weight:800;margin-top:8px"></div>
+ <div class="actions"><button class="btn primary" onclick="adminLogin()">Entrar</button></div></div>`;
+}
+async function adminLogin(){
+ let email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value,err=document.getElementById("adminLoginError");
+ err.textContent="";
+ if(!email||!password){err.textContent="Captura correo y contraseña.";return}
+ try{
+  const{data,error}=await SB.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  adminSession=data.session;
+  renderAdministracion();
+ }catch(e){
+  err.textContent="No se pudo iniciar sesión: correo o contraseña incorrectos.";
+ }
+}
+async function adminLogout(){
+ try{await SB.auth.signOut()}catch(e){}
+ adminSession=null;
+ renderAdministracion();
+}
 function getEffectiveCapture(c){return {data:c.data,totals:c.totals}}
 
 function commerceRows(){
@@ -785,15 +929,34 @@ function editCommerceRecord(folio){
  view.innerHTML=`<div class="pagehead"><div><h1>Editar registro — Comercio</h1><p>${folio} · ${esc(c.advisor)} · Sucursal ${c.branch}</p></div><button class="btn secondary" onclick="renderAdministracion()">← Cancelar</button></div><div class="card"><div class="infohead"><div class="infoitem"><small>Fecha</small><input type="date" id="erDate" value="${c.day}"></div></div>
  <h3>Solicitudes levantadas</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_req_${i}" value="${d.req[i]}"></div>`).join("")}</div><h3>Clientes nuevos surtidos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input type="number" min="0" id="er_srv_${i}" value="${d.srv[i]}"></div>`).join("")}</div><h3>Clientes nuevos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_nw_${i}" value="${esc(list("nw",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>Clientes inactivos</h3><div class="three">${names.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_ina_${i}" value="${esc(list("ina",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><h3>VDA</h3><div class="three">${vnames.map((n,i)=>`<div class="field"><label>${n}</label><input id="er_vda_${i}" value="${esc(list("vda",i))}" oninput="sanitizeMoneyListLive(this)"></div>`).join("")}</div><div class="actions"><button class="btn primary" onclick="saveCommerceRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
-// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
-function saveCommerceRecordEdit(folio){
+// ADMIN-ONLY: editar un registro. En modo local sigue sin protección propia
+// (igual que siempre); en modo Supabase, actualizar_captura() exige sesión
+// de administrador (is_admin()) del lado del servidor.
+async function saveCommerceRecordEdit(folio){
+ if(savingInFlight)return;
  let c=commerceCaptures.find(x=>x.folio===folio); if(!c) return;
  let counts=g=>[0,1,2].map(i=>Math.max(0,Math.trunc(Number(document.getElementById(`er_${g}_${i}`).value)||0)));
  let amounts=g=>[0,1,2].map(i=>parseAmounts(document.getElementById(`er_${g}_${i}`).value));
  let req=counts("req"),srv=counts("srv"),nw=amounts("nw"),ina=amounts("ina"),vda=amounts("vda");
  let sum=a=>a.flat().reduce((s,n)=>s+n,0),newDay=document.getElementById("erDate").value||c.day;
+ let newData={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   const{data,error}=await SB.rpc("actualizar_captura",{p_folio:folio,p_tipo:"Comercio",p_day:newDay,p_data:newData});
+   if(error)throw error;
+   let idx=commerceCaptures.findIndex(x=>x.folio===folio);
+   if(idx>=0)commerceCaptures[idx]=mapCapturaRow(data);
+   renderAdministracion();
+  }catch(err){
+   showSupabaseSaveError("guardar los cambios",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
  let prevDay=c.day,prevWeek=c.week,prevData=c.data,prevTotals=c.totals,prevModified=c.admin_modified_at;
- c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data={...c.data,req,srv,nw,ina,vda,captureDate:newDay,totals:{requests:req.reduce((a,b)=>a+b,0),served:srv.reduce((a,b)=>a+b,0),newAmt:sum(nw),inactiveAmt:sum(ina),vda:sum(vda)}};c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();
+ c.day=newDay;c.week=isoWeek(dateFromKey(newDay));c.data=newData;c.totals=c.data.totals;c.admin_modified_at=new Date().toISOString();
  try{
   localStorage.setItem("crm_commerce_captures",JSON.stringify(commerceCaptures));
  }catch(e){
@@ -818,8 +981,11 @@ function editBankRecord(folio){
  <h3>💳 TAZ</h3><div class="three"><div class="field"><label>Entregadas</label><input type="number" min="0" id="ebrTazD" value="${d.tazDelivered}"></div><div class="field"><label>Activadas</label><input type="number" min="0" id="ebrTazA" value="${d.tazActivated}"></div></div><div class="actions"><button class="btn primary" onclick="saveBankRecordEdit('${folio}')">Guardar cambios</button></div></div>`;
 }
 function adminBankPair(title,p,count,amounts){return `<h3>${title}</h3><div class="three"><div class="field"><label>Número</label><input type="number" min="0" id="ebr_${p}_count" value="${count}"></div><div class="field"><label>Montos individuales</label><input id="ebr_${p}_amounts" value="${esc(amounts||"0")}" oninput="sanitizeMoneyListLive(this)"><small>Debe coincidir exactamente con el número. Solo números enteros (sin decimales).</small></div></div>`}
-// ADMIN-ONLY: editar un registro — proteger cuando se agregue el login.
-function saveBankRecordEdit(folio){
+// ADMIN-ONLY: editar un registro. En modo local sigue sin protección propia
+// (igual que siempre); en modo Supabase, actualizar_captura() exige sesión
+// de administrador (is_admin()) del lado del servidor.
+async function saveBankRecordEdit(folio){
+ if(savingInFlight)return;
  let c=bankCaptures.find(x=>x.folio===folio); if(!c) return;
  let intv=id=>Math.max(0,Math.trunc(Number(document.getElementById(id).value)||0));
  let amts=id=>parseAmountsKeepZero(document.getElementById(id).value);
@@ -828,8 +994,24 @@ function saveBankRecordEdit(folio){
  if(d.guardAmounts.length!==d.guardCount||d.somosAmounts.length!==d.somosCount||d.invAmounts.length!==d.invCount){alert("Guardadito, Somos e Inversiones deben tener exactamente un monto por cada operación.");return}
  if(d.tazActivated>d.tazDelivered){alert("Las TAZ activadas no pueden ser mayores que las entregadas.");return}
  let day=document.getElementById("ebrDate").value||c.day;
+ d.captureDate=day;
+ if(usingSupabase()){
+  savingInFlight=true;showSavingIndicator();
+  try{
+   const{data,error}=await SB.rpc("actualizar_captura",{p_folio:folio,p_tipo:"Banco",p_day:day,p_data:d});
+   if(error)throw error;
+   let idx=bankCaptures.findIndex(x=>x.folio===folio);
+   if(idx>=0)bankCaptures[idx]=mapCapturaRow(data);
+   renderAdministracion();
+  }catch(err){
+   showSupabaseSaveError("guardar los cambios",err);
+  }finally{
+   savingInFlight=false;hideSavingIndicator();
+  }
+  return;
+ }
  let prevDay=c.day,prevWeek=c.week,prevData=c.data,prevModified=c.admin_modified_at;
- d.captureDate=day;c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();
+ c.day=day;c.week=isoWeek(dateFromKey(day));c.data=d;c.admin_modified_at=new Date().toISOString();
  try{
   localStorage.setItem("crm_bank_captures",JSON.stringify(bankCaptures));
  }catch(e){
@@ -1202,26 +1384,142 @@ function renderEjecAdvisorView(){
  <div class="chartcard"><h3>📋 Indicación sugerida</h3><div class="indicrow"><div>${esc(indicacion)}</div><button class="btn secondary" onclick='ejecCopyText(this,${JSON.stringify(indicacion)})'>Copiar</button></div></div>`;
 }
 function placeholder(title,sub,icon,msg){topTitle.textContent=title;view.innerHTML=`<div class="pagehead"><div><h1>${title}</h1><p>${sub}</p></div></div><div class="card placeholder"><div><div class="icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div></div>`}
-function renderAdminAsesoresTab(){document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h2 style="margin:6px 0 4px">Asesores</h2><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
+function renderAdminAsesoresTab(){document.getElementById("adminTabBody").innerHTML=`<div class="pagehead"><div><span class="sectionmark">GRUPO ELEKTRA · BANCO AZTECA</span><h2 style="margin:6px 0 4px">Asesores</h2><p>Administra los asesores de las 11 sucursales de la región. <b><span id="advisorCount"></span> asesores cargados.</b></p></div><button class="btn primary" onclick="openModal()">+ Nuevo asesor</button></div><div class="card"><div class="filters"><input id="q" placeholder="Buscar por nombre o número de empleado" oninput="drawRows()"><select id="fb" onchange="drawRows()"><option value="">Todas las sucursales</option>${branches.map(x=>`<option>${x}</option>`).join("")}</select><select id="fs" onchange="drawRows()"><option value="">Todas las actividades</option><option>Activo</option><option>Vacaciones</option><option>Incapacidad</option></select></div><div id="rows"></div></div>${csvImportSection()}`;document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;drawRows()}
+// Importación masiva de asesores desde CSV (solo modo Supabase, con sesión
+// de administrador activa). No aplica en modo local: seedAdvisors ya cubre
+// ese caso. Usa el mismo formato de columnas que asesores_final_101.csv
+// (emp, name, branch, puesto). Los ya existentes (mismo emp) se actualizan
+// en name/branch/puesto sin tocar su estatus ni sus fechas de baja/alta.
+function csvImportSection(){
+ if(!usingSupabase()||!adminSession)return "";
+ return `<div class="card"><h3 style="margin-top:0">📥 Importar asesores desde CSV</h3><p class="dashnote">Sube un archivo CSV con columnas <b>emp, name, branch, puesto</b> (mismas columnas que asesores_final_101.csv). Los asesores con un número de empleado ya existente se actualizan; los nuevos se agregan. No se modifica el estatus (Activo/Baja) de asesores ya existentes.</p><input type="file" id="csvImportFile" accept=".csv"><div class="actions"><button class="btn primary" onclick="importAdvisorsCsv()">Importar</button></div><div id="csvImportResult" style="margin-top:10px;font-weight:700"></div></div>`;
+}
+async function importAdvisorsCsv(){
+ let fileInput=document.getElementById("csvImportFile"),resultEl=document.getElementById("csvImportResult");
+ let file=fileInput.files[0];
+ if(!file){resultEl.textContent="Selecciona un archivo CSV primero.";return}
+ resultEl.textContent="Leyendo archivo…";
+ try{
+  let text=await file.text();
+  let rows=parseAdvisorsCsv(text);
+  if(!rows.length){resultEl.textContent="No se encontraron filas válidas en el archivo.";return}
+  resultEl.textContent=`Importando ${rows.length} asesores…`;
+  const{error}=await SB.from("asesores").upsert(rows,{onConflict:"emp"});
+  if(error)throw error;
+  const{data:refreshed,error:e2}=await SB.rpc("asesores_publico");
+  if(e2)throw e2;
+  advisors=refreshed||[];
+  document.getElementById("advisorCount").textContent=advisors.filter(x=>x.status!=="Baja").length;
+  drawRows();
+  resultEl.textContent=`✅ Importación completa: ${rows.length} asesores procesados.`;
+ }catch(err){
+  resultEl.textContent="⛔ Error al importar: "+supabaseErrorText(err);
+ }
+}
+function parseAdvisorsCsv(text){
+ let lines=text.split(/\r\n|\n|\r/).filter(l=>l.trim()!=="");
+ if(!lines.length)return [];
+ let headerCells=splitCsvLine(lines[0]).map(h=>h.trim().toLowerCase().replace(/^﻿/,""));
+ let idx=name=>headerCells.indexOf(name);
+ let iEmp=idx("emp"),iName=idx("name")>=0?idx("name"):idx("nombre"),iBranch=idx("branch")>=0?idx("branch"):idx("sucursal"),iPuesto=idx("puesto");
+ if(iEmp<0||iName<0||iBranch<0||iPuesto<0)throw new Error("El CSV debe tener columnas emp, name, branch y puesto.");
+ let now=new Date().toISOString();
+ return lines.slice(1).map(splitCsvLine).filter(c=>c[iEmp]&&c[iEmp].trim()).map(c=>({emp:c[iEmp].trim(),name:c[iName].trim(),branch:c[iBranch].trim(),puesto:(c[iPuesto]||"").trim().toUpperCase()||null,created_at:now,updated_at:now}));
+}
+function splitCsvLine(line){
+ let cells=[],cur="",inQ=false;
+ for(let i=0;i<line.length;i++){
+  let ch=line[i];
+  if(inQ){ if(ch==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else inQ=false; } else cur+=ch; }
+  else{ if(ch==='"')inQ=true; else if(ch===','){cells.push(cur);cur="";} else cur+=ch; }
+ }
+ cells.push(cur);
+ return cells;
+}
 function drawRows(){let q=(document.getElementById("q")?.value||"").toLowerCase(),fb=document.getElementById("fb")?.value||"",fs=document.getElementById("fs")?.value||"";let a=advisors.filter(x=>x.status!=="Baja"&&(x.name.toLowerCase().includes(q)||x.emp.includes(q))&&(!fb||x.branch===fb)&&(!fs||x.status===fs));document.getElementById("rows").innerHTML=a.length?`<table><thead><tr><th>N.º empleado</th><th>Nombre</th><th>Puesto</th><th>Sucursal</th><th>Actividad</th><th></th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc(x.emp)}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.puesto||"Sin puesto asignado")}</td><td>${esc(x.branch)}</td><td><span class="badge ${x.status.toLowerCase()}">${x.status}</span></td><td><button class="linkbtn" onclick="openModal('${esc(x.id)}')">Editar</button></td></tr>`).join("")}</tbody></table>`:`<div style="padding:36px;text-align:center;color:#6f7b91">No hay asesores para mostrar. Usa <b>+ Nuevo asesor</b> para comenzar.</div>`}
-// ADMIN-ONLY: dar de baja / cambiar estatus — proteger cuando se agregue el login.
-function deactivateAdvisor(id){
+// ADMIN-ONLY: dar de baja / cambiar estatus. En modo local sigue sin
+// protección propia (igual que siempre); en modo Supabase, la política de
+// RLS de UPDATE en asesores exige is_admin() (sesión de administrador).
+async function deactivateAdvisor(id){
  const a=advisors.find(x=>x.id===id); if(!a)return;
  if(!confirm(`¿Dar de baja a ${a.name}?\n\nEl asesor dejará de estar disponible para nuevas capturas. Su información e historial se conservarán.`))return;
- a.status="Baja"; a.deactivated_at=new Date().toISOString(); a.deactivated_by="Administrador"; a.updated_at=new Date().toISOString();
+ let fields={status:"Baja",deactivated_at:new Date().toISOString(),deactivated_by:"Administrador",updated_at:new Date().toISOString()};
+ if(usingSupabase()){
+  showSavingIndicator();
+  try{
+   const{data,error}=await SB.from("asesores").update(fields).eq("id",id).select().single();
+   if(error)throw error;
+   Object.assign(a,data);
+  }catch(err){
+   alert("No se pudo dar de baja al asesor: "+supabaseErrorText(err));
+  }finally{
+   hideSavingIndicator();
+  }
+  drawRows();return;
+ }
+ Object.assign(a,fields);
  localStorage.setItem("crm_advisors",JSON.stringify(advisors)); drawRows();
 }
-// ADMIN-ONLY: reactivar / cambiar estatus — proteger cuando se agregue el login.
-function reactivateAdvisor(id){
+// ADMIN-ONLY: reactivar / cambiar estatus. Mismo esquema que deactivateAdvisor.
+async function reactivateAdvisor(id){
  const a=advisors.find(x=>x.id===id); if(!a)return;
  if(!confirm(`¿Reactivar a ${a.name}?\n\nSu actividad volverá a Activo.`))return;
- a.status="Activo"; a.reactivated_at=new Date().toISOString(); a.reactivated_by="Administrador"; a.updated_at=new Date().toISOString();
+ let fields={status:"Activo",reactivated_at:new Date().toISOString(),reactivated_by:"Administrador",updated_at:new Date().toISOString()};
+ if(usingSupabase()){
+  showSavingIndicator();
+  try{
+   const{data,error}=await SB.from("asesores").update(fields).eq("id",id).select().single();
+   if(error)throw error;
+   Object.assign(a,data);
+  }catch(err){
+   alert("No se pudo reactivar al asesor: "+supabaseErrorText(err));
+  }finally{
+   hideSavingIndicator();
+  }
+  drawRows();return;
+ }
+ Object.assign(a,fields);
  localStorage.setItem("crm_advisors",JSON.stringify(advisors)); drawRows();
 }
 function openModal(id){editing=id||null;document.getElementById("branch").innerHTML=branches.map(x=>`<option>${x}</option>`).join("");document.getElementById("puesto").innerHTML=`<option value="">Sin puesto asignado</option>`+PUESTOS_ALL.map(p=>`<option>${esc(p)}</option>`).join("");document.getElementById("modalTitle").textContent=editing?"Editar asesor":"Nuevo asesor";let a=advisors.find(x=>x.id===editing);document.getElementById("emp").value=a?.emp||"";document.getElementById("name").value=a?.name||"";document.getElementById("branch").value=a?.branch||branches[0];document.getElementById("status").value=a?.status||"Activo";document.getElementById("puesto").value=a?.puesto||"";document.getElementById("error").textContent="";document.getElementById("modalbg").classList.add("open")}
 function closeModal(){document.getElementById("modalbg").classList.remove("open")}
-// ADMIN-ONLY: alta / edición / cambio de estatus de asesor — proteger cuando se agregue el login.
-function saveAdvisor(){let emp=document.getElementById("emp").value.trim(),name=document.getElementById("name").value.trim(),branch=document.getElementById("branch").value,status=document.getElementById("status").value,puesto=document.getElementById("puesto").value,err=document.getElementById("error");if(!/^\d+$/.test(emp)||!name){err.textContent="Captura un número de empleado válido y el nombre completo.";return}if(!editing&&!puesto){err.textContent="Selecciona un puesto para el nuevo asesor.";return}if(editing){let i=advisors.findIndex(x=>x.id===editing);advisors[i]={...advisors[i],emp,name,branch,status,puesto,updated_at:new Date().toISOString()}}else advisors.push({id:genAdvisorId(),emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});localStorage.setItem("crm_advisors",JSON.stringify(advisors));closeModal();renderAdminAsesoresTab()}
-document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));nav("avance");
+// ADMIN-ONLY: alta / edición / cambio de estatus de asesor. En modo local
+// sigue sin protección propia (igual que siempre); en modo Supabase, las
+// políticas de RLS de insert/update en asesores exigen is_admin().
+async function saveAdvisor(){
+ let emp=document.getElementById("emp").value.trim(),name=document.getElementById("name").value.trim(),branch=document.getElementById("branch").value,status=document.getElementById("status").value,puesto=document.getElementById("puesto").value,err=document.getElementById("error");
+ if(!/^\d+$/.test(emp)||!name){err.textContent="Captura un número de empleado válido y el nombre completo.";return}
+ if(!editing&&!puesto){err.textContent="Selecciona un puesto para el nuevo asesor.";return}
+ if(usingSupabase()){
+  showSavingIndicator();
+  try{
+   if(editing){
+    const{data,error}=await SB.from("asesores").update({emp,name,branch,status,puesto,updated_at:new Date().toISOString()}).eq("id",editing).select().single();
+    if(error)throw error;
+    let i=advisors.findIndex(x=>x.id===editing);
+    if(i>=0)advisors[i]=data;else advisors.push(data);
+   }else{
+    const{data,error}=await SB.from("asesores").insert({emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()}).select().single();
+    if(error)throw error;
+    advisors.push(data);
+   }
+  }catch(e){
+   err.textContent="No se pudo guardar el asesor en Supabase: "+supabaseErrorText(e);
+   hideSavingIndicator();
+   return;
+  }
+  hideSavingIndicator();
+  closeModal();renderAdminAsesoresTab();
+  return;
+ }
+ if(editing){let i=advisors.findIndex(x=>x.id===editing);advisors[i]={...advisors[i],emp,name,branch,status,puesto,updated_at:new Date().toISOString()}}else advisors.push({id:genAdvisorId(),emp,name,branch,status,puesto,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+ localStorage.setItem("crm_advisors",JSON.stringify(advisors));closeModal();renderAdminAsesoresTab();
+}
+if(usingSupabase()){
+ bootstrapSupabase();
+}else{
+ document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>nav(b.dataset.page));
+ nav("avance");
+}
 </script>
 </body></html>
